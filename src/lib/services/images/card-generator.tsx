@@ -1,6 +1,4 @@
-import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
-import { readFile } from "fs/promises";
+import sharp from "sharp";
 import type { WrappedStats } from "../../types";
 import path from "path";
 
@@ -8,11 +6,6 @@ interface CardOptions {
   stats: WrappedStats;
   backgroundPath: string;
   cardType: string;
-}
-
-async function loadFont(): Promise<ArrayBuffer> {
-  const response = await fetch("https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf");
-  return response.arrayBuffer();
 }
 
 function getCardTitle(type: string): string {
@@ -36,187 +29,82 @@ export async function generateCardImage(
   backgroundPath: string,
   cardType: string
 ): Promise<Buffer> {
-  const backgroundBuffer = await readFile(backgroundPath);
-  const backgroundBase64 = `data:image/png;base64,${backgroundBuffer.toString("base64")}`;
-  
   const width = 1080;
   const height = 1920;
-  const fontData = await loadFont();
 
   const title = getCardTitle(cardType);
   const subtitle = `${stats.profile.title || ""} ${stats.username}`.trim();
   const ratingChange = stats.ratings.history[0]?.change || 0;
   const changePrefix = ratingChange >= 0 ? "+" : "";
+  const primaryColor = "rgba(255, 255, 255, 0.95)";
+  const accentColor = "#FFFFFF";
 
-  const element = (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-        backgroundImage: `url(${backgroundBase64})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        fontFamily: "Inter",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          padding: "60px 50px",
-          height: "100%",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          <span
-            style={{
-              fontSize: "48px",
-              fontWeight: 700,
-              color: "#FFFFFF",
-              textShadow: "0 2px 10px rgba(0,0,0,0.5)",
-              letterSpacing: "2px",
-            }}
-          >
-            {title}
-          </span>
-          <span
-            style={{
-              fontSize: "32px",
-              color: "rgba(255,255,255,0.8)",
-              fontWeight: 500,
-            }}
-          >
-            {subtitle}
-          </span>
-        </div>
+  const svg = `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="overlay" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:rgba(0,0,0,0.3);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgba(0,0,0,0.5);stop-opacity:1" />
+        </linearGradient>
+        <filter id="blur">
+          <feGaussianBlur stdDeviation="3" />
+        </filter>
+      </defs>
+      
+      <style>
+        .title { font: bold 56px Inter, sans-serif; fill: white; letter-spacing: 3px; }
+        .subtitle { font: 36px Inter, sans-serif; fill: rgba(255,255,255,0.85); }
+        .stat-label { font: 32px Inter, sans-serif; fill: rgba(255,255,255,0.9); }
+        .stat-value { font: bold 42px Inter, sans-serif; fill: white; }
+        .footer { font: 28px Inter, sans-serif; fill: rgba(255,255,255,0.7); }
+        .stat-row-bg { fill: rgba(0,0,0,0.35); rx: 20; }
+      </style>
+      
+      <image href="${backgroundPath}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice" />
+      <rect width="${width}" height="${height}" fill="url(#overlay)" />
+      
+      <g transform="translate(60, 80)">
+        <text x="0" y="0" class="title">${title}</text>
+        <text x="0" y="60" class="subtitle">${subtitle}</text>
+      </g>
+      
+      <g transform="translate(60, 350)">
+        <rect x="0" y="0" width="960" height="120" class="stat-row-bg" />
+        <text x="40" y="75" class="stat-label">Games Played</text>
+        <text x="920" y="75" class="stat-value" text-anchor="end">${stats.summary.totalGames.toLocaleString()}</text>
+        
+        <rect x="0" y="140" width="960" height="120" class="stat-row-bg" />
+        <text x="40" y="215" class="stat-label">Wins</text>
+        <text x="920" y="215" class="stat-value" text-anchor="end">${stats.summary.totalWins.toLocaleString()}</text>
+        
+        <rect x="0" y="280" width="960" height="120" class="stat-row-bg" />
+        <text x="40" y="355" class="stat-label">Win Rate</text>
+        <text x="920" y="355" class="stat-value" text-anchor="end">${stats.summary.overallWinRate.toFixed(1)}%</text>
+        
+        <rect x="0" y="420" width="960" height="120" class="stat-row-bg" />
+        <text x="40" y="495" class="stat-label">Most Played</text>
+        <text x="920" y="495" class="stat-value" text-anchor="end">${stats.summary.mostPlayedFormat.toUpperCase()}</text>
+        
+        <rect x="0" y="560" width="960" height="120" class="stat-row-bg" />
+        <text x="40" y="635" class="stat-label">Rating Change</text>
+        <text x="920" y="635" class="stat-value" text-anchor="end">${changePrefix}${ratingChange}</text>
+      </g>
+      
+      <g transform="translate(60, 1720)">
+        <line x1="0" y1="0" x2="960" y2="0" stroke="rgba(255,255,255,0.2)" stroke-width="3" />
+        <text x="0" y="60" class="footer">chessiro.ai</text>
+        <text x="960" y="60" class="footer" text-anchor="end">2025</text>
+      </g>
+    </svg>
+  `;
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flex: 1,
-            justifyContent: "center",
-            gap: "40px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "20px 30px",
-              background: "rgba(0,0,0,0.3)",
-              borderRadius: "16px",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <span style={{ fontSize: "28px", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Games Played</span>
-            <span style={{ fontSize: "36px", color: "#FFFFFF", fontWeight: 700 }}>{stats.summary.totalGames.toLocaleString()}</span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "20px 30px",
-              background: "rgba(0,0,0,0.3)",
-              borderRadius: "16px",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <span style={{ fontSize: "28px", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Wins</span>
-            <span style={{ fontSize: "36px", color: "#FFFFFF", fontWeight: 700 }}>{stats.summary.totalWins.toLocaleString()}</span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "20px 30px",
-              background: "rgba(0,0,0,0.3)",
-              borderRadius: "16px",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <span style={{ fontSize: "28px", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Win Rate</span>
-            <span style={{ fontSize: "36px", color: "#FFFFFF", fontWeight: 700 }}>{stats.summary.overallWinRate.toFixed(1)}%</span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "20px 30px",
-              background: "rgba(0,0,0,0.3)",
-              borderRadius: "16px",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <span style={{ fontSize: "28px", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Most Played</span>
-            <span style={{ fontSize: "36px", color: "#FFFFFF", fontWeight: 700 }}>{stats.summary.mostPlayedFormat.toUpperCase()}</span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "20px 30px",
-              background: "rgba(0,0,0,0.3)",
-              borderRadius: "16px",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <span style={{ fontSize: "28px", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Rating Change</span>
-            <span style={{ fontSize: "36px", color: "#FFFFFF", fontWeight: 700 }}>{changePrefix}{ratingChange}</span>
-          </div>
-        </div>
+  const svgBuffer = Buffer.from(svg);
+  
+  const image = sharp(svgBuffer)
+    .png()
+    .toBuffer();
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingTop: "40px",
-            borderTop: "2px solid rgba(255,255,255,0.2)",
-          }}
-        >
-          <span style={{ fontSize: "24px", color: "rgba(255,255,255,0.7)" }}>chessiro.ai</span>
-          <span style={{ fontSize: "24px", color: "rgba(255,255,255,0.7)" }}>2025</span>
-        </div>
-      </div>
-    </div>
-  );
-
-  const svg = await satori(element, {
-    width,
-    height,
-    fonts: [
-      {
-        name: "Inter",
-        data: fontData,
-        style: "normal",
-        weight: 700,
-      },
-      {
-        name: "Inter",
-        data: fontData,
-        style: "normal",
-        weight: 500,
-      },
-    ],
-  });
-
-  const resvg = new Resvg(svg);
-  return resvg.render().asPng();
+  return image;
 }
 
 export function getBackgroundImagePath(index: number): string {
