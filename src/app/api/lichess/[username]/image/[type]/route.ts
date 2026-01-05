@@ -39,7 +39,7 @@ export async function GET(
       lichessToken: token,
     });
 
-    const backgroundPath = getBackgroundImagePath(backgroundIndex);
+    const backgroundPath = getBackgroundImagePath(String(backgroundIndex));
     const imageBuffer = await generateCardImage(stats, backgroundPath, type);
 
     return new Response(imageBuffer as unknown as BodyInit, {

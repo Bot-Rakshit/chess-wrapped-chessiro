@@ -55,15 +55,13 @@ interface CardData {
   stats: WrappedStats;
 }
 
-// Balanced layout - moderate spacing
-const PADDING_X = 60;
+// Safe padding from edges
+const PADDING_X = 70;
 const PADDING_Y = 40;
-const PADDING_TOP = 40;
-const PADDING_BOTTOM = 30;
 const CONTENT_WIDTH = 820 - (PADDING_X * 2);
 
-// Moderate gap for elements
-const SECTION_GAP = 30;
+// Vertical spacing between elements (adjust this one value to control all spacing)
+const VERTICAL_SPACING = 30;
 
 // Helper function to format numbers with commas
 function formatNumber(num: number): string {
@@ -224,8 +222,8 @@ function Card1({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 10,
-      paddingBottom: PADDING_BOTTOM + 10,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -284,8 +282,8 @@ function Card2({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 50,
-      paddingBottom: PADDING_BOTTOM + 50,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -348,8 +346,8 @@ function Card3({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 50,
-      paddingBottom: PADDING_BOTTOM + 50,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -475,8 +473,8 @@ function Card4({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -554,7 +552,8 @@ function Card4({ stats }: CardData) {
       </div>
 
       {/* Peak Ratings */}
-      <div style={{ display: "flex", justifyContent: "center", gap: 50 }}>
+      <div style={{ display: "flex", justifyContent: "center",
+      gap: 50 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <span style={{ fontFamily: "Syncopate", fontSize: 36, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>{rapidPeak}</span>
           <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 700, color: "#7DD3FC", marginTop: 6 }}>Peak Rapid</span>
@@ -595,8 +594,8 @@ function Card5({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -668,8 +667,8 @@ function Card6({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -725,8 +724,8 @@ function Card6Win({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -783,8 +782,8 @@ function Card7({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -846,8 +845,8 @@ function Card8({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -926,8 +925,8 @@ function Card9({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 10,
-      paddingBottom: PADDING_BOTTOM + 10,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -993,8 +992,8 @@ function Card11({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 50,
-      paddingBottom: PADDING_BOTTOM + 50,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -1010,7 +1009,7 @@ function Card11({ stats }: CardData) {
           flexDirection: "column", 
           alignItems: "center", 
           justifyContent: "center",
-          gap: 20, 
+          gap: 20,
           width: BOX_WIDTH, 
           height: BOX_HEIGHT,
           backgroundColor: "rgba(255,255,255,0.06)",
@@ -1110,8 +1109,8 @@ function Card12({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      padding: PADDING_Y,
+      
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
