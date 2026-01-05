@@ -91,7 +91,7 @@ function HomeContent() {
           transition={{ delay: 0.1 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold font-[var(--font-syncopate)] tracking-tighter text-[#e8dcc8] mb-1">
+          <h1 className="text-4xl font-bold font-[var(--font-syncopate)] tracking-tighter text-[#e8dcc8] mb-1">
             CHESSIRO
           </h1>
           <motion.p

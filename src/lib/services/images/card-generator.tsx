@@ -58,8 +58,8 @@ interface CardData {
 // Safe padding from edges - reduced for more vertical spread
 const PADDING_X = 70;
 const PADDING_Y = 100;
-const PADDING_TOP = 120;
-const PADDING_BOTTOM = 100;
+const PADDING_TOP = 90;
+const PADDING_BOTTOM = 70;
 const CONTENT_WIDTH = 820 - (PADDING_X * 2);
 
 // Increased gap for better vertical spacing between elements
@@ -224,8 +224,8 @@ function Card1({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 50,
+      paddingBottom: PADDING_BOTTOM + 50,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -284,8 +284,8 @@ function Card2({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 50,
+      paddingBottom: PADDING_BOTTOM + 50,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -300,7 +300,7 @@ function Card2({ stats }: CardData) {
           {formatNumber(totalMinutes)}
         </span>
         <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 12 }}>
-          {`minutes (that's ${totalDays} days)`}
+          {`minutes (${totalDays} days)`}
         </span>
       </div>
 
@@ -333,7 +333,6 @@ function Card3({ stats }: CardData) {
   
   const total = rapid + blitz + bullet || 1;
   const mostPlayed = stats.summary.mostPlayedFormat?.toUpperCase() || "BLITZ";
-  const mostPlayedPercent = Math.round((Math.max(rapid, blitz, bullet) / total) * 100);
   const oneLiner = getStyleOneLiner(stats);
 
   const barWidth = 620;
@@ -349,8 +348,8 @@ function Card3({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 50,
+      paddingBottom: PADDING_BOTTOM + 50,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -476,8 +475,8 @@ function Card4({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -585,9 +584,10 @@ function Card5({ stats }: CardData) {
   const blitz = { rating: ratings.blitz || 0, change: history.find(h => h.format === "blitz")?.change || 0 };
   const bullet = { rating: ratings.bullet || 0, change: history.find(h => h.format === "bullet")?.change || 0 };
 
-  const formatDelta = (change: number) => change >= 0 ? `+${change}` : String(change);
+  const showPositiveDelta = (change: number) => change > 0;
+  const displayDelta = (change: number) => change > 0 ? `+${change}` : "";
 
-    return (
+  return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
@@ -595,45 +595,53 @@ function Card5({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
-      {/* Intelligent One-liner */}
-      <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.7)", fontStyle: "italic" }}>
-        {oneLiner}
-      </span>
+      {/* Header with one-liner */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <span style={{ fontFamily: "Syne", fontSize: 48, fontWeight: 800, color: "white" }}>
+          Rating Gains
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 26, fontWeight: 500, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>
+          {oneLiner}
+        </span>
+      </div>
 
       {/* Rapid */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Rapid</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 90, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1, marginTop: 5 }}>{rapid.rating}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 30, fontWeight: 700, color: rapid.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>
-          {formatDelta(rapid.change)}
-        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 3 }}>RAPID</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 100, fontWeight: 700, color: "#7DD3FC", lineHeight: 1, marginTop: 8 }}>{rapid.rating}</span>
+        {showPositiveDelta(rapid.change) && (
+          <span style={{ fontFamily: "Syncopate", fontSize: 32, fontWeight: 700, color: "#61DE58", marginTop: 8 }}>
+            {displayDelta(rapid.change)}
+          </span>
+        )}
       </div>
 
       {/* Blitz */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Blitz</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 90, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1, marginTop: 5 }}>{blitz.rating}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 30, fontWeight: 700, color: blitz.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>
-          {formatDelta(blitz.change)}
-        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 3 }}>BLITZ</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 100, fontWeight: 700, color: "#FBBF24", lineHeight: 1, marginTop: 8 }}>{blitz.rating}</span>
+        {showPositiveDelta(blitz.change) && (
+          <span style={{ fontFamily: "Syncopate", fontSize: 32, fontWeight: 700, color: "#61DE58", marginTop: 8 }}>
+            {displayDelta(blitz.change)}
+          </span>
+        )}
       </div>
 
       {/* Bullet */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Bullet</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 90, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1, marginTop: 5 }}>{bullet.rating}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 30, fontWeight: 700, color: bullet.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>
-          {formatDelta(bullet.change)}
-        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 3 }}>BULLET</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 100, fontWeight: 700, color: "#F87171", lineHeight: 1, marginTop: 8 }}>{bullet.rating}</span>
+        {showPositiveDelta(bullet.change) && (
+          <span style={{ fontFamily: "Syncopate", fontSize: 32, fontWeight: 700, color: "#61DE58", marginTop: 8 }}>
+            {displayDelta(bullet.change)}
+          </span>
+        )}
       </div>
-
-      {/* Empty spacer for bottom balance */}
-      <div style={{ display: "flex" }} />
     </div>
   );
 }
@@ -660,8 +668,8 @@ function Card6({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -717,8 +725,8 @@ function Card6Win({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -775,8 +783,8 @@ function Card7({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -838,8 +846,8 @@ function Card8({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -918,8 +926,8 @@ function Card9({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -979,8 +987,8 @@ function Card11({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 40,
-      paddingBottom: PADDING_BOTTOM + 40,
+      paddingTop: PADDING_TOP + 80,
+      paddingBottom: PADDING_BOTTOM + 80,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -1096,8 +1104,8 @@ function Card12({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP,
-      paddingBottom: PADDING_BOTTOM,
+      paddingTop: PADDING_TOP + 60,
+      paddingBottom: PADDING_BOTTOM + 60,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
