@@ -8,31 +8,42 @@ interface ProgressBarProps {
   current: number;
   onSegmentClick?: (index: number) => void;
   compact?: boolean;
+  segmentDurations?: number[]; // Duration in seconds for each segment
 }
 
-export function ProgressBar({ total, current, onSegmentClick, compact = false }: ProgressBarProps) {
+export function ProgressBar({ total, current, onSegmentClick, compact = false, segmentDurations }: ProgressBarProps) {
   return (
     <div className={`flex justify-center w-full ${compact ? 'opacity-60' : ''}`}>
       <div className="flex gap-0.5 w-full max-w-[420px] md:max-w-[480px] lg:max-w-[520px] px-4">
-        {Array.from({ length: total }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => onSegmentClick?.(i)}
-            className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/20 cursor-pointer hover:bg-white/30 transition-colors will-change-transform"
-          >
-            <motion.div
-              className="h-full bg-white rounded-full will-change-transform"
-              initial={{ width: "0%" }}
-              animate={{ 
-                width: i < current ? "100%" : i === current ? "100%" : "0%" 
-              }}
-              transition={{ 
-                duration: i === current ? 5 : 0.3,
-                ease: i === current ? "linear" : "easeOut"
-              }}
-            />
-          </button>
-        ))}
+        {Array.from({ length: total }).map((_, i) => {
+          // Get duration for this segment (default 5 seconds)
+          const duration = segmentDurations?.[i] ?? 5;
+          
+          return (
+            <button
+              key={i}
+              onClick={() => onSegmentClick?.(i)}
+              className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/20 cursor-pointer hover:bg-white/30 transition-colors"
+            >
+              {i < current ? (
+                // Completed segments - no animation, instant fill
+                <div className="h-full w-full bg-white rounded-full" />
+              ) : i === current ? (
+                // Current segment - animate fill with dynamic duration
+                <motion.div
+                  key={`segment-${i}-${current}`}
+                  className="h-full bg-white rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: duration, ease: "linear" }}
+                />
+              ) : (
+                // Future segments - empty
+                <div className="h-full w-0 bg-white rounded-full" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

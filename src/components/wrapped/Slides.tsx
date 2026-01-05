@@ -4,8 +4,9 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { WrappedStats } from "@/lib/types";
 import { AnimatedNumber } from "./AnimatedNumber";
-import { TextReveal, SlideUp, ScaleIn, FadeIn, StaggerContainer, StaggerItem } from "./TextAnimations";
+import { TextReveal, SlideUp, ScaleIn, FadeIn, StaggerContainer, StaggerItem, FlyingCard, Float, PulseGlow, DramaticReveal, ZoomBurst, Heartbeat, Shimmer, WipeReveal, SpotlightReveal } from "./TextAnimations";
 import { GlowOrb, Particles, FloatingElements, PulseRing } from "./Effects";
+import * as StoryContext from "./StoryContext";
 
 interface SlideProps {
   stats: WrappedStats;
@@ -25,80 +26,114 @@ export function IntroSlide({ stats, isActive }: SlideProps) {
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60" />
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cyan-950/30 via-black to-amber-950/20" />
       
-      <GlowOrb color="rgba(125, 211, 252, 0.15)" size={500} x="20%" y="20%" blur={150} />
-      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={400} x="80%" y="70%" blur={150} />
+      {/* Pulsing orbs */}
+      <GlowOrb color="rgba(6, 182, 212, 0.2)" size={400} x="30%" y="25%" blur={120} />
+      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="70%" y="75%" blur={100} />
       
-      <div className="relative z-10 flex flex-col items-center text-center px-8">
-        {/* Year + Chess label */}
-        <SlideUp delay={0.2}>
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-cyan-400/80 text-sm tracking-[0.3em] font-medium">2025</span>
-            <span className="text-white/20">·</span>
-            <span className="text-white/50 text-sm tracking-[0.3em] font-light">CHESS</span>
-          </div>
-        </SlideUp>
+      {/* Particles */}
+      <Particles color="#7DD3FC" count={15} />
+      
+      <div className="relative z-10 flex flex-col items-center text-center px-6">
+        {/* Year label - flies down */}
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, type: "spring", damping: 15 }}
+          className="flex items-center gap-3 mb-4"
+        >
+          <span className="text-cyan-400 text-lg font-bold tracking-[0.2em]">2025</span>
+          <div className="w-8 h-[1px] bg-gradient-to-r from-cyan-400 to-transparent" />
+          <span className="text-white/60 text-sm tracking-[0.2em]">CHESS</span>
+        </motion.div>
         
-        {/* Capsule Logo */}
-        <SlideUp delay={0.4}>
-          <Image
-            src="/capsule-logo.svg"
-            alt="Capsule"
-            width={220}
-            height={65}
-            className="brightness-0 invert mb-2"
-          />
-        </SlideUp>
+        {/* Capsule Logo - scales in with glow */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.5, type: "spring", damping: 12 }}
+        >
+          <PulseGlow>
+            <Image
+              src="/capsule-logo.svg"
+              alt="Capsule"
+              width={260}
+              height={75}
+              className="brightness-0 invert"
+            />
+          </PulseGlow>
+        </motion.div>
 
-        {/* Profile Card */}
-        <ScaleIn delay={0.7}>
-          <div className="mt-10 flex flex-col items-center">
+        {/* Decorative line */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          className="w-32 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent mt-6 mb-8"
+        />
+
+        {/* Profile Card - flies up */}
+        <motion.div
+          initial={{ opacity: 0, y: 80, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 1, type: "spring", damping: 15 }}
+          className="flex flex-col items-center"
+        >
+          {/* Avatar with animated ring */}
+          <div className="relative mb-4">
+            <motion.div 
+              className="absolute -inset-2 rounded-full"
+              style={{
+                background: "conic-gradient(from 0deg, #7DD3FC, #FBBF24, #F87171, #7DD3FC)"
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            />
+            <div className="absolute -inset-2 rounded-full bg-black/50 backdrop-blur-sm" />
             {stats.profile.avatar ? (
-              <div className="relative mb-4">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#7DD3FC] via-[#FBBF24] to-[#F87171] rounded-full blur-sm opacity-75" />
-                <Image
-                  src={stats.profile.avatar}
-                  alt={stats.username}
-                  width={100}
-                  height={100}
-                  className="relative rounded-full border-2 border-black"
-                />
-              </div>
+              <Image
+                src={stats.profile.avatar}
+                alt={stats.username}
+                width={90}
+                height={90}
+                className="relative rounded-full border-2 border-black z-10"
+              />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#7DD3FC] to-[#FBBF24] flex items-center justify-center mb-4">
+              <div className="relative w-[90px] h-[90px] rounded-full bg-gradient-to-br from-cyan-500 to-amber-500 flex items-center justify-center z-10">
                 <span className="font-[var(--font-syncopate)] text-3xl font-bold text-black">
                   {stats.username.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
-            
-            <div className="flex items-center gap-2">
-              {stats.profile.title && (
-                <span className="px-2 py-0.5 bg-amber-500 text-black text-xs font-bold rounded">
-                  {stats.profile.title}
-                </span>
-              )}
-              <span className="text-xl font-semibold text-white">{stats.username}</span>
-            </div>
           </div>
-        </ScaleIn>
+          
+          {/* Username */}
+          <div className="flex items-center gap-2">
+            {stats.profile.title && (
+              <span className="px-2 py-0.5 bg-amber-500 text-black text-xs font-bold rounded">
+                {stats.profile.title}
+              </span>
+            )}
+            <span className="text-xl font-semibold text-white">{stats.username}</span>
+          </div>
+        </motion.div>
 
-        {/* Subtle prompt */}
-        <FadeIn delay={1.5}>
-          <div className="mt-16 flex flex-col items-center gap-2">
-            <motion.div
-              animate={{ y: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <svg className="w-5 h-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </motion.div>
-            <span className="text-white/40 text-sm tracking-wide">Tap to begin</span>
-          </div>
-        </FadeIn>
+        {/* Tap prompt */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.8 }}
+          className="mt-12 flex flex-col items-center gap-2"
+        >
+          <Float distance={6} duration={2}>
+            <svg className="w-5 h-5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Float>
+          <span className="text-white/30 text-xs tracking-wide">tap to begin</span>
+        </motion.div>
       </div>
     </div>
   );
@@ -114,23 +149,33 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
   const wins = stats.summary.totalWins;
   const checkmates = stats.checkmates.given;
 
+  // Intelligent reaction based on performance
+  const winRate = stats.summary.overallWinRate;
+  const performanceText = winRate >= 60 
+    ? "You dominated the board!" 
+    : winRate >= 50 
+      ? "Solid performance!" 
+      : "Every game is a lesson!";
+
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
       <GlowOrb color="rgba(235, 151, 25, 0.2)" size={350} x="50%" y="35%" blur={100} />
       <Particles color="#EB9719" count={12} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-12">
+      <div className="relative z-10 flex flex-col items-center text-center gap-10">
         {/* Games Played */}
         <div className="flex flex-col items-center">
           <FadeIn delay={0.1}>
             <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">You played</span>
           </FadeIn>
-          <AnimatedNumber
-            value={gamesPlayed}
-            className="font-[var(--font-syncopate)] text-7xl md:text-8xl font-bold text-[#EB9719]"
-            delay={0.2}
-            duration={2}
-          />
+          <ZoomBurst delay={0.2}>
+            <AnimatedNumber
+              value={gamesPlayed}
+              className="font-[var(--font-syncopate)] text-7xl md:text-8xl font-bold text-[#EB9719]"
+              delay={0.3}
+              duration={2}
+            />
+          </ZoomBurst>
           <SlideUp delay={0.8}>
             <span className="text-xl text-white/80 mt-2">games of chess</span>
           </SlideUp>
@@ -141,12 +186,14 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
           <FadeIn delay={1}>
             <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">And claimed</span>
           </FadeIn>
-          <AnimatedNumber
-            value={wins}
-            className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#E26521]"
-            delay={1.1}
-            duration={2}
-          />
+          <Heartbeat delay={1.1}>
+            <AnimatedNumber
+              value={wins}
+              className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#E26521]"
+              delay={1.2}
+              duration={2}
+            />
+          </Heartbeat>
           <SlideUp delay={1.6}>
             <span className="text-xl text-white/80 mt-2">glorious victories</span>
           </SlideUp>
@@ -157,16 +204,23 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
           <FadeIn delay={2}>
             <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Delivering</span>
           </FadeIn>
-          <AnimatedNumber
-            value={checkmates}
-            className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#F22E2E]"
-            delay={2.1}
-            duration={2}
-          />
+          <Shimmer delay={2.1}>
+            <AnimatedNumber
+              value={checkmates}
+              className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#F22E2E]"
+              delay={2.2}
+              duration={2}
+            />
+          </Shimmer>
           <SlideUp delay={2.6}>
             <span className="text-xl text-white/80 mt-2">crushing checkmates</span>
           </SlideUp>
         </div>
+
+        {/* Intelligent performance text */}
+        <FadeIn delay={3}>
+          <span className="text-white/50 text-sm italic mt-2">{performanceText}</span>
+        </FadeIn>
       </div>
     </div>
   );
@@ -901,6 +955,16 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
   const checkmates = stats.checkmates.given;
   const winStreak = stats.streaks?.longestWinStreak || 0;
 
+  // Intelligent year summary based on stats
+  const winRate = stats.summary.overallWinRate;
+  const yearSummary = winRate >= 65 
+    ? "Absolutely Dominant" 
+    : winRate >= 55 
+      ? "Strong Performance" 
+      : winRate >= 45 
+        ? "Competitive Spirit"
+        : "Never Give Up";
+
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
       {/* Celebration effects */}
@@ -908,14 +972,18 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
       <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="80%" y="60%" blur={120} />
       <Particles color="#FBBF24" count={20} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-6">
+      <div className="relative z-10 flex flex-col items-center text-center gap-5">
         {/* Profile Section */}
-        <ScaleIn delay={0.2}>
+        <SpotlightReveal delay={0.2}>
           <div className="flex flex-col items-center gap-3">
             {/* Avatar with gradient ring */}
             {stats.profile.avatar ? (
               <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#7DD3FC] via-[#FBBF24] to-[#F87171] rounded-full blur-sm opacity-80" />
+                <motion.div 
+                  className="absolute -inset-1 bg-gradient-to-r from-[#7DD3FC] via-[#FBBF24] to-[#F87171] rounded-full blur-sm opacity-80"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                />
                 <Image
                   src={stats.profile.avatar}
                   alt={stats.username}
@@ -942,16 +1010,25 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
               <span className="text-xl font-bold text-white">{stats.username}</span>
             </div>
           </div>
-        </ScaleIn>
+        </SpotlightReveal>
 
-        {/* Year Badge */}
-        <FadeIn delay={0.4}>
+        {/* Year Badge with shimmer */}
+        <Shimmer delay={0.4}>
           <div className="border-t border-b border-white/10 py-3 px-8">
             <span className="text-white/50 text-xs tracking-[0.3em] uppercase">
               2025 Chess Wrapped
             </span>
           </div>
-        </FadeIn>
+        </Shimmer>
+
+        {/* Year Summary Tag */}
+        <WipeReveal delay={0.5} direction="up">
+          <div className="px-4 py-2 bg-gradient-to-r from-[#7DD3FC]/20 via-[#FBBF24]/20 to-[#F87171]/20 rounded-full border border-white/10">
+            <span className="font-[var(--font-syncopate)] text-lg font-bold bg-gradient-to-r from-[#7DD3FC] via-[#FBBF24] to-[#F87171] text-transparent bg-clip-text">
+              {yearSummary}
+            </span>
+          </div>
+        </WipeReveal>
 
         {/* Stats Grid - Only Positive */}
         <StaggerContainer delay={0.6} staggerDelay={0.1} className="grid grid-cols-2 gap-x-12 gap-y-5">
@@ -1016,7 +1093,13 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
         {/* Footer */}
         <FadeIn delay={1.8}>
           <div className="flex flex-col items-center gap-2 mt-4">
-            <span className="text-lg font-bold text-white italic">Keep conquering!</span>
+            <motion.span 
+              className="text-lg font-bold text-white italic"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Keep conquering!
+            </motion.span>
             <span className="text-white/40 text-xs">chessiro.com</span>
           </div>
         </FadeIn>
@@ -1026,7 +1109,164 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 11 = Gallery View - Clean card browser
+// Slide 11 = Card 11: Top Openings
+// ============================================
+export function Card11Slide({ stats, isActive }: SlideProps) {
+  if (!isActive) return null;
+
+  const bestWhite = stats.openings?.bestAsWhite;
+  const bestBlack = stats.openings?.bestAsBlack;
+  const totalUnique = stats.openings?.totalUnique || 0;
+
+  const formatOpening = (name: string) => {
+    if (name.length > 30) return name.substring(0, 27) + "...";
+    return name;
+  };
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
+      <GlowOrb color="rgba(251, 191, 36, 0.2)" size={350} x="30%" y="40%" blur={100} />
+      <GlowOrb color="rgba(125, 211, 252, 0.15)" size={300} x="70%" y="60%" blur={100} />
+      
+      <div className="relative z-10 flex flex-col items-center text-center gap-8">
+        {/* Header */}
+        <div className="flex flex-col items-center gap-2">
+          <SlideUp delay={0.1}>
+            <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-white">Your Openings</span>
+          </SlideUp>
+          <FadeIn delay={0.3}>
+            <span className="text-white/50 text-sm">{totalUnique} unique openings explored</span>
+          </FadeIn>
+        </div>
+
+        {/* Best as White */}
+        {bestWhite && (
+          <SlideUp delay={0.5}>
+            <div className="flex flex-col items-center gap-3 bg-white/5 rounded-xl p-5 border border-[#FBBF24]/30">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#FBBF24] flex items-center justify-center">
+                  <span className="font-[var(--font-syncopate)] text-sm font-bold text-black">W</span>
+                </div>
+                <span className="text-[#FBBF24] font-bold">Best as White</span>
+              </div>
+              <span className="text-white text-lg font-semibold text-center">{formatOpening(bestWhite.name)}</span>
+              <div className="flex gap-4 text-sm">
+                <span className="text-[#61DE58] font-bold">{Math.round(bestWhite.winRate)}% wins</span>
+                <span className="text-white/60">{bestWhite.games} games</span>
+              </div>
+            </div>
+          </SlideUp>
+        )}
+
+        {/* Best as Black */}
+        {bestBlack && (
+          <SlideUp delay={0.8}>
+            <div className="flex flex-col items-center gap-3 bg-white/5 rounded-xl p-5 border border-[#7DD3FC]/30">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#1E293B] border-2 border-white flex items-center justify-center">
+                  <span className="font-[var(--font-syncopate)] text-sm font-bold text-white">B</span>
+                </div>
+                <span className="text-[#7DD3FC] font-bold">Best as Black</span>
+              </div>
+              <span className="text-white text-lg font-semibold text-center">{formatOpening(bestBlack.name)}</span>
+              <div className="flex gap-4 text-sm">
+                <span className="text-[#61DE58] font-bold">{Math.round(bestBlack.winRate)}% wins</span>
+                <span className="text-white/60">{bestBlack.games} games</span>
+              </div>
+            </div>
+          </SlideUp>
+        )}
+
+        <FadeIn delay={1.2}>
+          <span className="text-white/40 text-sm italic">Your secret weapons!</span>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Slide 12 = Card 12: Activity Patterns
+// ============================================
+export function Card12Slide({ stats, isActive }: SlideProps) {
+  if (!isActive) return null;
+
+  const playTime = stats.playTime;
+  const mostActiveHour = playTime?.mostActiveHour || 20;
+  const mostActiveDay = playTime?.mostActiveDay || "Saturday";
+
+  const formatHour = (hour: number) => {
+    if (hour === 0) return "12 AM";
+    if (hour === 12) return "12 PM";
+    if (hour < 12) return `${hour} AM`;
+    return `${hour - 12} PM`;
+  };
+
+  const getTimeCategory = (hour: number) => {
+    if (hour >= 5 && hour < 12) return { label: "Morning Player", color: "#FBBF24" };
+    if (hour >= 12 && hour < 17) return { label: "Afternoon Warrior", color: "#F97316" };
+    if (hour >= 17 && hour < 21) return { label: "Evening Grinder", color: "#8B5CF6" };
+    return { label: "Night Owl", color: "#7DD3FC" };
+  };
+
+  const timeCategory = getTimeCategory(mostActiveHour);
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
+      <GlowOrb color="rgba(139, 92, 246, 0.25)" size={400} x="50%" y="50%" blur={120} />
+      <Particles color="#A78BFA" count={10} />
+      
+      <div className="relative z-10 flex flex-col items-center text-center gap-10">
+        {/* Header */}
+        <div className="flex flex-col items-center gap-2">
+          <SlideUp delay={0.1}>
+            <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-white">When You Play</span>
+          </SlideUp>
+          <FadeIn delay={0.3}>
+            <span className="text-lg font-bold" style={{ color: timeCategory.color }}>{timeCategory.label}</span>
+          </FadeIn>
+        </div>
+
+        {/* Peak Hour */}
+        <div className="flex flex-col items-center gap-3">
+          <FadeIn delay={0.5}>
+            <span className="text-white/60 text-sm tracking-[0.2em] uppercase">Peak Hour</span>
+          </FadeIn>
+          <ZoomBurst delay={0.6}>
+            <span className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+              {formatHour(mostActiveHour)}
+            </span>
+          </ZoomBurst>
+        </div>
+
+        {/* Favorite Day */}
+        <div className="flex flex-col items-center gap-3">
+          <FadeIn delay={1}>
+            <span className="text-white/60 text-sm tracking-[0.2em] uppercase">Favorite Day</span>
+          </FadeIn>
+          <Heartbeat delay={1.1}>
+            <span className="font-[var(--font-syncopate)] text-4xl md:text-5xl font-bold text-[#FBBF24]">
+              {mostActiveDay.toUpperCase()}
+            </span>
+          </Heartbeat>
+        </div>
+
+        <FadeIn delay={1.6}>
+          <span className="text-white/40 text-sm italic">
+            {mostActiveHour >= 21 || mostActiveHour < 5 
+              ? "Burning the midnight oil!" 
+              : mostActiveHour < 12 
+                ? "Early bird catches the win!" 
+                : "Peak performance hours!"}
+          </span>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Slide 13 = Gallery View - Flying cards animation
 // ============================================
 interface GallerySlideProps extends SlideProps {
   onSelectCard?: (cardNumber: number) => void;
@@ -1046,76 +1286,93 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
     "Streaks",
     "Nemesis",
     "Personality",
+    "Openings",
+    "Activity",
     "Summary",
   ];
 
   return (
     <div className="relative w-full h-full flex flex-col items-center overflow-hidden">
-      {/* Subtle background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40 pointer-events-none" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-violet-950/30 via-black to-cyan-950/20" />
+      <GlowOrb color="rgba(139, 92, 246, 0.15)" size={300} x="20%" y="30%" blur={100} />
+      <GlowOrb color="rgba(6, 182, 212, 0.1)" size={250} x="80%" y="70%" blur={80} />
       
       <div className="relative z-10 flex flex-col items-center w-full h-full px-3 py-4">
-        {/* Header */}
-        <SlideUp delay={0.1}>
-          <div className="flex flex-col items-center gap-1 mb-4">
-            <span className="text-lg font-bold text-white">Your 2025 Capsule</span>
-            <p className="text-white/40 text-xs">Tap to view & download</p>
-          </div>
-        </SlideUp>
+        {/* Header - flies down */}
+        <motion.div
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-col items-center gap-1 mb-4"
+        >
+          <span className="text-lg font-bold text-white">Your 2025 Capsule</span>
+          <p className="text-white/40 text-xs">Tap to view & download</p>
+        </motion.div>
 
-        {/* Cards Grid - 2x5 on desktop, 2 cols scroll on mobile */}
+        {/* Cards Grid - Flying in from random positions */}
         <div className="flex-1 w-full overflow-y-auto">
-          <StaggerContainer 
-            delay={0.15} 
-            staggerDelay={0.04} 
-            className="grid grid-cols-2 gap-2 w-full"
-          >
-            {cardTitles.map((title, i) => (
-              <StaggerItem key={i}>
-                <button
-                  onClick={() => onSelectCard?.(i + 1)}
-                  className="relative w-full aspect-[9/16] rounded-lg overflow-hidden group bg-white/5 border border-white/10 hover:border-white/25 transition-all"
-                >
-                  {/* Card image preview */}
-                  {username && (
-                    <img
-                      src={`/api/wrapped/${username}/image/${i + 1}`}
-                      alt={title}
-                      className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
-                      loading="lazy"
-                    />
-                  )}
-                  
-                  {/* Bottom gradient with title */}
-                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-2">
-                    <span className="text-white text-[10px] font-medium">{title}</span>
-                  </div>
-                  
-                  {/* Card number */}
-                  <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-black/50 flex items-center justify-center">
-                    <span className="text-white text-[9px] font-bold">{i + 1}</span>
-                  </div>
-                </button>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+          <div className="grid grid-cols-2 gap-2 w-full">
+            {cardTitles.map((title, i) => {
+              // Map display index to actual card number for API
+              const cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 10];
+              const cardNum = cardNumbers[i];
+              
+              return (
+                <FlyingCard key={i} index={i} total={cardTitles.length} delay={0.2}>
+                  <motion.button
+                    onClick={() => onSelectCard?.(i + 1)}
+                    className="relative w-full aspect-[9/16] rounded-lg overflow-hidden group bg-white/5 border border-white/10 hover:border-white/30 transition-all"
+                    whileHover={{ scale: 1.03, y: -4 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    {/* Card image preview */}
+                    {username && (
+                      <img
+                        src={`/api/wrapped/${username}/image/${cardNum}`}
+                        alt={title}
+                        className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-300"
+                        loading="lazy"
+                      />
+                    )}
+                    
+                    {/* Bottom gradient with title */}
+                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-2">
+                      <span className="text-white text-[10px] font-medium">{title}</span>
+                    </div>
+                    
+                    {/* Card number */}
+                    <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                      <span className="text-white text-[9px] font-bold">{i + 1}</span>
+                    </div>
+                    
+                    {/* Hover glow */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg ring-1 ring-white/30" />
+                  </motion.button>
+                </FlyingCard>
+              );
+            })}
+          </div>
         </div>
 
         {/* Footer */}
-        <FadeIn delay={0.6}>
-          <p className="text-white/20 text-[10px] mt-3">chessiro.com</p>
-        </FadeIn>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="text-white/20 text-[10px] mt-3"
+        >
+          chessiro.com
+        </motion.p>
       </div>
     </div>
   );
 }
 
-// Export all slides - NOW ALIGNED WITH CARDS
-// Slide 0 = Intro (no card)
-// Slides 1-10 = Cards 1-10
-// Slide 11 = Gallery
+// Export all slides - Clean structure with integrated story intros
+// Each slide has its own intelligent contextual intro built-in
 export const SLIDES = [
-  IntroSlide,    // 0 - Intro (greeting only)
+  IntroSlide,    // 0 - Intro (greeting)
   Card1Slide,    // 1 = Card 1: Games, Wins, Checkmates
   Card2Slide,    // 2 = Card 2: Time & Moves
   Card3Slide,    // 3 = Card 3: Play Style (Wizard)
@@ -1125,27 +1382,51 @@ export const SLIDES = [
   Card7Slide,    // 7 = Card 7: Streaks
   Card8Slide,    // 8 = Card 8: Nemesis
   Card9Slide,    // 9 = Card 9: Personality
-  Card10Slide,   // 10 = Card 10: Summary
-  GallerySlide,  // 11 = Gallery (browse all)
+  Card11Slide,   // 10 = Card 11: Openings
+  Card12Slide,   // 11 = Card 12: Activity
+  Card10Slide,   // 12 = Card 10: Summary (moved to end before gallery)
+  GallerySlide,  // 13 = Gallery (browse all)
 ];
 
 export const SLIDE_BACKGROUNDS = [
-  "from-slate-900 to-black",      // Intro
-  "from-amber-950 to-black",      // Card 1
-  "from-green-950 to-black",      // Card 2
-  "from-cyan-950 to-black",       // Card 3
-  "from-slate-900 to-black",      // Card 4
-  "from-blue-950 to-black",       // Card 5
-  "from-emerald-950 to-black",    // Card 6
-  "from-green-950 to-black",      // Card 7
-  "from-rose-950 to-black",       // Card 8
-  "from-orange-950 to-black",     // Card 9
-  "from-violet-950 to-black",     // Card 10
-  "from-slate-900 to-black",      // Gallery
+  "from-slate-900 to-black",      // 0 - Intro
+  "from-amber-950 to-black",      // 1 - Card 1
+  "from-green-950 to-black",      // 2 - Card 2
+  "from-cyan-950 to-black",       // 3 - Card 3
+  "from-slate-900 to-black",      // 4 - Card 4
+  "from-blue-950 to-black",       // 5 - Card 5
+  "from-emerald-950 to-black",    // 6 - Card 6
+  "from-green-950 to-black",      // 7 - Card 7
+  "from-rose-950 to-black",       // 8 - Card 8
+  "from-orange-950 to-black",     // 9 - Card 9
+  "from-amber-950 to-black",      // 10 - Openings
+  "from-purple-950 to-black",     // 11 - Activity
+  "from-violet-950 to-black",     // 12 - Summary
+  "from-slate-900 to-black",      // 13 - Gallery
 ];
 
 // Map slide index to card number for download
 export function getCardNumberFromSlide(slideIndex: number): number | null {
-  if (slideIndex === 0 || slideIndex === 11) return null; // Intro and Gallery have no card
-  return slideIndex; // Slides 1-10 = Cards 1-10
+  const cardMap: Record<number, number> = {
+    1: 1,   // Games
+    2: 2,   // Time
+    3: 3,   // Style
+    4: 4,   // Journey
+    5: 5,   // Ratings
+    6: 6,   // Big Win
+    7: 7,   // Streaks
+    8: 8,   // Nemesis
+    9: 9,   // Personality
+    10: 11, // Openings
+    11: 12, // Activity
+    12: 10, // Summary
+  };
+  return cardMap[slideIndex] ?? null;
+}
+
+// All slides use same duration for consistent pacing
+export function getSlideDuration(slideIndex: number): number {
+  if (slideIndex === 0) return 4000; // Intro
+  if (slideIndex === SLIDES.length - 1) return 0; // Gallery - no auto advance
+  return 6000; // All content slides
 }

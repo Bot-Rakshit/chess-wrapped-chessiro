@@ -19,9 +19,9 @@ export async function GET(
     }
 
     const validTypes = [
-      "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+      "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
       "games", "time", "stats", "wins", "format", "rating", "streaks", 
-      "bestWin", "openings", "nemesis", "playTime", "victory"
+      "bestWin", "openings", "nemesis", "playTime", "victory", "activity"
     ];
     
     if (!validTypes.includes(type)) {
@@ -34,10 +34,11 @@ export async function GET(
       period,
     });
 
-    // Card type to background mapping
+    // Card type to background mapping (reusing existing backgrounds 1-10)
     // Card 1 (games) -> BG 1, Card 2 (time) -> BG 2, Card 3 (wizard) -> BG 3
     // Card 4 (journey) -> BG 4, Card 5 (rating) -> BG 5, Card 6 (bestwin) -> BG 8
     // Card 7 (streaks) -> BG 7, Card 8 (nemesis) -> BG 9, Card 9 (personality) -> BG 10
+    // Card 10 (summary) -> BG 6, Card 11 (openings) -> BG 3, Card 12 (activity) -> BG 4
     const cardToBackground: Record<string, number> = {
       "1": 0, "games": 0,
       "2": 1, "time": 1,
@@ -49,6 +50,8 @@ export async function GET(
       "8": 8, "nemesis": 8,  // BG 9 (index 8)
       "9": 9, "personality": 9,  // BG 10 (index 9)
       "10": 5, "summary": 5,  // BG 6 (index 5)
+      "11": 2, "openings": 2,  // Reuse BG 3 (index 2) - cyan/blue theme
+      "12": 3, "activity": 3,  // Reuse BG 4 (index 3) - purple theme
     };
     
     const bgIndex = cardToBackground[type] ?? backgroundIndex;

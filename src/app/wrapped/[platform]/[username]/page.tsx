@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { WrappedStats } from "@/lib/types";
-import { SLIDES, SLIDE_BACKGROUNDS, getCardNumberFromSlide, GallerySlide } from "@/components/wrapped/Slides";
+import { SLIDES, SLIDE_BACKGROUNDS, getCardNumberFromSlide, GallerySlide, getSlideDuration } from "@/components/wrapped/Slides";
 import { ProgressBar, Confetti } from "@/components/wrapped/Effects";
 
 // Dynamically import Three.js components to avoid SSR issues
@@ -32,6 +32,7 @@ export default function WrappedPage() {
   const username = params.username as string;
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
   const [stats, setStats] = useState<WrappedStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -123,15 +124,20 @@ export default function WrappedPage() {
     fetchStats();
   }, [username]);
 
-  // Auto-advance slides
+  // Auto-advance slides with dynamic timing
   useEffect(() => {
     if (isPaused || !stats || mode !== "animated") return;
     
     // Don't auto-advance on gallery slide
     if (currentSlide === totalSlides - 1) return;
 
+    // Get the duration for this slide
+    const duration = getSlideDuration(currentSlide);
+    if (duration === 0) return;
+
     autoAdvanceRef.current = setTimeout(() => {
       if (currentSlide < totalSlides - 1) {
+        setDirection(1);
         setCurrentSlide(prev => prev + 1);
         // Show confetti when reaching the summary card (slide 10)
         if (currentSlide === 9) {
@@ -139,7 +145,7 @@ export default function WrappedPage() {
           setTimeout(() => setShowConfetti(false), 3000);
         }
       }
-    }, 6000);
+    }, duration);
 
     return () => {
       if (autoAdvanceRef.current) {
@@ -159,13 +165,15 @@ export default function WrappedPage() {
   }, [resetControlsTimer]);
 
   const goToSlide = useCallback((index: number) => {
+    setDirection(index > currentSlide ? 1 : -1);
     setCurrentSlide(index);
     resetControlsTimer();
     startAudio();
-  }, [resetControlsTimer, startAudio]);
+  }, [currentSlide, resetControlsTimer, startAudio]);
 
   const nextSlide = useCallback(() => {
     if (currentSlide < totalSlides - 1) {
+      setDirection(1);
       setCurrentSlide(prev => prev + 1);
     }
     resetControlsTimer();
@@ -174,6 +182,7 @@ export default function WrappedPage() {
 
   const prevSlide = useCallback(() => {
     if (currentSlide > 0) {
+      setDirection(-1);
       setCurrentSlide(prev => prev - 1);
     }
     resetControlsTimer();
@@ -278,8 +287,33 @@ export default function WrappedPage() {
   // Determine Three.js background variant based on slide
   const getBackgroundVariant = () => {
     if (currentSlide === 0) return "intro";
-    if (currentSlide === 10 || currentSlide === 11) return "celebration";
+    if (currentSlide >= 10) return "celebration"; // Summary and gallery
     return "journey";
+  };
+  
+  // Story-like transitions
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? "100%" : "-100%",
+      opacity: 0,
+      scale: 0.9,
+      rotateY: direction > 0 ? 10 : -10,
+      zIndex: 1
+    }),
+    center: {
+      zIndex: 2,
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      rotateY: 0,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? "100%" : "-100%",
+      opacity: 0,
+      scale: 0.9,
+      rotateY: direction < 0 ? 10 : -10,
+    })
   };
 
   // Loading state with 3D loader
@@ -302,9 +336,9 @@ export default function WrappedPage() {
             <Image
               src="/chessiro-logo.svg"
               alt="Chessiro"
-              width={120}
-              height={40}
-              className="brightness-0 invert opacity-80"
+              width={100}
+              height={35}
+              className="w-[100px] opacity-90"
             />
           </motion.div>
           
@@ -378,24 +412,25 @@ export default function WrappedPage() {
           current={currentSlide}
           onSegmentClick={goToSlide}
           compact={!showControls}
+          segmentDurations={SLIDES.map((_, i) => getSlideDuration(i) / 1000)}
         />
       </div>
 
       {/* Header Row - Logo left, Mute right - just below progress bar */}
-      <div className="fixed top-8 left-0 right-0 z-50 px-3 flex items-center justify-between">
+      <div className="fixed top-8 left-0 right-0 z-50 px-3 flex items-center justify-between pointer-events-none">
         {/* Chessiro Logo - left, always visible */}
         <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => router.push("/")}
-          className="cursor-pointer"
+          className="cursor-pointer pointer-events-auto"
         >
           <Image
             src="/chessiro-logo.svg"
             alt="Chessiro"
-            width={70}
-            height={24}
-            className="brightness-0 invert opacity-70 hover:opacity-100 transition-opacity"
+            width={32}
+            height={32}
+            className="w-8 h-8 hover:opacity-80 transition-opacity"
           />
         </motion.div>
 
@@ -403,7 +438,7 @@ export default function WrappedPage() {
         <motion.div
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 pointer-events-auto"
         >
           {/* Pause indicator */}
           {isPaused && mode === "animated" && (
@@ -437,14 +472,21 @@ export default function WrappedPage() {
           onClick={handleTap}
           className="w-full max-w-[420px] md:max-w-[480px] lg:max-w-[520px] h-[calc(100vh-140px)] max-h-[800px] relative cursor-pointer will-change-transform z-10"
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" custom={direction} initial={false}>
             <motion.div
               key={currentSlide}
-              initial={{ opacity: 0, scale: 0.98, rotateY: -5 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              exit={{ opacity: 0, scale: 1.02, rotateY: 5 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full h-full will-change-transform"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.25 },
+                scale: { duration: 0.3 },
+                rotateY: { duration: 0.4 }
+              }}
+              className="w-full h-full will-change-transform absolute inset-0"
               style={{ perspective: 1000 }}
             >
               {isGallerySlide ? (
