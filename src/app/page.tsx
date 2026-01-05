@@ -117,32 +117,47 @@ export default function Home() {
         
         {/* Layer 6 - Floating particles */}
         <AnimatePresence>
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full"
-              style={{
-                background: i % 3 === 0 ? "rgba(194, 155, 95, 0.3)" : i % 3 === 1 ? "rgba(168, 120, 70, 0.25)" : "rgba(139, 90, 43, 0.2)",
-                boxShadow: i % 3 === 0 ? "0 0 6px rgba(194, 155, 95, 0.3)" : "none"
-              }}
-              initial={{ 
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
-                opacity: 0
-              }}
-              animate={{ 
-                y: [null, Math.random() * -200 - 100],
-                opacity: [0, 0.6, 0],
-                scale: [0, 1, 0]
-              }}
-              transition={{ 
-                duration: Math.random() * 10 + 15,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-                ease: "linear"
-              }}
-            />
-          ))}
+          {[...Array(8)].map((_, i) => {
+            // Use fixed positions to avoid SSR issues
+            const positions = [
+              { x: "15%", y: "20%" },
+              { x: "45%", y: "35%" },
+              { x: "75%", y: "15%" },
+              { x: "25%", y: "55%" },
+              { x: "65%", y: "50%" },
+              { x: "85%", y: "70%" },
+              { x: "35%", y: "80%" },
+              { x: "55%", y: "90%" },
+            ];
+            const pos = positions[i];
+            return (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 rounded-full"
+                style={{
+                  left: pos.x,
+                  top: pos.y,
+                  background: i % 3 === 0 ? "rgba(194, 155, 95, 0.3)" : i % 3 === 1 ? "rgba(168, 120, 70, 0.25)" : "rgba(139, 90, 43, 0.2)",
+                  boxShadow: i % 3 === 0 ? "0 0 6px rgba(194, 155, 95, 0.3)" : "none"
+                }}
+                initial={{ 
+                  opacity: 0,
+                  y: 0
+                }}
+                animate={{ 
+                  y: [null, -150],
+                  opacity: [0, 0.6, 0],
+                  scale: [0, 1, 0]
+                }}
+                transition={{ 
+                  duration: Math.random() * 10 + 15,
+                  repeat: Infinity,
+                  delay: Math.random() * 5,
+                  ease: "linear"
+                }}
+              />
+            );
+          })}
         </AnimatePresence>
       </div>
 
@@ -204,26 +219,18 @@ export default function Home() {
         >
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             
-            {/* Platform Toggle */}
+            {/* Platform Toggle - Chess.com only */}
             <div 
-              className="grid grid-cols-2 rounded-xl p-0.5"
+              className="grid grid-cols-1 rounded-xl p-0.5"
               style={{ background: "rgba(139, 115, 85, 0.08)" }}
             >
-              {["chesscom", "lichess"].map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPlatform(p as "chesscom" | "lichess")}
-                  className={`relative py-3 rounded-lg text-xs font-[var(--font-syncopate)] tracking-wider transition-all duration-300 ${
-                    platform === p 
-                      ? "text-white" 
-                      : "text-[#6a5a4a] hover:text-[#a89078]"
-                  }`}
-                  style={platform === p ? { background: "rgba(139, 115, 85, 0.25)" } : {}}
-                >
-                  {p === "chesscom" ? "Chess.com" : "Lichess"}
-                </button>
-              ))}
+              <button
+                type="button"
+                className="relative py-3 rounded-lg text-xs font-[var(--font-syncopate)] tracking-wider text-white"
+                style={{ background: "rgba(139, 115, 85, 0.25)" }}
+              >
+                Chess.com
+              </button>
             </div>
 
             <div className="space-y-3">
