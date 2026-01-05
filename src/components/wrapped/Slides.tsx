@@ -32,23 +32,24 @@ export function IntroSlide({ stats, isActive }: SlideProps) {
       <GlowOrb color="rgba(251, 191, 36, 0.15)" size={400} x="80%" y="70%" blur={150} />
       
       <div className="relative z-10 flex flex-col items-center text-center px-8">
-        {/* Year Badge */}
+        {/* Year + Chess label */}
         <SlideUp delay={0.2}>
-          <div className="mb-8 px-6 py-2 border border-white/20 rounded-full backdrop-blur-sm">
-            <span className="text-white/80 text-sm font-medium tracking-[0.25em] uppercase">
-              2025 Recap
-            </span>
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-cyan-400/80 text-sm tracking-[0.3em] font-medium">2025</span>
+            <span className="text-white/20">·</span>
+            <span className="text-white/50 text-sm tracking-[0.3em] font-light">CHESS</span>
           </div>
         </SlideUp>
         
-        {/* Main Title */}
+        {/* Capsule Logo */}
         <SlideUp delay={0.4}>
-          <h1 className="font-[var(--font-syncopate)] text-4xl md:text-6xl font-bold tracking-tight mb-2">
-            <span className="text-white">CHESS</span>
-          </h1>
-          <h1 className="font-[var(--font-syncopate)] text-4xl md:text-6xl font-bold tracking-tight text-gradient">
-            WRAPPED
-          </h1>
+          <Image
+            src="/capsule-logo.svg"
+            alt="Capsule"
+            width={220}
+            height={65}
+            className="brightness-0 invert mb-2"
+          />
         </SlideUp>
 
         {/* Profile Card */}
@@ -1025,7 +1026,7 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 11 = Gallery View - Browse all cards
+// Slide 11 = Gallery View - Clean card browser
 // ============================================
 interface GallerySlideProps extends SlideProps {
   onSelectCard?: (cardNumber: number) => void;
@@ -1037,7 +1038,7 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
 
   const cardTitles = [
     "Games & Wins",
-    "Time Spent", 
+    "Time Spent",
     "Play Style",
     "Your Journey",
     "Ratings",
@@ -1045,54 +1046,64 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
     "Streaks",
     "Nemesis",
     "Personality",
-    "Summary"
+    "Summary",
   ];
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-4 py-8">
-      <GlowOrb color="rgba(125, 211, 252, 0.15)" size={400} x="30%" y="30%" blur={120} />
-      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="70%" y="70%" blur={120} />
+    <div className="relative w-full h-full flex flex-col items-center overflow-hidden">
+      {/* Subtle background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40 pointer-events-none" />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-6 w-full max-w-sm">
+      <div className="relative z-10 flex flex-col items-center w-full h-full px-3 py-4">
+        {/* Header */}
         <SlideUp delay={0.1}>
-          <span className="text-2xl font-bold text-white">Your Capsule</span>
-          <p className="text-white/60 text-sm mt-1">Tap any card to view or download</p>
+          <div className="flex flex-col items-center gap-1 mb-4">
+            <span className="text-lg font-bold text-white">Your 2025 Capsule</span>
+            <p className="text-white/40 text-xs">Tap to view & download</p>
+          </div>
         </SlideUp>
 
-        {/* Card Grid */}
-        <StaggerContainer delay={0.3} staggerDelay={0.05} className="grid grid-cols-2 gap-3 w-full">
-          {cardTitles.map((title, i) => (
-            <StaggerItem key={i}>
-              <button
-                onClick={() => onSelectCard?.(i + 1)}
-                className="relative w-full aspect-[9/16] rounded-xl overflow-hidden bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-white/30 transition-all group"
-              >
-                {/* Card preview - use API image */}
-                {username && (
-                  <img
-                    src={`/api/wrapped/${username}/image/${i + 1}`}
-                    alt={title}
-                    className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    loading="lazy"
-                  />
-                )}
-                
-                {/* Overlay with title */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center p-2">
-                  <span className="text-white text-xs font-medium">{title}</span>
-                </div>
-                
-                {/* Card number badge */}
-                <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-white text-[10px] font-bold">{i + 1}</span>
-                </div>
-              </button>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        {/* Cards Grid - 2x5 on desktop, 2 cols scroll on mobile */}
+        <div className="flex-1 w-full overflow-y-auto">
+          <StaggerContainer 
+            delay={0.15} 
+            staggerDelay={0.04} 
+            className="grid grid-cols-2 gap-2 w-full"
+          >
+            {cardTitles.map((title, i) => (
+              <StaggerItem key={i}>
+                <button
+                  onClick={() => onSelectCard?.(i + 1)}
+                  className="relative w-full aspect-[9/16] rounded-lg overflow-hidden group bg-white/5 border border-white/10 hover:border-white/25 transition-all"
+                >
+                  {/* Card image preview */}
+                  {username && (
+                    <img
+                      src={`/api/wrapped/${username}/image/${i + 1}`}
+                      alt={title}
+                      className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                      loading="lazy"
+                    />
+                  )}
+                  
+                  {/* Bottom gradient with title */}
+                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-2">
+                    <span className="text-white text-[10px] font-medium">{title}</span>
+                  </div>
+                  
+                  {/* Card number */}
+                  <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-black/50 flex items-center justify-center">
+                    <span className="text-white text-[9px] font-bold">{i + 1}</span>
+                  </div>
+                </button>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
 
-        <FadeIn delay={1}>
-          <p className="text-white/40 text-xs">chessiro.com</p>
+        {/* Footer */}
+        <FadeIn delay={0.6}>
+          <p className="text-white/20 text-[10px] mt-3">chessiro.com</p>
         </FadeIn>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -20,78 +21,97 @@ export default function Home() {
 
     setIsLoading(true);
     setError("");
-
-    // Navigate to the wrapped experience
     router.push(`/wrapped/${platform}/${username.trim()}`);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden">
-      {/* Background gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pulse-glow" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl pulse-glow" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden bg-black">
+      {/* Colored ambient glows */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[400px] bg-gradient-to-b from-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 w-[250px] h-[250px] bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Content */}
+      {/* Chessiro Logo - Top */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 flex flex-col items-center text-center max-w-2xl"
+        className="absolute top-6"
       >
-        {/* Logo/Title */}
-        <motion.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-4"
-        >
-          <span className="font-[var(--font-syncopate)] text-sm tracking-[0.3em] text-white/60 uppercase">
-            Chessiro
-          </span>
-        </motion.div>
+        <Image
+          src="/chessiro-logo.svg"
+          alt="Chessiro"
+          width={70}
+          height={24}
+          className="brightness-0 invert opacity-50"
+        />
+      </motion.div>
 
-        <motion.h1
+      {/* Main Content */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2 }}
+        className="relative z-10 flex flex-col items-center text-center"
+      >
+        {/* Year + Chess + Capsule Logo */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="font-[var(--font-syncopate)] text-5xl md:text-7xl font-bold mb-6 text-gradient"
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-col items-center gap-4 mb-10"
         >
-          CAPSULE
-        </motion.h1>
+          {/* 2025 CHESS */}
+          <div className="flex items-center gap-3">
+            <span className="text-cyan-400/70 text-sm tracking-[0.3em] font-medium">2025</span>
+            <span className="text-white/20">·</span>
+            <span className="text-white/50 text-sm tracking-[0.3em] font-light">CHESS</span>
+          </div>
+          
+          {/* Capsule SVG */}
+          <Image
+            src="/capsule-logo.svg"
+            alt="Capsule"
+            width={260}
+            height={75}
+            className="brightness-0 invert"
+            priority
+          />
+        </motion.div>
 
+        {/* Tagline */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-xl md:text-2xl text-white/70 mb-12 font-[var(--font-syne)]"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-white/40 text-sm mb-10 tracking-wide"
         >
-          Your chess year, beautifully wrapped
+          Your year in chess, <span className="text-amber-400/70">10 shareable cards</span>
         </motion.p>
 
         {/* Platform Toggle */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="flex gap-2 mb-6 p-1 bg-white/5 rounded-full"
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="flex gap-1 mb-5 p-1 rounded-full border border-white/10 bg-white/[0.02]"
         >
           <button
             onClick={() => setPlatform("chesscom")}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`px-5 py-2 rounded-full text-sm transition-all duration-300 ${
               platform === "chesscom"
-                ? "bg-white text-black"
-                : "text-white/60 hover:text-white"
+                ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium shadow-lg shadow-green-500/20"
+                : "text-white/40 hover:text-white/70"
             }`}
           >
             Chess.com
           </button>
           <button
             onClick={() => setPlatform("lichess")}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`px-5 py-2 rounded-full text-sm transition-all duration-300 ${
               platform === "lichess"
-                ? "bg-white text-black"
-                : "text-white/60 hover:text-white"
+                ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white font-medium shadow-lg shadow-purple-500/20"
+                : "text-white/40 hover:text-white/70"
             }`}
           >
             Lichess
@@ -102,88 +122,78 @@ export default function Home() {
         <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
           onSubmit={handleSubmit}
-          className="w-full max-w-md"
+          className="w-full max-w-xs"
         >
           <div className="relative">
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-full text-white placeholder-white/40 text-lg font-[var(--font-syne)] focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-300"
+              placeholder="Username"
+              className="w-full px-5 py-3 bg-white/[0.03] border border-white/10 rounded-full text-white placeholder-white/30 text-center focus:outline-none focus:border-cyan-500/50 focus:bg-white/[0.05] transition-all duration-300"
             />
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-white/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Loading
-                </span>
-              ) : (
-                "Unwrap"
-              )}
-            </button>
           </div>
+          
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full mt-4 px-5 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full font-medium text-sm hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20"
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              </span>
+            ) : (
+              "Generate Capsule"
+            )}
+          </button>
           
           {error && (
             <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm mt-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-400/80 text-xs mt-3"
             >
               {error}
             </motion.p>
           )}
         </motion.form>
 
-        {/* Example usernames */}
+        {/* Quick try */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="mt-8 text-white/40 text-sm"
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mt-8 text-white/30 text-xs"
         >
-          <span>Try: </span>
-          <button
-            onClick={() => setUsername("hikaru")}
-            className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
-          >
-            hikaru
-          </button>
-          <span>, </span>
-          <button
-            onClick={() => setUsername("magnuscarlsen")}
-            className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
-          >
-            magnuscarlsen
-          </button>
-          <span>, </span>
-          <button
-            onClick={() => setUsername("gothamchess")}
-            className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
-          >
-            gothamchess
-          </button>
+          {["hikaru", "magnuscarlsen", "gothamchess"].map((name, i) => (
+            <span key={name}>
+              {i > 0 && <span className="mx-2 text-white/15">·</span>}
+              <button
+                onClick={() => setUsername(name)}
+                className="hover:text-cyan-400/70 transition-colors"
+              >
+                {name}
+              </button>
+            </span>
+          ))}
         </motion.div>
       </motion.div>
 
-      {/* Footer */}
-      <motion.footer
+      {/* Footer text */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1 }}
-        className="absolute bottom-8 text-white/30 text-sm"
+        transition={{ duration: 0.8, delay: 1 }}
+        className="absolute bottom-6 text-white/15 text-xs"
       >
-        Made with love for chess enthusiasts
-      </motion.footer>
+        chessiro.com
+      </motion.p>
     </div>
   );
 }

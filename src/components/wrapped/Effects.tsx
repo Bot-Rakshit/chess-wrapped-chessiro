@@ -12,26 +12,28 @@ interface ProgressBarProps {
 
 export function ProgressBar({ total, current, onSegmentClick, compact = false }: ProgressBarProps) {
   return (
-    <div className={`flex gap-0.5 w-full max-w-sm px-3 ${compact ? 'opacity-60' : ''}`}>
-      {Array.from({ length: total }).map((_, i) => (
-        <button
-          key={i}
-          onClick={() => onSegmentClick?.(i)}
-          className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/20 cursor-pointer hover:bg-white/30 transition-colors will-change-transform"
-        >
-          <motion.div
-            className="h-full bg-white rounded-full will-change-transform"
-            initial={{ width: "0%" }}
-            animate={{ 
-              width: i < current ? "100%" : i === current ? "100%" : "0%" 
-            }}
-            transition={{ 
-              duration: i === current ? 5 : 0.3,
-              ease: i === current ? "linear" : "easeOut"
-            }}
-          />
-        </button>
-      ))}
+    <div className={`flex justify-center w-full ${compact ? 'opacity-60' : ''}`}>
+      <div className="flex gap-0.5 w-full max-w-[420px] md:max-w-[480px] lg:max-w-[520px] px-4">
+        {Array.from({ length: total }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => onSegmentClick?.(i)}
+            className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/20 cursor-pointer hover:bg-white/30 transition-colors will-change-transform"
+          >
+            <motion.div
+              className="h-full bg-white rounded-full will-change-transform"
+              initial={{ width: "0%" }}
+              animate={{ 
+                width: i < current ? "100%" : i === current ? "100%" : "0%" 
+              }}
+              transition={{ 
+                duration: i === current ? 5 : 0.3,
+                ease: i === current ? "linear" : "easeOut"
+              }}
+            />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

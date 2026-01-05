@@ -20,6 +20,11 @@ const ThreeLoader = dynamic(
   { ssr: false }
 );
 
+const ThreeGallery = dynamic(
+  () => import("@/components/wrapped/ThreeBackground").then(mod => mod.ThreeGallery),
+  { ssr: false }
+);
+
 export default function WrappedPage() {
   const params = useParams();
   const router = useRouter();
@@ -425,58 +430,60 @@ export default function WrappedPage() {
         </motion.div>
       </div>
 
-      {/* Main content */}
-      <div 
-        ref={containerRef}
-        onClick={handleTap}
-        className="w-full max-w-lg h-[85vh] relative cursor-pointer will-change-transform z-10"
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, scale: 0.98, rotateY: -5 }}
-            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-            exit={{ opacity: 0, scale: 1.02, rotateY: 5 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="w-full h-full will-change-transform"
-            style={{ perspective: 1000 }}
-          >
-            {isGallerySlide ? (
-              <GallerySlide 
-                stats={stats} 
-                isActive={true} 
-                onSelectCard={handleSelectCard}
-                username={username}
-              />
-            ) : (
-              <CurrentSlideComponent stats={stats} isActive={true} />
-            )}
-          </motion.div>
-        </AnimatePresence>
+      {/* Main content container - properly centered */}
+      <div className="flex-1 flex items-center justify-center w-full px-4 pt-14 pb-20">
+        <div 
+          ref={containerRef}
+          onClick={handleTap}
+          className="w-full max-w-[420px] md:max-w-[480px] lg:max-w-[520px] h-[calc(100vh-140px)] max-h-[800px] relative cursor-pointer will-change-transform z-10"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, scale: 0.98, rotateY: -5 }}
+              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+              exit={{ opacity: 0, scale: 1.02, rotateY: 5 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="w-full h-full will-change-transform"
+              style={{ perspective: 1000 }}
+            >
+              {isGallerySlide ? (
+                <GallerySlide 
+                  stats={stats} 
+                  isActive={true} 
+                  onSelectCard={handleSelectCard}
+                  username={username}
+                />
+              ) : (
+                <CurrentSlideComponent stats={stats} isActive={true} />
+              )}
+            </motion.div>
+          </AnimatePresence>
 
-        {/* Touch zones indicator (shows briefly on first load) */}
-        {!isGallerySlide && (
-          <motion.div
-            initial={{ opacity: 0.4 }}
-            animate={{ opacity: 0 }}
-            transition={{ delay: 2, duration: 1 }}
-            className="absolute inset-0 pointer-events-none flex"
-          >
-            <div className="flex-1 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
-              <span className="text-white/20 text-xs">Tap to pause</span>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </motion.div>
-        )}
+          {/* Touch zones indicator (shows briefly on first load) */}
+          {!isGallerySlide && (
+            <motion.div
+              initial={{ opacity: 0.4 }}
+              animate={{ opacity: 0 }}
+              transition={{ delay: 2, duration: 1 }}
+              className="absolute inset-0 pointer-events-none flex"
+            >
+              <div className="flex-1 flex items-center justify-center">
+                <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </div>
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-white/20 text-xs">Tap to pause</span>
+              </div>
+              <div className="flex-1 flex items-center justify-center">
+                <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </motion.div>
+          )}
+        </div>
       </div>
 
       {/* Bottom Bar - More visible download/share buttons + mute */}
