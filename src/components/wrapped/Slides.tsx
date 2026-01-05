@@ -11,6 +11,7 @@ import * as StoryContext from "./StoryContext";
 interface SlideProps {
   stats: WrappedStats;
   isActive: boolean;
+  nextSlide?: () => void;
 }
 
 // Helper to format numbers
@@ -21,7 +22,7 @@ function formatNumber(num: number): string {
 // ============================================
 // Slide 0: Intro (No matching card - just greeting)
 // ============================================
-export function IntroSlide({ stats, isActive }: SlideProps) {
+export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
   if (!isActive) return null;
 
   // Calculate years playing
@@ -158,7 +159,8 @@ export function IntroSlide({ stats, isActive }: SlideProps) {
           transition={{ duration: 0.5, delay: 1.5 }}
         >
           <motion.button
-            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20"
+            onClick={nextSlide}
+            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20 cursor-pointer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -632,79 +634,87 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
   const history = stats.ratings.history || [];
   const ratings = stats.ratings.current || {};
   
-  const rapid = { rating: ratings.rapid || 0, change: history.find(h => h.format === "rapid")?.change || 0 };
-  const blitz = { rating: ratings.blitz || 0, change: history.find(h => h.format === "blitz")?.change || 0 };
-  const bullet = { rating: ratings.bullet || 0, change: history.find(h => h.format === "bullet")?.change || 0 };
+  const rapid = { rating: ratings.rapid || 0, change: history.find(h => h.format === "rapid")?.change || 0, peak: history.find(h => h.format === "rapid")?.peak || 0 };
+  const blitz = { rating: ratings.blitz || 0, change: history.find(h => h.format === "blitz")?.change || 0, peak: history.find(h => h.format === "blitz")?.peak || 0 };
+  const bullet = { rating: ratings.bullet || 0, change: history.find(h => h.format === "bullet")?.change || 0, peak: history.find(h => h.format === "bullet")?.peak || 0 };
 
-  const formatDelta = (change: number) => change >= 0 ? `+${change}` : String(change);
+  const getPositiveMessage = (change: number, format: string) => {
+    if (change >= 200) return "Breakthrough year!";
+    if (change >= 100) return "Major improvement!";
+    if (change >= 50) return "Strong growth!";
+    if (change > 0) return "Steady progress!";
+    return "New format explored!";
+  };
+
+  const formats = [
+    { ...rapid, name: "Rapid", colorClass: "text-blue-400" },
+    { ...blitz, name: "Blitz", colorClass: "text-amber-400" },
+    { ...bullet, name: "Bullet", colorClass: "text-red-400" },
+  ].filter(f => f.rating > 0);
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
       <GlowOrb color="rgba(125, 211, 252, 0.3)" size={350} x="50%" y="50%" />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-14">
-        {/* Rapid */}
-        <div className="flex flex-col items-center">
-          <SlideUp delay={0.1}>
-            <span className="text-lg text-white/80 tracking-widest uppercase">Rapid</span>
-          </SlideUp>
-          <AnimatedNumber
-            value={rapid.rating}
-            className="font-[var(--font-syncopate)] text-6xl font-bold text-[#7DD3FC]"
-            delay={0.2}
-            duration={1.5}
-          />
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className={`font-[var(--font-syncopate)] text-xl font-bold ${rapid.change >= 0 ? "text-[#61DE58]" : "text-[#F87171]"}`}
-          >
-            {formatDelta(rapid.change)}
-          </motion.span>
+      <div className="relative z-10 flex flex-col items-center text-center gap-12">
+        {/* Header */}
+        <FadeIn delay={0.1}>
+          <span className="text-sm text-white/60 tracking-[0.2em] uppercase">Rating Journey</span>
+        </FadeIn>
+        
+        {/* Current Ratings */}
+        <div className="flex gap-12 justify-center">
+          {formats.map((format, index) => (
+            <motion.div
+              key={format.name}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + index * 0.15 }}
+              className="flex flex-col items-center"
+            >
+              <span className="text-white/50 text-xs uppercase tracking-wider mb-2">{format.name}</span>
+              <AnimatedNumber
+                value={format.rating}
+                className={`font-[var(--font-syncopate)] text-5xl md:text-6xl font-bold ${format.colorClass}`}
+                delay={0.3 + index * 0.15}
+                duration={1.5}
+              />
+              {/* Show positive change only */}
+              {format.change > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + index * 0.15 }}
+                  className="flex items-center gap-1 mt-2"
+                >
+                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                  </svg>
+                  <span className="font-[var(--font-syncopate)] text-lg font-bold text-green-400">
+                    +{format.change}
+                  </span>
+                </motion.div>
+              )}
+              {/* Encouraging message for positive change */}
+              {format.change > 0 && (
+                <FadeIn delay={0.7 + index * 0.15}>
+                  <p className="text-white/40 text-xs mt-1">{getPositiveMessage(format.change, format.name)}</p>
+                </FadeIn>
+              )}
+            </motion.div>
+          ))}
         </div>
 
-        {/* Blitz */}
-        <div className="flex flex-col items-center">
-          <SlideUp delay={0.4}>
-            <span className="text-lg text-white/80 tracking-widest uppercase">Blitz</span>
-          </SlideUp>
-          <AnimatedNumber
-            value={blitz.rating}
-            className="font-[var(--font-syncopate)] text-6xl font-bold text-[#7DD3FC]"
-            delay={0.5}
-            duration={1.5}
-          />
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className={`font-[var(--font-syncopate)] text-xl font-bold ${blitz.change >= 0 ? "text-[#61DE58]" : "text-[#F87171]"}`}
-          >
-            {formatDelta(blitz.change)}
-          </motion.span>
-        </div>
-
-        {/* Bullet */}
-        <div className="flex flex-col items-center">
-          <SlideUp delay={0.7}>
-            <span className="text-lg text-white/80 tracking-widest uppercase">Bullet</span>
-          </SlideUp>
-          <AnimatedNumber
-            value={bullet.rating}
-            className="font-[var(--font-syncopate)] text-6xl font-bold text-[#7DD3FC]"
-            delay={0.8}
-            duration={1.5}
-          />
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1 }}
-            className={`font-[var(--font-syncopate)] text-xl font-bold ${bullet.change >= 0 ? "text-[#61DE58]" : "text-[#F87171]"}`}
-          >
-            {formatDelta(bullet.change)}
-          </motion.span>
-        </div>
+        {/* Encouraging footer for formats with no positive change */}
+        {formats.some(f => f.change <= 0) && (
+          <FadeIn delay={0.8}>
+            <p className="text-white/50 text-sm italic">
+              {formats.some(f => f.change > 0) 
+                ? "Every format tells a story!" 
+                : "New challenges await in 2025!"}
+            </p>
+          </FadeIn>
+        )}
       </div>
     </div>
   );
@@ -781,7 +791,25 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const daysStreak = stats.activity?.sessions?.total || 30;
+  const daysPlayed = stats.activity?.sessions?.total || 30;
+  const currentStreak = stats.streaks?.currentStreak?.count || 0;
+  const currentStreakType = stats.streaks?.currentStreak?.type || "win";
+
+  const getStreakEmoji = (streak: number) => {
+    if (streak >= 20) return "🔥";
+    if (streak >= 10) return "⚡";
+    if (streak >= 5) return "✨";
+    return "💪";
+  };
+
+  const getStreakMessage = (streak: number) => {
+    if (streak >= 20) return "LEGENDARY!";
+    if (streak >= 15) return "Unstoppable!";
+    if (streak >= 10) return "On Fire!";
+    if (streak >= 7) return "Week of Dominance!";
+    if (streak >= 5) return "High Five Worthy!";
+    return "Keep Building!";
+  };
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
@@ -789,45 +817,76 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
       <Particles color="#61DE58" count={15} />
       
       <div className="relative z-10 flex flex-col items-center text-center gap-14">
-        {/* Days Dedication */}
+        {/* Longest Win Streak */}
         <div className="flex flex-col items-center">
           <FadeIn delay={0.1}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">You showed up</span>
+            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Longest Win Streak</span>
           </FadeIn>
           <FloatingElements>
-            <AnimatedNumber
-              value={daysStreak}
-              className="font-[var(--font-syncopate)] text-8xl font-bold text-[#61DE58]"
-              delay={0.2}
-              duration={2}
-            />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: "spring" }}
+              className="text-8xl"
+            >
+              {getStreakEmoji(winStreak)}
+            </motion.div>
           </FloatingElements>
+          <AnimatedNumber
+            value={winStreak}
+            className="font-[var(--font-syncopate)] text-8xl font-bold text-[#34D399]"
+            delay={0.3}
+            duration={2}
+          />
           <SlideUp delay={0.8}>
-            <span className="text-xl text-white/80 mt-3 tracking-wide">days this year</span>
+            <span className="text-xl text-white/80 mt-3 tracking-wide">wins in a row</span>
           </SlideUp>
           <FadeIn delay={1.2}>
-            <span className="text-white/50 text-sm mt-1 italic">That&apos;s dedication!</span>
+            <span className="text-amber-400 text-sm mt-1 font-bold">{getStreakMessage(winStreak)}</span>
           </FadeIn>
         </div>
 
-        {/* Win Streak */}
+        {/* Days Active or Current Streak */}
         <div className="flex flex-col items-center">
-          <FadeIn delay={1.5}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Best win streak</span>
-          </FadeIn>
-          <FloatingElements>
-            <AnimatedNumber
-              value={winStreak}
-              className="font-[var(--font-syncopate)] text-8xl font-bold text-[#34D399]"
-              delay={1.6}
-              duration={2}
-            />
-          </FloatingElements>
-          <SlideUp delay={2.2}>
-            <span className="text-xl text-white/80 mt-3 tracking-wide">wins in a row</span>
-          </SlideUp>
-          <FadeIn delay={2.6}>
-            <span className="text-white/50 text-sm mt-1 italic">Unstoppable!</span>
+          {currentStreak > 0 ? (
+            <>
+              <FadeIn delay={1.5}>
+                <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">
+                  Current {currentStreakType === "win" ? "Win" : currentStreakType === "loss" ? "Loss" : ""} Streak
+                </span>
+              </FadeIn>
+              <AnimatedNumber
+                value={currentStreak}
+                className="font-[var(--font-syncopate)] text-6xl font-bold text-[#61DE58]"
+                delay={1.6}
+                duration={1.5}
+              />
+              <SlideUp delay={2}>
+                <span className="text-lg text-white/80 mt-2 tracking-wide">
+                  {currentStreakType === "win" ? "wins right now" : "games ongoing"}
+                </span>
+              </SlideUp>
+            </>
+          ) : (
+            <>
+              <FadeIn delay={1.5}>
+                <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Days Active</span>
+              </FadeIn>
+              <AnimatedNumber
+                value={daysPlayed}
+                className="font-[var(--font-syncopate)] text-6xl font-bold text-[#61DE58]"
+                delay={1.6}
+                duration={1.5}
+              />
+              <SlideUp delay={2}>
+                <span className="text-lg text-white/80 mt-2 tracking-wide">days of chess</span>
+              </SlideUp>
+            </>
+          )}
+          <FadeIn delay={2.4}>
+            <span className="text-white/50 text-sm mt-1 italic">
+              {winStreak >= 10 ? "You're on fire!" : "Every streak starts somewhere"}
+            </span>
           </FadeIn>
         </div>
       </div>
@@ -978,26 +1037,38 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 10 = Card 10: Summary - Celebratory Trophy Card
+// Slide 10 = Card 10: Summary - Ultimate Shareable Card
 // ============================================
-export function Card10Slide({ stats, isActive }: SlideProps) {
+export function Card10Slide({ stats, isActive, nextSlide }: SlideProps) {
   if (!isActive) return null;
 
   const totalGames = stats.summary.totalGames;
   const totalWins = stats.summary.totalWins;
   const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
   const totalHours = Math.round(totalMinutes / 60);
+  const totalMoves = stats.activity.totalMoves;
   
-  // Get peak rating (the highest achievement)
+  const checkmates = stats.checkmates.given;
+  const winStreak = stats.streaks?.longestWinStreak || 0;
+  const winRate = stats.summary.overallWinRate;
+  
+  // Get peak rating
   const history = stats.ratings.history || [];
   const allPeaks = history.map(h => h.peak).filter(p => p > 0);
   const peakRating = allPeaks.length > 0 ? Math.max(...allPeaks) : 0;
   
-  const checkmates = stats.checkmates.given;
-  const winStreak = stats.streaks?.longestWinStreak || 0;
+  // Get current ratings
+  const ratings = stats.ratings.current || {};
+  const currentRapid = ratings.rapid || 0;
+  const currentBlitz = ratings.blitz || 0;
+  const currentBullet = ratings.bullet || 0;
+  
+  // Calculate fun stats
+  const gamesPerDay = totalGames > 0 ? (totalGames / 365).toFixed(1) : 0;
+  const bestOpening = stats.openings?.bestAsWhite || stats.openings?.bestAsBlack;
+  const totalUnique = stats.opponents?.mostPlayed?.length || 0;
 
-  // Intelligent year summary based on stats
-  const winRate = stats.summary.overallWinRate;
+  // Intelligent year summary
   const yearSummary = winRate >= 65 
     ? "Absolutely Dominant" 
     : winRate >= 55 
@@ -1006,142 +1077,215 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
         ? "Competitive Spirit"
         : "Never Give Up";
 
+  // Player title based on peak rating
+  const getPlayerTitle = (rating: number) => {
+    if (rating >= 2400) return "Master";
+    if (rating >= 2200) return "Expert";
+    if (rating >= 2000) return "Advanced";
+    if (rating >= 1800) return "Intermediate";
+    return "Rising Star";
+  };
+
+  // Fun tagline based on stats
+  const getFunTagline = () => {
+    if (checkmates >= 100) return "Checkmate Machine";
+    if (winStreak >= 10) return "On Fire!";
+    if (totalGames >= 2000) return "Grind Mode";
+    if (totalHours >= 200) return "Time Invested";
+    if (checkmates >= totalWins * 0.15) return "Finisher";
+    return "Keep Growing";
+  };
+
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-4">
+      {/* Animated gradient border effect */}
+      <div className="absolute inset-0 p-[2px] rounded-2xl md:rounded-3xl overflow-hidden">
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-amber-400 via-pink-400 to-cyan-400"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          style={{ borderRadius: "inherit" }}
+        />
+        <div className="absolute inset-[2px] bg-black rounded-xl md:rounded-2xl" />
+      </div>
+      
       {/* Celebration effects */}
       <GlowOrb color="rgba(125, 211, 252, 0.15)" size={400} x="20%" y="30%" blur={120} />
       <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="80%" y="60%" blur={120} />
       <Particles color="#FBBF24" count={20} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-5">
+      <div className="relative z-10 flex flex-col items-center text-center gap-3 px-5 py-6 w-full max-w-sm h-full max-h-[750px] overflow-y-auto">
         {/* Profile Section */}
         <SpotlightReveal delay={0.2}>
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-2">
             {/* Avatar with gradient ring */}
             {stats.profile.avatar ? (
               <div className="relative">
                 <motion.div 
-                  className="absolute -inset-1 bg-gradient-to-r from-[#7DD3FC] via-[#FBBF24] to-[#F87171] rounded-full blur-sm opacity-80"
+                  className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-amber-400 to-pink-400 rounded-full blur-sm opacity-80"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 />
                 <Image
                   src={stats.profile.avatar}
                   alt={stats.username}
-                  width={90}
-                  height={90}
+                  width={70}
+                  height={70}
                   className="relative rounded-full border-2 border-black"
                 />
               </div>
             ) : (
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#7DD3FC] via-[#FBBF24] to-[#F87171] flex items-center justify-center">
+              <div className="w-[70px] h-[70px] rounded-full bg-gradient-to-br from-cyan-400 via-amber-400 to-pink-400 flex items-center justify-center">
                 <span className="font-[var(--font-syncopate)] text-2xl font-bold text-black">
                   {stats.username.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
             
-            {/* Username */}
-            <div className="flex items-center gap-2">
+            {/* Username & Title */}
+            <div className="flex flex-col items-center gap-1">
               {stats.profile.title && (
                 <span className="px-2 py-0.5 bg-amber-500 text-black text-xs font-bold rounded">
                   {stats.profile.title}
                 </span>
               )}
-              <span className="text-xl font-bold text-white">{stats.username}</span>
+              <span className="text-lg font-bold text-white">{stats.username}</span>
+              <span className="text-amber-400 text-xs font-medium">{getPlayerTitle(peakRating)}</span>
             </div>
           </div>
         </SpotlightReveal>
 
-        {/* Year Badge with shimmer */}
+        {/* Year Badge */}
         <Shimmer delay={0.4}>
-          <div className="border-t border-b border-white/10 py-3 px-8">
-            <span className="text-white/50 text-xs tracking-[0.3em] uppercase">
-              2025 Chess Wrapped
+          <div className="border-t border-b border-white/10 py-1.5 px-4">
+            <span className="text-white/50 text-[10px] tracking-[0.3em] uppercase">
+              Capsule 2025
             </span>
           </div>
         </Shimmer>
 
         {/* Year Summary Tag */}
         <WipeReveal delay={0.5} direction="up">
-          <div className="px-4 py-2 bg-gradient-to-r from-[#7DD3FC]/20 via-[#FBBF24]/20 to-[#F87171]/20 rounded-full border border-white/10">
-            <span className="font-[var(--font-syncopate)] text-lg font-bold bg-gradient-to-r from-[#7DD3FC] via-[#FBBF24] to-[#F87171] text-transparent bg-clip-text">
+          <div className="px-4 py-1.5 bg-gradient-to-r from-cyan-500/20 via-amber-500/20 to-pink-500/20 rounded-full border border-white/10">
+            <span className="font-[var(--font-syncopate)] text-base font-bold bg-gradient-to-r from-cyan-400 via-amber-400 to-pink-400 text-transparent bg-clip-text">
               {yearSummary}
             </span>
           </div>
         </WipeReveal>
 
-        {/* Stats Grid - Only Positive */}
-        <StaggerContainer delay={0.6} staggerDelay={0.1} className="grid grid-cols-2 gap-x-12 gap-y-5">
-          <StaggerItem className="text-center">
+        {/* Fun Tagline */}
+        <FadeIn delay={0.6}>
+          <span className="text-emerald-400 text-sm font-bold tracking-wide">
+            {getFunTagline()}
+          </span>
+        </FadeIn>
+
+        {/* Current Ratings */}
+        <FadeIn delay={0.7}>
+          <div className="flex gap-4 justify-center mt-1">
+            {currentRapid > 0 && (
+              <div className="flex flex-col items-center">
+                <span className="font-[var(--font-syncopate)] text-xl font-bold text-blue-400">{currentRapid}</span>
+                <span className="text-white/40 text-[9px] uppercase">Rapid</span>
+              </div>
+            )}
+            {currentBlitz > 0 && (
+              <div className="flex flex-col items-center">
+                <span className="font-[var(--font-syncopate)] text-xl font-bold text-amber-400">{currentBlitz}</span>
+                <span className="text-white/40 text-[9px] uppercase">Blitz</span>
+              </div>
+            )}
+            {currentBullet > 0 && (
+              <div className="flex flex-col items-center">
+                <span className="font-[var(--font-syncopate)] text-xl font-bold text-red-400">{currentBullet}</span>
+                <span className="text-white/40 text-[9px] uppercase">Bullet</span>
+              </div>
+            )}
+          </div>
+        </FadeIn>
+
+        {/* Stats Grid - 2x3 */}
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3 flex-1">
+          <div className="text-center">
             <AnimatedNumber
               value={totalGames}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#7DD3FC]"
-              delay={0.7}
-              duration={1.5}
-            />
-            <p className="text-white/60 text-xs mt-1">games played</p>
-          </StaggerItem>
-          
-          <StaggerItem className="text-center">
-            <AnimatedNumber
-              value={totalWins}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#61DE58]"
+              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-cyan-400"
               delay={0.8}
               duration={1.5}
             />
-            <p className="text-white/60 text-xs mt-1">victories</p>
-          </StaggerItem>
+            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Games</p>
+          </div>
           
-          <StaggerItem className="text-center">
+          <div className="text-center">
             <AnimatedNumber
-              value={peakRating}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#FBBF24]"
+              value={totalWins}
+              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-green-400"
               delay={0.9}
               duration={1.5}
             />
-            <p className="text-white/60 text-xs mt-1">peak rating</p>
-          </StaggerItem>
+            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Wins</p>
+          </div>
           
-          <StaggerItem className="text-center">
+          <div className="text-center">
+            <span className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-amber-400">
+              {winRate.toFixed(0)}%
+            </span>
+            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Win Rate</p>
+          </div>
+          
+          <div className="text-center">
             <AnimatedNumber
-              value={checkmates}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#F87171]"
+              value={peakRating}
+              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-amber-300"
               delay={1}
               duration={1.5}
             />
-            <p className="text-white/60 text-xs mt-1">checkmates</p>
-          </StaggerItem>
+            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Peak</p>
+          </div>
           
-          <StaggerItem className="text-center">
-            <span className="font-[var(--font-syncopate)] text-3xl font-bold text-[#A78BFA]">
-              {totalHours}h
-            </span>
-            <p className="text-white/60 text-xs mt-1">dedicated</p>
-          </StaggerItem>
+          <div className="text-center">
+            <AnimatedNumber
+              value={checkmates}
+              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-red-400"
+              delay={1.1}
+              duration={1.5}
+            />
+            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Checkmates</p>
+          </div>
           
-          <StaggerItem className="text-center">
+          <div className="text-center">
             <AnimatedNumber
               value={winStreak}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#34D399]"
+              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-emerald-400"
               delay={1.2}
               duration={1.5}
             />
-            <p className="text-white/60 text-xs mt-1">best streak</p>
-          </StaggerItem>
-        </StaggerContainer>
+            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Best Streak</p>
+          </div>
+        </div>
+
+        {/* Fun Stats Row */}
+        <FadeIn delay={1.3}>
+          <div className="flex justify-center gap-4 text-[10px] text-white/50 mt-1">
+            <span>{gamesPerDay} games/day</span>
+            <span className="text-white/30">•</span>
+            <span>{totalHours}h played</span>
+            <span className="text-white/30">•</span>
+            <span>{totalUnique} rivals</span>
+          </div>
+        </FadeIn>
 
         {/* Footer */}
-        <FadeIn delay={1.8}>
-          <div className="flex flex-col items-center gap-2 mt-4">
+        <FadeIn delay={1.5}>
+          <div className="flex flex-col items-center gap-1 mt-1">
             <motion.span 
-              className="text-lg font-bold text-white italic"
+              className="text-base font-bold text-white italic"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               Keep conquering!
             </motion.span>
-            <span className="text-white/40 text-xs">chessiro.com</span>
+            <span className="text-white/30 text-[10px]">chessiro.com</span>
           </div>
         </FadeIn>
       </div>
@@ -1470,4 +1614,150 @@ export function getSlideDuration(slideIndex: number): number {
   if (slideIndex === 0) return 4000; // Intro
   if (slideIndex === SLIDES.length - 1) return 0; // Gallery - no auto advance
   return 6000; // All content slides
+}
+
+// ============================================
+// Not Enough Games View - Shown when < 50 games
+// ============================================
+interface NotEnoughGamesViewProps {
+  stats: WrappedStats;
+  onShare: () => void;
+  onHome: () => void;
+}
+
+export function NotEnoughGamesView({ stats, onShare, onHome }: NotEnoughGamesViewProps) {
+  const displayName = stats.profile.name || stats.username;
+  const joinedYear = stats.profile.joined 
+    ? new Date(stats.profile.joined * 1000).getFullYear() 
+    : null;
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-black to-slate-900 relative overflow-hidden">
+      {/* Background effects */}
+      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={400} x="50%" y="30%" blur={150} />
+      <Particles color="#FBBF24" count={15} />
+      
+      <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-sm">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <Image
+            src="/capsule-2025.png"
+            alt="Capsule 2025"
+            width={200}
+            height={60}
+            className="w-[200px] h-auto"
+          />
+        </motion.div>
+
+        {/* Welcome Message */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8"
+        >
+          <p className="text-white/50 text-xs tracking-[0.3em] uppercase mb-3">Welcome Back</p>
+          
+          {/* Avatar */}
+          <div className="relative mb-4 mx-auto w-20 h-20">
+            <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-cyan-400 to-amber-400 rounded-full blur-sm opacity-80" />
+            <div className="absolute -inset-2 rounded-full bg-black/60 backdrop-blur-sm" />
+            {stats.profile.avatar ? (
+              <Image
+                src={stats.profile.avatar}
+                alt={stats.username}
+                width={80}
+                height={80}
+                className="relative rounded-full border-2 border-amber-500/30"
+              />
+            ) : (
+              <div className="relative w-[80px] h-[80px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-500/30">
+                <span className="font-[var(--font-syncopate)] text-3xl font-bold text-black">
+                  {stats.username.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+          
+          <h1 className="text-2xl font-bold text-white mb-2">{displayName}</h1>
+          {joinedYear && (
+            <p className="text-white/50 text-sm">Playing since {joinedYear}</p>
+          )}
+        </motion.div>
+
+        {/* Message */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mb-10"
+        >
+          <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Keep Playing!</h2>
+          <p className="text-white/60 text-sm">
+            You need <span className="text-amber-400 font-bold">{50 - stats.summary.totalGames}</span> more games to unlock your full Capsule 2025 experience.
+          </p>
+          <p className="text-white/40 text-xs mt-3">
+            Come back when you've played 50+ games!
+          </p>
+        </motion.div>
+
+        {/* Mini Stats */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex gap-6 mb-10"
+        >
+          <div className="text-center">
+            <span className="font-[var(--font-syncopate)] text-2xl font-bold text-cyan-400">{stats.summary.totalGames}</span>
+            <p className="text-white/40 text-[10px] uppercase mt-1">Games</p>
+          </div>
+          <div className="text-center">
+            <span className="font-[var(--font-syncopate)] text-2xl font-bold text-green-400">{stats.summary.totalWins}</span>
+            <p className="text-white/40 text-[10px] uppercase mt-1">Wins</p>
+          </div>
+          <div className="text-center">
+            <span className="font-[var(--font-syncopate)] text-2xl font-bold text-amber-400">{stats.summary.overallWinRate.toFixed(0)}%</span>
+            <p className="text-white/40 text-[10px] uppercase mt-1">Win Rate</p>
+          </div>
+        </motion.div>
+
+        {/* Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="flex flex-col gap-3 w-full"
+        >
+          <motion.button
+            onClick={onShare}
+            className="w-full py-3 bg-white text-black font-bold rounded-full text-sm tracking-wide"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Share These Stats
+          </motion.button>
+          
+          <motion.button
+            onClick={onHome}
+            className="w-full py-3 bg-white/10 text-white font-medium rounded-full text-sm border border-white/20"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Back to Home
+          </motion.button>
+        </motion.div>
+      </div>
+    </div>
+  );
 }

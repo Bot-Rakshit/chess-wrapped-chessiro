@@ -881,28 +881,70 @@ function Card9({ stats }: CardData) {
 }
 
 // ============================================
-// Card 10: Summary (Background 6) - Celebratory Trophy Card
+// Card 10: Summary (Background 6) - Ultimate Shareable Card
 // ============================================
 function Card10({ stats }: CardData) {
   const totalGames = stats.summary.totalGames;
   const totalWins = stats.summary.totalWins;
+  const totalLosses = stats.summary.totalLosses;
+  const totalDraws = stats.summary.totalDraws;
   const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
   const totalHours = Math.round(totalMinutes / 60);
+  const totalMoves = stats.activity.totalMoves;
   const oneLiner = getSummaryOneLiner(stats);
   
-  // Get peak rating (the highest achievement)
+  const checkmates = stats.checkmates.given;
+  const winStreak = stats.streaks?.longestWinStreak || 0;
+  const winRate = stats.summary.overallWinRate;
+  
+  // Get peak rating
   const history = stats.ratings.history || [];
   const allPeaks = history.map(h => h.peak).filter(p => p > 0);
   const peakRating = allPeaks.length > 0 ? Math.max(...allPeaks) : 0;
   
-  const checkmates = stats.checkmates.given;
-  const winStreak = stats.streaks?.longestWinStreak || 0;
-  const totalMoves = stats.activity.totalMoves;
+  // Get current ratings
+  const ratings = stats.ratings.current || {};
+  const currentRapid = ratings.rapid || 0;
+  const currentBlitz = ratings.blitz || 0;
+  const currentBullet = ratings.bullet || 0;
+  
+  // Fun stats
+  const gamesPerDay = totalGames > 0 ? (totalGames / 365).toFixed(1) : 0;
+  const totalUnique = stats.opponents?.mostPlayed?.length || 0;
+  const daysPlayed = stats.activity?.sessions?.total || 0;
+  const bestOpening = stats.openings?.bestAsWhite || stats.openings?.bestAsBlack;
+  const mostPlayedFormat = stats.summary.mostPlayedFormat || "blitz";
   
   // Get avatar URL
   const avatarUrl = stats.profile.avatar;
   const username = stats.username;
   const title = stats.profile.title;
+
+  // Player title based on peak rating
+  const getPlayerTitle = (rating: number) => {
+    if (rating >= 2400) return "MASTER";
+    if (rating >= 2200) return "EXPERT";
+    if (rating >= 2000) return "ADVANCED";
+    if (rating >= 1800) return "INTERMEDIATE";
+    return "RISING STAR";
+  };
+
+  // Fun tagline
+  const getFunTagline = () => {
+    if (checkmates >= 100) return "Checkmate Machine";
+    if (winStreak >= 10) return "On Fire!";
+    if (totalGames >= 2000) return "Grind Mode";
+    if (totalHours >= 200) return "Time Invested";
+    if (totalDraws >= 50) return "The Diplomat";
+    return "Keep Growing";
+  };
+
+  // Format opening name
+  const formatOpening = (name: string) => {
+    if (!name) return "";
+    if (name.length > 25) return name.substring(0, 22) + "...";
+    return name;
+  };
 
   return (
     <div style={{ 
@@ -912,20 +954,39 @@ function Card10({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "center",
-      gap: 25,
+      gap: 16,
       padding: PADDING_Y,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
+      position: "relative",
     }}>
+      {/* Gradient border effect */}
+      <div style={{ 
+        position: "absolute", 
+        inset: 0, 
+        padding: 3, 
+        borderRadius: 24,
+        background: "linear-gradient(135deg, #22d3ee, #fbbf24, #f472b6, #22d3ee)",
+        backgroundSize: "400% 400%",
+        animation: "rotate 10s linear infinite",
+      }}>
+        <div style={{ 
+          position: "absolute", 
+          inset: 3, 
+          backgroundColor: "#000", 
+          borderRadius: 20,
+        }} />
+      </div>
+
       {/* Profile Section */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 16 }}>
         {/* Avatar with gradient ring */}
         <div style={{ 
-          width: 120, 
-          height: 120, 
-          borderRadius: 60, 
-          background: "linear-gradient(135deg, #7DD3FC, #FBBF24, #F87171)",
-          padding: 4,
+          width: 70, 
+          height: 70, 
+          borderRadius: 35, 
+          background: "linear-gradient(135deg, #22d3ee, #fbbf24, #f472b6)",
+          padding: 3,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -933,21 +994,21 @@ function Card10({ stats }: CardData) {
           {avatarUrl ? (
             <img 
               src={avatarUrl} 
-              width={112} 
-              height={112} 
-              style={{ borderRadius: 56, objectFit: "cover" }}
+              width={64} 
+              height={64} 
+              style={{ borderRadius: 32, objectFit: "cover" }}
             />
           ) : (
             <div style={{ 
-              width: 112, 
-              height: 112, 
-              borderRadius: 56, 
+              width: 64, 
+              height: 64, 
+              borderRadius: 32, 
               backgroundColor: "#1E293B",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}>
-              <span style={{ fontFamily: "Syncopate", fontSize: 48, fontWeight: 700, color: "white" }}>
+              <span style={{ fontFamily: "Syncopate", fontSize: 24, fontWeight: 700, color: "white" }}>
                 {username.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -955,121 +1016,175 @@ function Card10({ stats }: CardData) {
         </div>
         
         {/* Username with title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           {title && (
             <span style={{ 
               fontFamily: "Syne", 
-              fontSize: 14, 
+              fontSize: 11, 
               fontWeight: 700, 
               color: "#000", 
               backgroundColor: "#FBBF24",
-              padding: "4px 8px",
+              padding: "3px 6px",
               borderRadius: 4,
             }}>
               {title}
             </span>
           )}
-          <span style={{ fontFamily: "Syne", fontSize: 24, fontWeight: 700, color: "white" }}>
+          <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 700, color: "white" }}>
             {username}
+          </span>
+          <span style={{ fontFamily: "Syne", fontSize: 11, fontWeight: 600, color: "#FBBF24" }}>
+            {getPlayerTitle(peakRating)}
           </span>
         </div>
       </div>
 
-      {/* Year Badge with intelligent one-liner */}
+      {/* Year Badge */}
       <div style={{ 
         display: "flex", 
         flexDirection: "column", 
         alignItems: "center",
         borderTop: "1px solid rgba(255,255,255,0.1)",
         borderBottom: "1px solid rgba(255,255,255,0.1)",
-        paddingTop: 15,
-        paddingBottom: 15,
+        paddingTop: 10,
+        paddingBottom: 10,
         width: "100%",
-        gap: 8,
       }}>
-        <span style={{ fontFamily: "Syne", fontSize: 16, fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: 4 }}>
-          2025 CHESS WRAPPED
+        <span style={{ fontFamily: "Syne", fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: 3 }}>
+          CAPSULE 2025
         </span>
-        <span style={{ fontFamily: "Syne", fontSize: 24, fontWeight: 700, color: "#FBBF24", fontStyle: "italic" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 700, color: "#FBBF24", fontStyle: "italic", marginTop: 4 }}>
           {oneLiner}
         </span>
       </div>
 
-      {/* Highlight Stats - Only Positive */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
-        {/* Row 1: Games & Victories */}
+      {/* Fun Tagline */}
+      <span style={{ fontFamily: "Syne", fontSize: 13, fontWeight: 700, color: "#34D399", letterSpacing: 2 }}>
+        {getFunTagline()}
+      </span>
+
+      {/* Current Ratings */}
+      <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+        {currentRapid > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 22, fontWeight: 700, color: "#60A5FA" }}>{currentRapid}</span>
+            <span style={{ fontFamily: "Syne", fontSize: 9, color: "rgba(255,255,255,0.5)" }}>RAPID</span>
+          </div>
+        )}
+        {currentBlitz > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 22, fontWeight: 700, color: "#FBBF24" }}>{currentBlitz}</span>
+            <span style={{ fontFamily: "Syne", fontSize: 9, color: "rgba(255,255,255,0.5)" }}>BLITZ</span>
+          </div>
+        )}
+        {currentBullet > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 22, fontWeight: 700, color: "#F87171" }}>{currentBullet}</span>
+            <span style={{ fontFamily: "Syne", fontSize: 9, color: "rgba(255,255,255,0.5)" }}>BULLET</span>
+          </div>
+        )}
+      </div>
+
+      {/* Main Stats - 2x3 Grid */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
+        {/* Row 1: Games, Wins, Win Rate */}
         <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#22D3EE", lineHeight: 1 }}>
               {formatNumber(totalGames)}
             </span>
-            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-              games played
+            <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              GAMES
             </span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#61DE58", lineHeight: 1 }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#4ADE80", lineHeight: 1 }}>
               {formatNumber(totalWins)}
             </span>
-            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-              victories
+            <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              WINS
+            </span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>
+              {winRate.toFixed(0)}%
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              WIN RATE
             </span>
           </div>
         </div>
 
-        {/* Row 2: Peak & Checkmates */}
+        {/* Row 2: Peak, Checkmates, Streak */}
         <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>
               {peakRating}
             </span>
-            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-              peak rating
+            <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              PEAK
             </span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#F87171", lineHeight: 1 }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#F87171", lineHeight: 1 }}>
               {formatNumber(checkmates)}
             </span>
-            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-              checkmates
-            </span>
-          </div>
-        </div>
-
-        {/* Row 3: Hours & Win Streak */}
-        <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#A78BFA", lineHeight: 1 }}>
-              {totalHours}h
-            </span>
-            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-              dedicated
+            <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              CHECKMATES
             </span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#34D399", lineHeight: 1 }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#34D399", lineHeight: 1 }}>
               {winStreak}
             </span>
-            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
-              best streak
+            <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+              BEST STREAK
             </span>
           </div>
         </div>
       </div>
+
+      {/* Extra Stats Row */}
+      <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", fontFamily: "Syne", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>
+        <span>{gamesPerDay} games/day</span>
+        <span>•</span>
+        <span>{totalHours}h played</span>
+        <span>•</span>
+        <span>{daysPlayed} days</span>
+        <span>•</span>
+        <span>{totalDraws} draws</span>
+      </div>
+
+      {/* Best Opening */}
+      {bestOpening && (
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: 6, 
+          backgroundColor: "rgba(255,255,255,0.05)", 
+          padding: "6px 12px", 
+          borderRadius: 20,
+          border: "1px solid rgba(255,255,255,0.1)",
+        }}>
+          <span style={{ fontFamily: "Syne", fontSize: 10, color: "rgba(255,255,255,0.6)" }}>BEST OPENING</span>
+          <span style={{ fontFamily: "Syne", fontSize: 11, fontWeight: 600, color: "#FBBF24" }}>
+            {formatOpening(bestOpening.name)}
+          </span>
+        </div>
+      )}
 
       {/* Footer */}
       <div style={{ 
         display: "flex", 
         flexDirection: "column", 
         alignItems: "center", 
-        marginTop: 10,
-        gap: 8,
+        marginTop: 2,
+        gap: 2,
       }}>
-        <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 700, color: "white", fontStyle: "italic" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 16, fontWeight: 700, color: "white", fontStyle: "italic" }}>
           Keep conquering!
         </span>
-        <span style={{ fontFamily: "Syne", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.4)" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.4)" }}>
           chessiro.com
         </span>
       </div>

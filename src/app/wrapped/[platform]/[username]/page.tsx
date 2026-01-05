@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { WrappedStats } from "@/lib/types";
-import { SLIDES, SLIDE_BACKGROUNDS, getCardNumberFromSlide, GallerySlide, getSlideDuration } from "@/components/wrapped/Slides";
+import { SLIDES, SLIDE_BACKGROUNDS, getCardNumberFromSlide, GallerySlide, getSlideDuration, NotEnoughGamesView } from "@/components/wrapped/Slides";
 import { ProgressBar, Confetti } from "@/components/wrapped/Effects";
 
 // Dynamically import Three.js components to avoid SSR issues
@@ -391,10 +391,20 @@ export default function WrappedPage() {
     );
   }
 
+  // Not enough games state
+  const MIN_GAMES_FOR_FULL_WRAPPED = 50;
+  const hasEnoughGames = stats.summary.totalGames >= MIN_GAMES_FOR_FULL_WRAPPED;
+  const canDownload = getCardNumberFromSlide(currentSlide) !== null;
+
+  if (!hasEnoughGames) {
+    return (
+      <NotEnoughGamesView stats={stats} onShare={() => handleShare()} onHome={() => router.push("/")} />
+    );
+  }
+
   const CurrentSlideComponent = SLIDES[currentSlide];
   const bgGradient = SLIDE_BACKGROUNDS[currentSlide];
   const isGallerySlide = currentSlide === totalSlides - 1;
-  const canDownload = getCardNumberFromSlide(currentSlide) !== null;
 
   return (
     <div 
@@ -497,7 +507,7 @@ export default function WrappedPage() {
                   username={username}
                 />
               ) : (
-                <CurrentSlideComponent stats={stats} isActive={true} />
+                <CurrentSlideComponent stats={stats} isActive={true} nextSlide={nextSlide} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -528,44 +538,43 @@ export default function WrappedPage() {
         </div>
       </div>
 
-      {/* Bottom Bar - Share + Gallery only */}
-      <AnimatePresence>
-        {showControls && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-3 z-50 px-4"
+      {/* Bottom Bar - Share always visible, Gallery on tap */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-3 z-50 px-4"
+      >
+        {/* Share button - always visible */}
+        {canDownload && (
+          <motion.button
+            onClick={() => handleShare()}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-all shadow-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {/* Share button - primary action */}
-            {canDownload && (
-              <button
-                onClick={() => handleShare()}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                <span className="text-sm">Share</span>
-              </button>
-            )}
-
-            {/* Gallery button if not on gallery slide */}
-            {!isGallerySlide && currentSlide > 0 && (
-              <button
-                onClick={() => goToSlide(totalSlides - 1)}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:bg-black/60 hover:text-white transition-all"
-                title="View All Cards"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-              </button>
-            )}
-          </motion.div>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            <span className="text-sm">Share</span>
+          </motion.button>
         )}
-      </AnimatePresence>
+
+        {/* Gallery button if not on gallery slide */}
+        {!isGallerySlide && currentSlide > 0 && (
+          <motion.button
+            onClick={() => goToSlide(totalSlides - 1)}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:bg-black/60 hover:text-white transition-all border border-white/10"
+            title="View All Cards"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+          </motion.button>
+        )}
+      </motion.div>
 
       {/* Keyboard hints - only on desktop */}
       <motion.p
