@@ -207,7 +207,7 @@ export default function WrappedPage() {
   }, [nextSlide, prevSlide, router, resetControlsTimer, startAudio, toggleMute]);
 
   // Download current card image
-  const handleDownload = async (cardNum?: number) => {
+  const handleDownload = async (cardNum?: string) => {
     const cardNumber = cardNum ?? getCardNumberFromSlide(currentSlide);
     if (cardNumber === null) return;
     
@@ -226,7 +226,7 @@ export default function WrappedPage() {
   };
 
   // Share functionality
-  const handleShare = async (cardNum?: number) => {
+  const handleShare = async (cardNum?: string) => {
     const cardNumber = cardNum ?? getCardNumberFromSlide(currentSlide);
     if (cardNumber === null) return;
     
@@ -252,7 +252,7 @@ export default function WrappedPage() {
   // Determine Three.js background variant based on slide
   const getBackgroundVariant = () => {
     if (currentSlide === 0) return "intro";
-    if (currentSlide >= 10) return "celebration"; // Summary and gallery
+    if (currentSlide >= 10) return "celebration"; // Activity, Nemesis, Personality, Gallery
     return "journey";
   };
   
