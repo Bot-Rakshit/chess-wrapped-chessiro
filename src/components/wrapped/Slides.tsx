@@ -677,7 +677,7 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
         </FadeIn>
         
         {/* Current Ratings */}
-        <div className="flex gap-12 justify-center">
+        <div className="flex flex-col items-center gap-8">
           {formats.map((format, index) => (
             <motion.div
               key={format.name}
@@ -1004,11 +1004,11 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const personalities = [
-    { name: "Magnus Carlsen", quote: "I like to calculate deeply and find the truth" },
-    { name: "Hikaru Nakamura", quote: "Speed and intuition win the day" },
-    { name: "Garry Kasparov", quote: "Attack is the best defense" },
-    { name: "Bobby Fischer", quote: "I like to crush my opponent's ego" },
-  ];
+    { name: "Magnus Carlsen", quote: "I like to calculate deeply and find the truth", image: "magnus.jpg" },
+    { name: "Hikaru Nakamura", quote: "Speed and intuition win the day", image: "hikaru.jpg" },
+    { name: "Garry Kasparov", quote: "Attack is the best defense", image: "garry.jpg" },
+    { name: "Bobby Fischer", quote: "I like to crush my opponent's ego", image: "bobby.jpg" },
+  ] as const;
   
   const index = (stats.summary.totalGames + stats.summary.totalWins) % personalities.length;
   const personality = personalities[index];
@@ -1027,10 +1027,14 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
 
         {/* Avatar */}
         <ScaleIn delay={0.3}>
-          <div className="w-40 h-40 rounded-full bg-[#FBC4AB] flex items-center justify-center">
-            <span className="font-[var(--font-syncopate)] text-5xl font-bold text-[#1E293B]">
-              {personality.name.charAt(0)}
-            </span>
+          <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-[#FBC4AB]/30">
+            <Image
+              src={`/${personality.image}`}
+              alt={personality.name}
+              width={160}
+              height={160}
+              className="w-full h-full object-cover"
+            />
           </div>
         </ScaleIn>
 
