@@ -1246,7 +1246,6 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
     "Activity",
     "Nemesis",
     "Personality",
-    "Summary",
   ];
 
   return (
@@ -1261,8 +1260,7 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
         <div className="flex-1 w-full overflow-y-auto">
           <div className="grid grid-cols-2 gap-2 w-full">
             {cardTitles.map((title, i) => {
-              // Map display index to actual card number for API (new order with Total Openings)
-              const cardNumbers = [1, 2, 3, 4, 5, 6, 11, 7, 6, 12, 8, 9, 10];
+              const cardNumbers = [1, 2, 3, 4, 5, 6, 11, 7, "6b", 12, 8, 9];
               const cardNum = cardNumbers[i];
               
               return (
@@ -1353,20 +1351,20 @@ export const SLIDE_BACKGROUNDS = [
 ];
 
 // Map slide index to card number for download
-export function getCardNumberFromSlide(slideIndex: number): number | null {
-  const cardMap: Record<number, number> = {
-    1: 1,   // Games
-    2: 2,   // Time
-    3: 3,   // Style
-    4: 4,   // Journey
-    5: 5,   // Ratings
-    6: 6,   // Total Openings (new card 6)
-    7: 11,  // Openings Details
-    8: 7,   // Streaks
-    9: 6,   // Biggest Win
-    10: 12, // Activity
-    11: 8,  // Nemesis
-    12: 9,  // Personality
+export function getCardNumberFromSlide(slideIndex: number): string | null {
+  const cardMap: Record<number, string> = {
+    1: "1",   // Games
+    2: "2",   // Time
+    3: "3",   // Style
+    4: "4",   // Journey
+    5: "5",   // Ratings
+    6: "6",   // Total Openings
+    7: "11",  // Openings Details
+    8: "7",   // Streaks
+    9: "6b",  // Biggest Win
+    10: "12", // Activity
+    11: "8",  // Nemesis
+    12: "9",  // Personality
   };
   return cardMap[slideIndex] ?? null;
 }
