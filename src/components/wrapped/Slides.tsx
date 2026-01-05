@@ -1024,9 +1024,85 @@ export function Card10Slide({ stats, isActive }: SlideProps) {
   );
 }
 
+// ============================================
+// Slide 11 = Gallery View - Browse all cards
+// ============================================
+interface GallerySlideProps extends SlideProps {
+  onSelectCard?: (cardNumber: number) => void;
+  username?: string;
+}
+
+export function GallerySlide({ stats, isActive, onSelectCard, username }: GallerySlideProps) {
+  if (!isActive) return null;
+
+  const cardTitles = [
+    "Games & Wins",
+    "Time Spent", 
+    "Play Style",
+    "Your Journey",
+    "Ratings",
+    "Biggest Win",
+    "Streaks",
+    "Nemesis",
+    "Personality",
+    "Summary"
+  ];
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-4 py-8">
+      <GlowOrb color="rgba(125, 211, 252, 0.15)" size={400} x="30%" y="30%" blur={120} />
+      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="70%" y="70%" blur={120} />
+      
+      <div className="relative z-10 flex flex-col items-center text-center gap-6 w-full max-w-sm">
+        <SlideUp delay={0.1}>
+          <span className="text-2xl font-bold text-white">Your Capsule</span>
+          <p className="text-white/60 text-sm mt-1">Tap any card to view or download</p>
+        </SlideUp>
+
+        {/* Card Grid */}
+        <StaggerContainer delay={0.3} staggerDelay={0.05} className="grid grid-cols-2 gap-3 w-full">
+          {cardTitles.map((title, i) => (
+            <StaggerItem key={i}>
+              <button
+                onClick={() => onSelectCard?.(i + 1)}
+                className="relative w-full aspect-[9/16] rounded-xl overflow-hidden bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-white/30 transition-all group"
+              >
+                {/* Card preview - use API image */}
+                {username && (
+                  <img
+                    src={`/api/wrapped/${username}/image/${i + 1}`}
+                    alt={title}
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    loading="lazy"
+                  />
+                )}
+                
+                {/* Overlay with title */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center p-2">
+                  <span className="text-white text-xs font-medium">{title}</span>
+                </div>
+                
+                {/* Card number badge */}
+                <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <span className="text-white text-[10px] font-bold">{i + 1}</span>
+                </div>
+              </button>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+
+        <FadeIn delay={1}>
+          <p className="text-white/40 text-xs">chessiro.com</p>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
 // Export all slides - NOW ALIGNED WITH CARDS
 // Slide 0 = Intro (no card)
 // Slides 1-10 = Cards 1-10
+// Slide 11 = Gallery
 export const SLIDES = [
   IntroSlide,    // 0 - Intro (greeting only)
   Card1Slide,    // 1 = Card 1: Games, Wins, Checkmates
@@ -1039,6 +1115,7 @@ export const SLIDES = [
   Card8Slide,    // 8 = Card 8: Nemesis
   Card9Slide,    // 9 = Card 9: Personality
   Card10Slide,   // 10 = Card 10: Summary
+  GallerySlide,  // 11 = Gallery (browse all)
 ];
 
 export const SLIDE_BACKGROUNDS = [
@@ -1053,10 +1130,11 @@ export const SLIDE_BACKGROUNDS = [
   "from-rose-950 to-black",       // Card 8
   "from-orange-950 to-black",     // Card 9
   "from-violet-950 to-black",     // Card 10
+  "from-slate-900 to-black",      // Gallery
 ];
 
 // Map slide index to card number for download
 export function getCardNumberFromSlide(slideIndex: number): number | null {
-  if (slideIndex === 0) return null; // Intro has no card
+  if (slideIndex === 0 || slideIndex === 11) return null; // Intro and Gallery have no card
   return slideIndex; // Slides 1-10 = Cards 1-10
 }

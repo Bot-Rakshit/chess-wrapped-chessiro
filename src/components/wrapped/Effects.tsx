@@ -1,24 +1,26 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 
 interface ProgressBarProps {
   total: number;
   current: number;
   onSegmentClick?: (index: number) => void;
+  compact?: boolean;
 }
 
-export function ProgressBar({ total, current, onSegmentClick }: ProgressBarProps) {
+export function ProgressBar({ total, current, onSegmentClick, compact = false }: ProgressBarProps) {
   return (
-    <div className="flex gap-1.5 w-full max-w-md px-4">
+    <div className={`flex gap-0.5 w-full max-w-sm px-3 ${compact ? 'opacity-60' : ''}`}>
       {Array.from({ length: total }).map((_, i) => (
         <button
           key={i}
           onClick={() => onSegmentClick?.(i)}
-          className="flex-1 h-1 rounded-full overflow-hidden bg-white/20 cursor-pointer hover:bg-white/30 transition-colors"
+          className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/20 cursor-pointer hover:bg-white/30 transition-colors will-change-transform"
         >
           <motion.div
-            className="h-full bg-white rounded-full"
+            className="h-full bg-white rounded-full will-change-transform"
             initial={{ width: "0%" }}
             animate={{ 
               width: i < current ? "100%" : i === current ? "100%" : "0%" 
@@ -40,29 +42,46 @@ interface ParticleProps {
 }
 
 export function Particles({ color = "#ffffff", count = 20 }: ParticleProps) {
+  // Memoize particle data to prevent recalculation on every render
+  const particles = useMemo(() => {
+    // Reduce count on mobile for better performance
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const actualCount = isMobile ? Math.min(count, 8) : count;
+    
+    return Array.from({ length: actualCount }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      yMove: -100 - Math.random() * 100,
+      xMove: (Math.random() - 0.5) * 50,
+      duration: 2 + Math.random() * 2,
+      delay: Math.random() * 2,
+      repeatDelay: Math.random() * 3,
+    }));
+  }, [count]);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: count }).map((_, i) => (
+      {particles.map((particle, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 rounded-full"
+          className="absolute w-1 h-1 rounded-full will-change-transform"
           style={{ 
             backgroundColor: color,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
+            left: particle.left,
+            top: particle.top,
           }}
           initial={{ opacity: 0, scale: 0 }}
           animate={{
             opacity: [0, 1, 0],
             scale: [0, 1.5, 0],
-            y: [0, -100 - Math.random() * 100],
-            x: [0, (Math.random() - 0.5) * 50],
+            y: [0, particle.yMove],
+            x: [0, particle.xMove],
           }}
           transition={{
-            duration: 2 + Math.random() * 2,
-            delay: Math.random() * 2,
+            duration: particle.duration,
+            delay: particle.delay,
             repeat: Infinity,
-            repeatDelay: Math.random() * 3,
+            repeatDelay: particle.repeatDelay,
           }}
         />
       ))}
@@ -132,7 +151,7 @@ interface GlowOrbProps {
 export function GlowOrb({ color, size = 300, x = "50%", y = "50%", blur = 100 }: GlowOrbProps) {
   return (
     <motion.div
-      className="absolute rounded-full pointer-events-none"
+      className="absolute rounded-full pointer-events-none will-change-transform"
       style={{
         background: color,
         width: size,
@@ -162,32 +181,48 @@ interface ConfettiProps {
 }
 
 export function Confetti({ active, count = 50 }: ConfettiProps) {
-  if (!active) return null;
-
   const colors = ["#7DD3FC", "#FBBF24", "#F87171", "#61DE58", "#A78BFA"];
+  
+  // Memoize confetti data
+  const confettiPieces = useMemo(() => {
+    // Reduce count on mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const actualCount = isMobile ? Math.min(count, 30) : count;
+    
+    return Array.from({ length: actualCount }).map((_, i) => ({
+      color: colors[i % colors.length],
+      isCircle: Math.random() > 0.5,
+      xMove: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerWidth : 400),
+      yMove: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerHeight : 800),
+      rotation: Math.random() * 720,
+      duration: 2 + Math.random(),
+    }));
+  }, [count]);
+  
+  if (!active) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
-      {Array.from({ length: count }).map((_, i) => (
+      {confettiPieces.map((piece, i) => (
         <motion.div
           key={i}
-          className="absolute w-3 h-3"
+          className="absolute w-3 h-3 will-change-transform"
           style={{
-            backgroundColor: colors[i % colors.length],
+            backgroundColor: piece.color,
             left: "50%",
             top: "50%",
-            borderRadius: Math.random() > 0.5 ? "50%" : "0",
+            borderRadius: piece.isCircle ? "50%" : "0",
           }}
           initial={{ opacity: 1, scale: 1 }}
           animate={{
-            x: (Math.random() - 0.5) * window.innerWidth,
-            y: (Math.random() - 0.5) * window.innerHeight,
-            rotate: Math.random() * 720,
+            x: piece.xMove,
+            y: piece.yMove,
+            rotate: piece.rotation,
             opacity: 0,
             scale: 0,
           }}
           transition={{
-            duration: 2 + Math.random(),
+            duration: piece.duration,
             ease: "easeOut",
           }}
         />
