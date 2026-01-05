@@ -55,15 +55,15 @@ interface CardData {
   stats: WrappedStats;
 }
 
-// Safe padding from edges - reduced for more vertical spread
-const PADDING_X = 70;
-const PADDING_Y = 60;
-const PADDING_TOP = 60;
-const PADDING_BOTTOM = 50;
+// Balanced layout - moderate spacing
+const PADDING_X = 60;
+const PADDING_Y = 40;
+const PADDING_TOP = 40;
+const PADDING_BOTTOM = 30;
 const CONTENT_WIDTH = 820 - (PADDING_X * 2);
 
-// Increased gap for better vertical spacing between elements
-const SECTION_GAP = 40;
+// Moderate gap for elements
+const SECTION_GAP = 30;
 
 // Helper function to format numbers with commas
 function formatNumber(num: number): string {
@@ -224,8 +224,8 @@ function Card1({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 40,
-      paddingBottom: PADDING_BOTTOM + 40,
+      paddingTop: PADDING_TOP + 10,
+      paddingBottom: PADDING_BOTTOM + 10,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -908,10 +908,10 @@ function Card8({ stats }: CardData) {
 // ============================================
 function Card9({ stats }: CardData) {
   const personalities = [
-    { name: "Magnus Carlsen", quote: "I like to calculate deeply and find the truth" },
-    { name: "Hikaru Nakamura", quote: "Speed and intuition win the day" },
-    { name: "Garry Kasparov", quote: "Attack is the best defense" },
-    { name: "Bobby Fischer", quote: "I like to crush my opponents ego" },
+    { name: "Magnus Carlsen", quote: "I like to calculate deeply and find the truth", image: "/magnus.jpg" },
+    { name: "Hikaru Nakamura", quote: "Speed and intuition win the day", image: "/hikaru.jpg" },
+    { name: "Garry Kasparov", quote: "Attack is the best defense", image: "/garry.jpg" },
+    { name: "Bobby Fischer", quote: "I like to crush my opponents ego", image: "/bobby.jpg" },
   ];
   
   const index = (stats.summary.totalGames + stats.summary.totalWins) % personalities.length;
@@ -926,8 +926,8 @@ function Card9({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 60,
-      paddingBottom: PADDING_BOTTOM + 60,
+      paddingTop: PADDING_TOP + 10,
+      paddingBottom: PADDING_BOTTOM + 10,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -942,12 +942,18 @@ function Card9({ stats }: CardData) {
         <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>is like</span>
       </div>
 
-      {/* Avatar Circle */}
-      <div style={{ width: 200, height: 200, borderRadius: 100, backgroundColor: "#FBC4AB", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontFamily: "Syncopate", fontSize: 72, fontWeight: 700, color: "#1E293B" }}>
-          {personality.name.charAt(0)}
-        </span>
-      </div>
+      {/* Player Image */}
+      <img 
+        src={personality.image}
+        alt={personality.name}
+        style={{ 
+          width: 200, 
+          height: 200, 
+          borderRadius: 100, 
+          objectFit: "cover",
+          border: "4px solid rgba(255,255,255,0.2)"
+        }} 
+      />
 
       {/* Identity */}
       <span style={{ fontFamily: "Syne", fontSize: 42, fontWeight: 700, color: "#7DD3FC", textAlign: "center" }}>{personality.name}</span>

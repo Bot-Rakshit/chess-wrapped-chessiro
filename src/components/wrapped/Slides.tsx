@@ -338,7 +338,7 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
             <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
               {mostPlayed.charAt(0) + mostPlayed.slice(1).toLowerCase()}
             </span>
-            <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+            <span className="font-syncopate text-5xl md:text-5xl font-bold text-[#7DD3FC]">
               {mostPlayed === "RAPID"
                 ? "Champion"
                 : mostPlayed === "BLITZ"
