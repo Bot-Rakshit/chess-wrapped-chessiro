@@ -17,20 +17,36 @@ let syncopateFont: ArrayBuffer | null = null;
 
 function loadFonts() {
   if (!syneFont700) {
-    const buffer = fs.readFileSync(syneFontPath);
-    syneFont700 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    try {
+      const buffer = fs.readFileSync(syneFontPath);
+      syneFont700 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    } catch (e) {
+      console.warn('Failed to load Syne 700 font, using fallback');
+    }
   }
   if (!syneFont800) {
-    const buffer = fs.readFileSync(syneFontPath800);
-    syneFont800 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    try {
+      const buffer = fs.readFileSync(syneFontPath800);
+      syneFont800 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    } catch (e) {
+      console.warn('Failed to load Syne 800 font, using fallback');
+    }
   }
   if (!syneFont500) {
-    const buffer = fs.readFileSync(syneFontPath500);
-    syneFont500 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    try {
+      const buffer = fs.readFileSync(syneFontPath500);
+      syneFont500 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    } catch (e) {
+      console.warn('Failed to load Syne 500 font, using fallback');
+    }
   }
   if (!syncopateFont) {
-    const buffer = fs.readFileSync(syncopateFontPath);
-    syncopateFont = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    try {
+      const buffer = fs.readFileSync(syncopateFontPath);
+      syncopateFont = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    } catch (e) {
+      console.warn('Failed to load Syncopate font, using fallback');
+    }
   }
   return { syneFont700, syneFont800, syneFont500, syncopateFont };
 }
@@ -982,29 +998,10 @@ function Card10({ stats }: CardData) {
       paddingBottom: 30,
       position: "relative",
       overflow: "hidden",
+      backgroundColor: "#0a0a0a",
     }}>
-      {/* Animated gradient border effect */}
+      {/* Content container */}
       <div style={{ 
-        position: "absolute", 
-        inset: 0, 
-        padding: 3, 
-        borderRadius: 24,
-        background: "linear-gradient(135deg, #22d3ee, #fbbf24, #f472b6, #a78bfa, #22d3ee)",
-        backgroundSize: "400% 400%",
-        animation: "rotate 8s linear infinite",
-      }}>
-        <div style={{ 
-          position: "absolute", 
-          inset: 3, 
-          backgroundColor: "#0a0a0a", 
-          borderRadius: 20,
-        }} />
-      </div>
-
-      {/* Content container with higher z-index */}
-      <div style={{ 
-        position: "relative", 
-        zIndex: 10,
         display: "flex", 
         flexDirection: "column", 
         alignItems: "center", 
@@ -1013,39 +1010,19 @@ function Card10({ stats }: CardData) {
       }}>
         {/* Profile Section */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          {/* Avatar with gradient ring */}
+          {/* Avatar */}
           <div style={{ 
             width: 80, 
             height: 80, 
             borderRadius: 40, 
-            background: "linear-gradient(135deg, #22d3ee, #fbbf24, #f472b6)",
-            padding: 3,
+            backgroundColor: "#1E293B",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}>
-            {avatarUrl ? (
-              <img 
-                src={avatarUrl} 
-                width={74} 
-                height={74} 
-                style={{ borderRadius: 37, objectFit: "cover" }}
-              />
-            ) : (
-              <div style={{ 
-                width: 74, 
-                height: 74, 
-                borderRadius: 37, 
-                backgroundColor: "#1E293B",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "white" }}>
-                  {username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "white" }}>
+              {username.charAt(0).toUpperCase()}
+            </span>
           </div>
           
           {/* Username with title */}
@@ -1572,6 +1549,12 @@ export async function generateCardImage(
     default: CardComponent = <Card1 stats={stats} />;
   }
 
+  const fontOptions = [];
+  if (syneFont500) fontOptions.push({ name: "Syne", data: syneFont500, weight: 500 as const, style: "normal" as const });
+  if (syneFont700) fontOptions.push({ name: "Syne", data: syneFont700, weight: 700 as const, style: "normal" as const });
+  if (syneFont800) fontOptions.push({ name: "Syne", data: syneFont800, weight: 800 as const, style: "normal" as const });
+  if (syncopateFont) fontOptions.push({ name: "Syncopate", data: syncopateFont, weight: 700 as const, style: "normal" as const });
+
   const svg = await satori(
     <div style={{ width: "100%", height: "100%", display: "flex", position: "relative" }}>
       {CardComponent}
@@ -1579,12 +1562,7 @@ export async function generateCardImage(
     {
       width,
       height,
-      fonts: [
-        { name: "Syne", data: syneFont500!, weight: 500, style: "normal" },
-        { name: "Syne", data: syneFont700!, weight: 700, style: "normal" },
-        { name: "Syne", data: syneFont800!, weight: 800, style: "normal" },
-        { name: "Syncopate", data: syncopateFont!, weight: 700, style: "normal" },
-      ],
+      fonts: fontOptions,
     }
   );
 

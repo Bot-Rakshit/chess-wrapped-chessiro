@@ -789,13 +789,6 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
   const currentStreak = stats.streaks?.currentStreak?.count || 0;
   const currentStreakType = stats.streaks?.currentStreak?.type || "win";
 
-  const getStreakEmoji = (streak: number) => {
-    if (streak >= 20) return "🔥";
-    if (streak >= 10) return "⚡";
-    if (streak >= 5) return "✨";
-    return "💪";
-  };
-
   const getStreakMessage = (streak: number) => {
     if (streak >= 20) return "LEGENDARY!";
     if (streak >= 15) return "Unstoppable!";
@@ -816,16 +809,6 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
           <FadeIn delay={0.1}>
             <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Longest Win Streak</span>
           </FadeIn>
-          <FloatingElements>
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="text-8xl"
-            >
-              {getStreakEmoji(winStreak)}
-            </motion.div>
-          </FloatingElements>
           <AnimatedNumber
             value={winStreak}
             className="font-[var(--font-syncopate)] text-8xl font-bold text-[#34D399]"

@@ -4,26 +4,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { WrappedStats } from "@/lib/types";
 import { SLIDES, SLIDE_BACKGROUNDS, getCardNumberFromSlide, GallerySlide, getSlideDuration, NotEnoughGamesView } from "@/components/wrapped/Slides";
 import { ProgressBar, Confetti, GlowOrb, Particles } from "@/components/wrapped/Effects";
-
-// Dynamically import Three.js components to avoid SSR issues
-const ThreeBackground = dynamic(
-  () => import("@/components/wrapped/ThreeBackground").then(mod => mod.ThreeBackground),
-  { ssr: false }
-);
-
-const ThreeLoader = dynamic(
-  () => import("@/components/wrapped/ThreeBackground").then(mod => mod.ThreeLoader),
-  { ssr: false }
-);
-
-const ThreeGallery = dynamic(
-  () => import("@/components/wrapped/ThreeBackground").then(mod => mod.ThreeGallery),
-  { ssr: false }
-);
 
 export default function WrappedPage() {
   const params = useParams();
@@ -441,11 +424,7 @@ export default function WrappedPage() {
   const isGallerySlide = currentSlide === totalSlides - 1;
 
   return (
-    <div 
-      className={`min-h-screen flex flex-col items-center justify-center bg-gradient-to-b ${bgGradient} transition-colors duration-1000 relative overflow-hidden`}
-    >
-      {/* Three.js Background */}
-      <ThreeBackground variant={getBackgroundVariant()} intensity={0.7} />
+    <div className={`min-h-screen flex flex-col items-center justify-center bg-gradient-to-b ${bgGradient} transition-colors duration-1000 relative overflow-hidden`}>
       
       <Confetti active={showConfetti} />
 
