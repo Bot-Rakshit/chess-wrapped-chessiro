@@ -416,17 +416,6 @@ function Card6({ stats }: { stats: WrappedStats }) {
         <span style={{ fontFamily: "Syncopate", fontSize: 120, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>{formatNumber(totalUnique)}</span>
         <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2, marginTop: 10 }}>Unique Openings</span>
       </div>
-
-      <div style={{ display: "flex", gap: 50 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <span style={{ fontFamily: "Syncopate", fontSize: 48, fontWeight: 700, color: "#FBBF24" }}>{stats.openings?.asWhite?.length || 0}</span>
-          <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>as White</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <span style={{ fontFamily: "Syncopate", fontSize: 48, fontWeight: 700, color: "#7DD3FC" }}>{stats.openings?.asBlack?.length || 0}</span>
-          <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>as Black</span>
-        </div>
-      </div>
     </div>
   );
 }
