@@ -71,35 +71,26 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
           initial={{ opacity: 0, scale: 0.5, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4, type: "spring", damping: 12 }}
-          className="mb-4"
+          className="mb-6"
         >
           <div className="relative">
-            {/* Animated ring */}
-            <motion.div 
-              className="absolute -inset-2 rounded-full opacity-60"
-              style={{
-                background: "conic-gradient(from 0deg, #FBBF24, #F59E0B, #D97706, #FBBF24)"
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            />
-            <div className="absolute -inset-2 rounded-full bg-black/60 backdrop-blur-sm" />
-            
-            {stats.profile.avatar ? (
-              <Image
-                src={stats.profile.avatar}
-                alt={stats.username}
-                width={100}
-                height={100}
-                className="relative rounded-full border-2 border-amber-500/30"
-              />
-            ) : (
-              <div className="relative w-[100px] h-[100px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-500/30">
-                <span className="font-syncopate text-4xl font-bold text-black">
-                  {stats.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            <div className="w-[140px] h-[140px] rounded-full overflow-hidden border border-white/30">
+              {stats.profile.avatar ? (
+                <Image
+                  src={stats.profile.avatar}
+                  alt={stats.username}
+                  width={140}
+                  height={140}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
+                  <span className="font-syncopate text-5xl font-bold text-black">
+                    {stats.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
 
@@ -116,7 +107,7 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
                 {stats.profile.title}
               </span>
             )}
-            <span className="text-2xl font-bold text-white">{displayName}</span>
+            <span className="text-4xl font-bold text-white font-syne">{displayName}</span>
           </div>
         </motion.div>
 
@@ -125,24 +116,24 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="mb-8"
+          className="mb-10"
         >
           {isFirstYear ? (
-            <p className="text-amber-400/80 text-sm">
+            <p className="text-white text-base">
               Your first year on chess.com!
             </p>
           ) : yearsPlaying && joinedYear ? (
-            <p className="text-white/50 text-sm">
+            <p className="text-white text-base">
               Playing since {joinedYear} · {yearsPlaying} {yearsPlaying === 1 ? 'year' : 'years'} of chess
             </p>
           ) : (
-            <p className="text-white/50 text-sm">
+            <p className="text-white text-base">
               @{stats.username}
             </p>
           )}
         </motion.div>
 
-        {/* Review Button */}
+        {/* Start Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -150,11 +141,11 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
         >
           <motion.button
             onClick={onStart}
-            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20"
+            className="px-10 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-base tracking-wide shadow-lg shadow-amber-500/20"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Review My Capsule
+            Start now
           </motion.button>
         </motion.div>
 
@@ -165,7 +156,6 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
           transition={{ delay: 1.5, duration: 0.5 }}
           className="absolute bottom-6 text-white/40 text-xs"
         >
-          Tap to continue →
         </motion.p>
       </div>
     </div>
@@ -195,12 +185,9 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
       <GlowOrb color="rgba(235, 151, 25, 0.2)" size={350} x="50%" y="35%" blur={100} />
       <Particles color="#EB9719" count={12} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-10">
+      <div className="relative z-10 flex flex-col items-center text-center gap-17 mt-10">
         {/* Games Played */}
         <div className="flex flex-col items-center">
-          <FadeIn delay={0.1}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">You played</span>
-          </FadeIn>
           <ZoomBurst delay={0.2}>
             <AnimatedNumber
               value={gamesPlayed}
@@ -216,9 +203,7 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
 
         {/* Wins */}
         <div className="flex flex-col items-center">
-          <FadeIn delay={1}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">And claimed</span>
-          </FadeIn>
+         
           <Heartbeat delay={1.1}>
             <AnimatedNumber
               value={wins}
@@ -228,23 +213,18 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
             />
           </Heartbeat>
           <SlideUp delay={1.6}>
-            <span className="text-xl text-white/80 mt-2">glorious victories</span>
+            <span className="text-xl text-white/80 mt-4">glorious victories</span>
           </SlideUp>
         </div>
 
         {/* Checkmates */}
         <div className="flex flex-col items-center">
-          <FadeIn delay={2}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Delivering</span>
-          </FadeIn>
-          <Shimmer delay={2.1}>
             <AnimatedNumber
               value={checkmates}
               className="font-syncopate text-6xl md:text-7xl font-bold text-[#F22E2E]"
               delay={2.2}
               duration={2}
             />
-          </Shimmer>
           <SlideUp delay={2.6}>
             <span className="text-xl text-white/80 mt-2">crushing checkmates</span>
           </SlideUp>
@@ -275,7 +255,7 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-12">
         <SlideUp delay={0.1}>
-          <span className="text-2xl text-[#CEFFDD] font-bold italic">You played</span>
+          <span className="text-2xl text-[#CEFFDD] font-bold italic">You p</span>
         </SlideUp>
 
         {/* Minutes */}
@@ -849,12 +829,12 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const playStreak = stats.activity?.sessions?.total || 0;
+  const playStreak = stats.activity?.sessions?.total || 30;
 
   const getStreakMessage = (streak: number) => {
     if (streak >= 20) return "LEGENDARY!";
     if (streak >= 15) return "Unstoppable!";
-    if (streak >= 10) return "On Fire!";
+    if (streak >= 10) return "Amazing!";
     if (streak >= 7) return "Week of Dominance!";
     if (streak >= 5) return "High Five Worthy!";
     return "Keep Building!";

@@ -72,6 +72,10 @@ export async function getPlayerProfile(username: string, token?: string): Promis
     nbFollowing?: number;
   }>(`${BASE_URL}/user/${username}`, { token });
 
+  const fullName = data.profile?.firstName && data.profile?.lastName
+    ? `${data.profile.firstName} ${data.profile.lastName}`
+    : data.profile?.firstName || undefined;
+
   return {
     username: data.username,
     title: data.title,
@@ -79,6 +83,7 @@ export async function getPlayerProfile(username: string, token?: string): Promis
     joined: data.createdAt,
     lastOnline: data.seenAt,
     followers: data.nbFollowers,
+    name: fullName,
   };
 }
 

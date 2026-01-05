@@ -695,7 +695,7 @@ function Card6({ stats }: CardData) {
 // ============================================
 function Card7({ stats }: CardData) {
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const playStreak = stats.streaks?.longestPlayStreak || 0;
+  const playStreak = stats.activity?.sessions?.total || 30;
   const oneLiner = getStreaksOneLiner(stats);
 
   return (

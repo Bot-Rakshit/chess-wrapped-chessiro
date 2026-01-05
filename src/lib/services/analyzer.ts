@@ -428,6 +428,10 @@ export function analyzeGames(
   const totalGames = totalWins + totalLosses + totalDraws;
   const winRate = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
 
+  // Calculate unique playing days (sessions)
+  const uniquePlayDates = new Set(games.map(g => new Date(g.endTime).toISOString().split('T')[0]));
+  const sessionsTotal = uniquePlayDates.size;
+
   return {
     platform,
     username,
@@ -485,7 +489,7 @@ export function analyzeGames(
       totalTimePlayedSeconds,
       totalTimePlayedFormatted: formatDuration(totalTimePlayedSeconds),
       averageGameLengthMoves: totalGames > 0 ? Math.round(totalMoves / totalGames) : 0,
-      sessions: { total: 0 },
+      sessions: { total: sessionsTotal },
     },
     notableGames: { bestWin: bestWinGame, quickestWin },
     insights: { timeTag: getTimeTag(mostActiveHour), playStyle: "grinder" },

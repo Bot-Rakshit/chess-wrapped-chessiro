@@ -69,6 +69,7 @@ export async function getPlayerProfile(username: string): Promise<PlayerProfile>
     followers: data.followers,
     isStreamer: data.is_streamer,
     twitchUrl: data.twitch_url,
+    name: data.name,
   };
 }
 

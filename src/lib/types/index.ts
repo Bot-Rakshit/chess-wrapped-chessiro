@@ -18,6 +18,7 @@ export interface PlayerProfile {
   followers?: number;
   isStreamer?: boolean;
   twitchUrl?: string;
+  name?: string;
 }
 
 export interface GamePlayer {
@@ -169,7 +170,6 @@ export interface WrappedStats {
   streaks: {
     longestWinStreak: number;
     longestLoseStreak: number;
-    longestPlayStreak: number;
     currentStreak: { type: "win" | "loss" | "draw"; count: number };
   };
   activity: {
