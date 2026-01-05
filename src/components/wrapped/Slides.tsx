@@ -12,6 +12,7 @@ interface SlideProps {
   stats: WrappedStats;
   isActive: boolean;
   nextSlide?: () => void;
+  onStart?: () => void;
 }
 
 // Helper to format numbers
@@ -21,7 +22,7 @@ function formatNumber(num: number): string {
 
 // Slide 0: Intro (No matching card - just greeting)
 // ============================================
-export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
+export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) {
   if (!isActive) return null;
 
   // Calculate years playing
@@ -148,7 +149,7 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           transition={{ duration: 0.5, delay: 1 }}
         >
           <motion.button
-            onClick={nextSlide}
+            onClick={onStart}
             className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -1018,263 +1019,6 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 10 = Card 10: Summary - Ultimate Shareable Card
-// ============================================
-export function Card10Slide({ stats, isActive, nextSlide }: SlideProps) {
-  if (!isActive) return null;
-
-  const totalGames = stats.summary.totalGames;
-  const totalWins = stats.summary.totalWins;
-  const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
-  const totalHours = Math.round(totalMinutes / 60);
-  const totalMoves = stats.activity.totalMoves;
-  
-  const checkmates = stats.checkmates.given;
-  const winStreak = stats.streaks?.longestWinStreak || 0;
-  const winRate = stats.summary.overallWinRate;
-  
-  // Get peak rating
-  const history = stats.ratings.history || [];
-  const allPeaks = history.map(h => h.peak).filter(p => p > 0);
-  const peakRating = allPeaks.length > 0 ? Math.max(...allPeaks) : 0;
-  
-  // Get current ratings
-  const ratings = stats.ratings.current || {};
-  const currentRapid = ratings.rapid || 0;
-  const currentBlitz = ratings.blitz || 0;
-  const currentBullet = ratings.bullet || 0;
-  
-  // Calculate fun stats
-  const gamesPerDay = totalGames > 0 ? (totalGames / 365).toFixed(1) : 0;
-  const bestOpening = stats.openings?.bestAsWhite || stats.openings?.bestAsBlack;
-  const totalUnique = stats.opponents?.mostPlayed?.length || 0;
-
-  // Intelligent year summary
-  const yearSummary = winRate >= 65 
-    ? "Absolutely Dominant" 
-    : winRate >= 55 
-      ? "Strong Performance" 
-      : winRate >= 45 
-        ? "Competitive Spirit"
-        : "Never Give Up";
-
-  // Player title based on peak rating
-  const getPlayerTitle = (rating: number) => {
-    if (rating >= 2400) return "Master";
-    if (rating >= 2200) return "Expert";
-    if (rating >= 2000) return "Advanced";
-    if (rating >= 1800) return "Intermediate";
-    return "Rising Star";
-  };
-
-  // Fun tagline based on stats
-  const getFunTagline = () => {
-    if (checkmates >= 100) return "Checkmate Machine";
-    if (winStreak >= 10) return "On Fire!";
-    if (totalGames >= 2000) return "Grind Mode";
-    if (totalHours >= 200) return "Time Invested";
-    if (checkmates >= totalWins * 0.15) return "Finisher";
-    return "Keep Growing";
-  };
-
-  return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-4">
-      {/* Animated gradient border effect */}
-      <div className="absolute inset-0 p-[2px] rounded-2xl md:rounded-3xl overflow-hidden">
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-amber-400 via-pink-400 to-cyan-400"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          style={{ borderRadius: "inherit" }}
-        />
-        <div className="absolute inset-[2px] bg-black rounded-xl md:rounded-2xl" />
-      </div>
-      
-      {/* Celebration effects */}
-      <GlowOrb color="rgba(125, 211, 252, 0.15)" size={400} x="20%" y="30%" blur={120} />
-      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="80%" y="60%" blur={120} />
-      <Particles color="#FBBF24" count={20} />
-      
-      <div className="relative z-10 flex flex-col items-center text-center gap-3 px-5 py-6 w-full max-w-sm h-full max-h-[750px] overflow-y-auto">
-        {/* Profile Section */}
-        <SpotlightReveal delay={0.2}>
-          <div className="flex flex-col items-center gap-2">
-            {/* Avatar with gradient ring */}
-            {stats.profile.avatar ? (
-              <div className="relative">
-                <motion.div 
-                  className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-amber-400 to-pink-400 rounded-full blur-sm opacity-80"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                />
-                <Image
-                  src={stats.profile.avatar}
-                  alt={stats.username}
-                  width={70}
-                  height={70}
-                  className="relative rounded-full border-2 border-black"
-                />
-              </div>
-            ) : (
-              <div className="w-[70px] h-[70px] rounded-full bg-gradient-to-br from-cyan-400 via-amber-400 to-pink-400 flex items-center justify-center">
-                <span className="font-[var(--font-syncopate)] text-2xl font-bold text-black">
-                  {stats.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-            
-            {/* Username & Title */}
-            <div className="flex flex-col items-center gap-1">
-              {stats.profile.title && (
-                <span className="px-2 py-0.5 bg-amber-500 text-black text-xs font-bold rounded">
-                  {stats.profile.title}
-                </span>
-              )}
-              <span className="text-lg font-bold text-white">{stats.username}</span>
-              <span className="text-amber-400 text-xs font-medium">{getPlayerTitle(peakRating)}</span>
-            </div>
-          </div>
-        </SpotlightReveal>
-
-        {/* Year Badge */}
-        <Shimmer delay={0.4}>
-          <div className="border-t border-b border-white/10 py-1.5 px-4">
-            <span className="text-white/50 text-[10px] tracking-[0.3em] uppercase">
-              Capsule 2025
-            </span>
-          </div>
-        </Shimmer>
-
-        {/* Year Summary Tag */}
-        <WipeReveal delay={0.5} direction="up">
-          <div className="px-4 py-1.5 bg-gradient-to-r from-cyan-500/20 via-amber-500/20 to-pink-500/20 rounded-full border border-white/10">
-            <span className="font-[var(--font-syncopate)] text-base font-bold bg-gradient-to-r from-cyan-400 via-amber-400 to-pink-400 text-transparent bg-clip-text">
-              {yearSummary}
-            </span>
-          </div>
-        </WipeReveal>
-
-        {/* Fun Tagline */}
-        <FadeIn delay={0.6}>
-          <span className="text-emerald-400 text-sm font-bold tracking-wide">
-            {getFunTagline()}
-          </span>
-        </FadeIn>
-
-        {/* Current Ratings */}
-        <FadeIn delay={0.7}>
-          <div className="flex gap-4 justify-center mt-1">
-            {currentRapid > 0 && (
-              <div className="flex flex-col items-center">
-                <span className="font-[var(--font-syncopate)] text-xl font-bold text-blue-400">{currentRapid}</span>
-                <span className="text-white/40 text-[9px] uppercase">Rapid</span>
-              </div>
-            )}
-            {currentBlitz > 0 && (
-              <div className="flex flex-col items-center">
-                <span className="font-[var(--font-syncopate)] text-xl font-bold text-amber-400">{currentBlitz}</span>
-                <span className="text-white/40 text-[9px] uppercase">Blitz</span>
-              </div>
-            )}
-            {currentBullet > 0 && (
-              <div className="flex flex-col items-center">
-                <span className="font-[var(--font-syncopate)] text-xl font-bold text-red-400">{currentBullet}</span>
-                <span className="text-white/40 text-[9px] uppercase">Bullet</span>
-              </div>
-            )}
-          </div>
-        </FadeIn>
-
-        {/* Stats Grid - 2x3 */}
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3 flex-1">
-          <div className="text-center">
-            <AnimatedNumber
-              value={totalGames}
-              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-cyan-400"
-              delay={0.8}
-              duration={1.5}
-            />
-            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Games</p>
-          </div>
-          
-          <div className="text-center">
-            <AnimatedNumber
-              value={totalWins}
-              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-green-400"
-              delay={0.9}
-              duration={1.5}
-            />
-            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Wins</p>
-          </div>
-          
-          <div className="text-center">
-            <span className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-amber-400">
-              {winRate.toFixed(0)}%
-            </span>
-            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Win Rate</p>
-          </div>
-          
-          <div className="text-center">
-            <AnimatedNumber
-              value={peakRating}
-              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-amber-300"
-              delay={1}
-              duration={1.5}
-            />
-            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Peak</p>
-          </div>
-          
-          <div className="text-center">
-            <AnimatedNumber
-              value={checkmates}
-              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-red-400"
-              delay={1.1}
-              duration={1.5}
-            />
-            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Checkmates</p>
-          </div>
-          
-          <div className="text-center">
-            <AnimatedNumber
-              value={winStreak}
-              className="font-[var(--font-syncopate)] text-xl md:text-2xl font-bold text-emerald-400"
-              delay={1.2}
-              duration={1.5}
-            />
-            <p className="text-white/50 text-[9px] uppercase tracking-wider mt-0.5">Best Streak</p>
-          </div>
-        </div>
-
-        {/* Fun Stats Row */}
-        <FadeIn delay={1.3}>
-          <div className="flex justify-center gap-4 text-[10px] text-white/50 mt-1">
-            <span>{gamesPerDay} games/day</span>
-            <span className="text-white/30">•</span>
-            <span>{totalHours}h played</span>
-            <span className="text-white/30">•</span>
-            <span>{totalUnique} rivals</span>
-          </div>
-        </FadeIn>
-
-        {/* Footer */}
-        <FadeIn delay={1.5}>
-          <div className="flex flex-col items-center gap-1 mt-1">
-            <motion.span 
-              className="text-base font-bold text-white italic"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              Keep conquering!
-            </motion.span>
-            <span className="text-white/30 text-[10px]">chessiro.com</span>
-          </div>
-        </FadeIn>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
 // Slide 11 = Card 11: Top Openings
 // ============================================
 export function Card11Slide({ stats, isActive }: SlideProps) {
@@ -1550,8 +1294,7 @@ export const SLIDES = [
   Card9Slide,    // 9 = Card 9: Personality
   Card11Slide,   // 10 = Card 11: Openings
   Card12Slide,   // 11 = Card 12: Activity
-  Card10Slide,   // 12 = Card 10: Summary (moved to end before gallery)
-  GallerySlide,  // 13 = Gallery (browse all)
+  GallerySlide,  // 12 = Gallery (browse all)
 ];
 
 export const SLIDE_BACKGROUNDS = [
@@ -1567,8 +1310,7 @@ export const SLIDE_BACKGROUNDS = [
   "from-orange-950 to-black",     // 9 - Card 9
   "from-amber-950 to-black",      // 10 - Openings
   "from-purple-950 to-black",     // 11 - Activity
-  "from-violet-950 to-black",     // 12 - Summary
-  "from-slate-900 to-black",      // 13 - Gallery
+  "from-slate-900 to-black",      // 12 - Gallery
 ];
 
 // Map slide index to card number for download
@@ -1585,7 +1327,6 @@ export function getCardNumberFromSlide(slideIndex: number): number | null {
     9: 9,   // Personality
     10: 11, // Openings
     11: 12, // Activity
-    12: 10, // Summary
   };
   return cardMap[slideIndex] ?? null;
 }

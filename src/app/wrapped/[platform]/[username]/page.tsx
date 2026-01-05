@@ -21,16 +21,14 @@ export default function WrappedPage() {
   const [stats, setStats] = useState<WrappedStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isPaused, setIsPaused] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [mode, setMode] = useState<"animated" | "static">("animated");
   const [showControls, setShowControls] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const autoAdvanceRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const totalSlides = SLIDES.length;
@@ -115,36 +113,6 @@ export default function WrappedPage() {
     fetchStats();
   }, [username, platform, oauth]);
 
-  // Auto-advance slides with dynamic timing
-  useEffect(() => {
-    if (isPaused || !stats || mode !== "animated") return;
-    
-    // Don't auto-advance on gallery slide
-    if (currentSlide === totalSlides - 1) return;
-
-    // Get the duration for this slide
-    const duration = getSlideDuration(currentSlide);
-    if (duration === 0) return;
-
-    autoAdvanceRef.current = setTimeout(() => {
-      if (currentSlide < totalSlides - 1) {
-        setDirection(1);
-        setCurrentSlide(prev => prev + 1);
-        // Show confetti when reaching the summary card (slide 10)
-        if (currentSlide === 9) {
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 3000);
-        }
-      }
-    }, duration);
-
-    return () => {
-      if (autoAdvanceRef.current) {
-        clearTimeout(autoAdvanceRef.current);
-      }
-    };
-  }, [currentSlide, isPaused, stats, totalSlides, mode]);
-
   // Initialize controls timer
   useEffect(() => {
     resetControlsTimer();
@@ -156,22 +124,31 @@ export default function WrappedPage() {
   }, [resetControlsTimer]);
 
   const goToSlide = useCallback((index: number) => {
+    if (!hasStarted) return;
     setDirection(index > currentSlide ? 1 : -1);
     setCurrentSlide(index);
     resetControlsTimer();
     startAudio();
-  }, [currentSlide, resetControlsTimer, startAudio]);
+  }, [currentSlide, resetControlsTimer, startAudio, hasStarted]);
+
+  const startPresentation = useCallback(() => {
+    setHasStarted(true);
+    startAudio();
+    resetControlsTimer();
+  }, [startAudio, resetControlsTimer]);
 
   const nextSlide = useCallback(() => {
+    if (!hasStarted) return;
     if (currentSlide < totalSlides - 1) {
       setDirection(1);
       setCurrentSlide(prev => prev + 1);
     }
     resetControlsTimer();
     startAudio();
-  }, [currentSlide, totalSlides, resetControlsTimer, startAudio]);
+  }, [currentSlide, totalSlides, resetControlsTimer, startAudio, hasStarted]);
 
   const prevSlide = useCallback(() => {
+    if (!hasStarted) return;
     if (currentSlide > 0) {
       setDirection(-1);
       setCurrentSlide(prev => prev - 1);
@@ -203,8 +180,6 @@ export default function WrappedPage() {
       prevSlide();
     } else if (x > third * 2) {
       nextSlide();
-    } else {
-      setIsPaused(prev => !prev);
     }
   }, [nextSlide, prevSlide, resetControlsTimer, startAudio, currentSlide, totalSlides]);
 
@@ -221,8 +196,6 @@ export default function WrappedPage() {
         prevSlide();
       } else if (e.key === "Escape") {
         router.push("/");
-      } else if (e.key === "p") {
-        setIsPaused(prev => !prev);
       } else if (e.key === "m") {
         toggleMute();
       }
@@ -463,11 +436,6 @@ export default function WrappedPage() {
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-2 pointer-events-auto"
         >
-          {/* Pause indicator */}
-          {isPaused && mode === "animated" && (
-            <span className="text-white/50 text-xs bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">Paused</span>
-          )}
-          
           {/* Mute button */}
           <button
             onClick={toggleMute}
@@ -520,13 +488,18 @@ export default function WrappedPage() {
                   username={username}
                 />
               ) : (
-                <CurrentSlideComponent stats={stats} isActive={true} nextSlide={nextSlide} />
+                <CurrentSlideComponent 
+                  stats={stats} 
+                  isActive={true} 
+                  nextSlide={nextSlide}
+                  onStart={startPresentation}
+                />
               )}
             </motion.div>
           </AnimatePresence>
 
           {/* Touch zones indicator (shows briefly on first load) */}
-          {!isGallerySlide && (
+          {!isGallerySlide && hasStarted && (
             <motion.div
               initial={{ opacity: 0.4 }}
               animate={{ opacity: 0 }}
@@ -537,9 +510,6 @@ export default function WrappedPage() {
                 <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-              </div>
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-white/20 text-xs">Tap to pause</span>
               </div>
               <div className="flex-1 flex items-center justify-center">
                 <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
