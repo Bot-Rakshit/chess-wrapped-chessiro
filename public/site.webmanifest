@@ -1,0 +1,21 @@
+{
+  "name": "Chessiro Capsule",
+  "short_name": "Chessiro",
+  "description": "Your Chess Year Wrapped",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0908",
+  "theme_color": "#0a0908",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
