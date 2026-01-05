@@ -159,9 +159,14 @@ function Card1({ stats }: { stats: WrappedStats }) {
 
 function Card2({ stats }: { stats: WrappedStats }) {
   const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
+  const totalHours = Math.floor(totalMinutes / 60);
   const totalDays = Math.floor(totalMinutes / 1440);
   const totalMoves = stats.activity.totalMoves;
   const oneLiner = getTimeOneLiner(stats);
+
+  const timeDisplay = totalDays === 0 
+    ? `that's ${totalHours} ${totalHours === 1 ? 'hour' : 'hours'}`
+    : `that's ${totalDays} ${totalDays === 1 ? 'day' : 'days'}`;
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 55 }}>
@@ -171,7 +176,7 @@ function Card2({ stats }: { stats: WrappedStats }) {
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syncopate", fontSize: 100, fontWeight: 700, color: "#61DE58", lineHeight: 1.1 }}>{formatNumber(totalMinutes)}</span>
-        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 10 }}>{`minutes (that's ${totalDays} ${totalDays <= 1 ? 'day' : 'days'})`}</span>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 10 }}>{`minutes (${timeDisplay})`}</span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -387,6 +392,46 @@ function Card5({ stats }: { stats: WrappedStats }) {
 }
 
 function Card6({ stats }: { stats: WrappedStats }) {
+  const totalUnique = stats.openings?.totalUnique || 0;
+
+  const getOpeningsOneLiner = (count: number) => {
+    if (count >= 500) return "A true opening theorist!";
+    if (count >= 200) return "Exploration at its finest!";
+    if (count >= 100) return "Diverse repertoire!";
+    if (count >= 50) return "Building your opening toolbox!";
+    if (count >= 20) return "Finding your style!";
+    return "Just getting started!";
+  };
+
+  const oneLiner = getOpeningsOneLiner(totalUnique);
+
+  return (
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 45 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+        <span style={{ fontFamily: "Syne", fontSize: 44, fontWeight: 800, color: "white" }}>Openings Explored</span>
+        <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{oneLiner}</span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 120, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>{formatNumber(totalUnique)}</span>
+        <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2, marginTop: 10 }}>Unique Openings</span>
+      </div>
+
+      <div style={{ display: "flex", gap: 50 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 48, fontWeight: 700, color: "#FBBF24" }}>{stats.openings?.asWhite?.length || 0}</span>
+          <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>as White</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 48, fontWeight: 700, color: "#7DD3FC" }}>{stats.openings?.asBlack?.length || 0}</span>
+          <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>as Black</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Card6b({ stats }: { stats: WrappedStats }) {
   const highestDefeated = stats.opponents?.highestRatedDefeated;
   const bestWin = stats.notableGames?.bestWin;
   const oneLiner = getBigWinOneLiner(stats);
@@ -663,7 +708,8 @@ export async function generateCardImage(
     case "3": case "wizard": CardComponent = <Card3 stats={stats} />; break;
     case "4": case "journey": CardComponent = <Card4 stats={stats} />; break;
     case "5": case "rating": CardComponent = <Card5 stats={stats} />; break;
-    case "6": case "bestwin": CardComponent = <Card6 stats={stats} />; break;
+    case "6": case "totalOpenings": CardComponent = <Card6 stats={stats} />; break;
+    case "6b": case "bestwin": case "bestWin": CardComponent = <Card6b stats={stats} />; break;
     case "7": case "streaks": CardComponent = <Card7 stats={stats} />; break;
     case "8": case "nemesis": CardComponent = <Card8 stats={stats} />; break;
     case "9": case "personality": CardComponent = <Card9 stats={stats} />; break;
@@ -699,9 +745,11 @@ export async function generateCardImage(
 export function getBackgroundImagePath(cardType: string): string {
   const backgrounds: Record<string, string> = {
     "1": "Background 1.png", "2": "Background 2.png", "3": "Background 3.png",
-    "4": "Background 4.png", "5": "Background 5.png", "6": "Background 8.png",
+    "4": "Background 4.png", "5": "Background 5.png", "6": "Background 4.png",
+    "6b": "Background 8.png", "bestwin": "Background 8.png", "bestWin": "Background 8.png",
     "7": "Background 7.png", "8": "Background 9.png", "9": "Background 10.png",
-    "11": "Background 4.png", "12": "Background 6.png",
+    "11": "Background 4.png", "12": "Background 6.png", 
+    "totalOpenings": "Background 4.png", "openings": "Background 4.png",
   };
   return path.join(process.cwd(), "public", "base", backgrounds[cardType] || "Background 1.png");
 }

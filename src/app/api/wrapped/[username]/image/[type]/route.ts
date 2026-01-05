@@ -48,7 +48,7 @@ export async function GET(
       "4": 3, "journey": 3,
       "5": 4, "rating": 4,
       "6": 3, "totalOpenings": 3,  // BG 4 (index 3) - amber/gold theme
-      "6b": 7, "bestwin": 7,        // BG 8 (index 7)
+      "6b": 7, "bestwin": 7, "bestWin": 7,  // BG 8 (index 7)
       "7": 6, "streaks": 6,         // BG 7 (index 6)
       "8": 8, "nemesis": 8,         // BG 9 (index 8)
       "9": 9, "personality": 9,     // BG 10 (index 9)

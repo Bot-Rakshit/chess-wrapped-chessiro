@@ -24,8 +24,10 @@ export async function GET(
     }
 
     const validTypes = [
-      "stats", "wins", "format", "rating", "streaks", 
-      "bestWin", "openings", "nemesis", "playTime", "victory"
+      "1", "2", "3", "4", "5", "6", "6b", "7", "8", "9", "11", "12",
+      "games", "time", "wizard", "journey", "rating", "streaks", 
+      "bestwin", "openings", "nemesis", "playTime", "activity",
+      "totalOpenings", "openingsDetail"
     ];
     
     if (!validTypes.includes(type)) {

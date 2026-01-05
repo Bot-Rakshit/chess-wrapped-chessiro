@@ -246,8 +246,13 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
+  const totalHours = Math.floor(totalMinutes / 60);
   const totalDays = Math.floor(totalMinutes / 1440);
   const totalMoves = stats.activity.totalMoves;
+
+  const timeDisplay = totalDays === 0 
+    ? `that's ${totalHours} hour${totalHours === 1 ? '' : 's'}`
+    : `that's ${totalDays} day${totalDays === 1 ? '' : 's'}`;
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
@@ -269,7 +274,7 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
             />
             <SlideUp delay={0.8}>
               <span className="text-xl text-[#CEFFDD] mt-2">
-                minutes (that&apos;s {totalDays} day{totalDays === 1 ? '' : 's'}) 
+                minutes ({timeDisplay}) 
               </span>
             </SlideUp>
           </div>
