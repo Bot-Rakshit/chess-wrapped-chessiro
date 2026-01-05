@@ -340,33 +340,39 @@ function Card5({ stats }: { stats: WrappedStats }) {
   const history = stats.ratings.history || [];
   const ratings = stats.ratings.current || {};
   const oneLiner = getRatingsOneLiner(stats);
-  
+
   const rapid = { rating: ratings.rapid || 0, change: history.find(h => h.format === "rapid")?.change || 0 };
   const blitz = { rating: ratings.blitz || 0, change: history.find(h => h.format === "blitz")?.change || 0 };
   const bullet = { rating: ratings.bullet || 0, change: history.find(h => h.format === "bullet")?.change || 0 };
 
-  const formatDelta = (change: number) => change >= 0 ? `+${change}` : String(change);
+  const formatDelta = (change: number) => change >= 0 ? `+${change}` : null;
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 50 }}>
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 45 }}>
       <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.7)", fontStyle: "italic" }}>{oneLiner}</span>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Rapid</span>
         <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1 }}>{rapid.rating}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: rapid.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>{formatDelta(rapid.change)}</span>
+        {rapid.change >= 0 && (
+          <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "#61DE58", marginTop: 5 }}>{formatDelta(rapid.change)}</span>
+        )}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Blitz</span>
         <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1 }}>{blitz.rating}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: blitz.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>{formatDelta(blitz.change)}</span>
+        {blitz.change >= 0 && (
+          <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "#61DE58", marginTop: 5 }}>{formatDelta(blitz.change)}</span>
+        )}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Bullet</span>
         <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1 }}>{bullet.rating}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: bullet.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>{formatDelta(bullet.change)}</span>
+        {bullet.change >= 0 && (
+          <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "#61DE58", marginTop: 5 }}>{formatDelta(bullet.change)}</span>
+        )}
       </div>
     </div>
   );
@@ -521,19 +527,20 @@ function Card11({ stats }: { stats: WrappedStats }) {
   const totalUnique = stats.openings?.totalUnique || 0;
   
   const formatOpening = (name: string) => {
+    if (!name || name === "Unknown") return "—";
     if (name.length > 22) return name.substring(0, 20) + "...";
     return name;
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 40 }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 50 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
         <span style={{ fontFamily: "Syne", fontSize: 44, fontWeight: 800, color: "white" }}>Your Openings</span>
         <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}><span style={{ fontFamily: "Syncopate" }}>{totalUnique}</span> unique openings explored</span>
       </div>
 
-      {bestWhite && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, width: "100%" }}>
+      {bestWhite && bestWhite.name !== "Unknown" && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: "#FBBF24", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "Syncopate", fontSize: 18, fontWeight: 700, color: "#1E293B" }}>W</span>
@@ -548,8 +555,8 @@ function Card11({ stats }: { stats: WrappedStats }) {
         </div>
       )}
 
-      {bestBlack && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, width: "100%" }}>
+      {bestBlack && bestBlack.name !== "Unknown" && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: "#1E293B", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "Syncopate", fontSize: 18, fontWeight: 700, color: "white" }}>B</span>
