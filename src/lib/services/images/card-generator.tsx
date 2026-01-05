@@ -171,7 +171,7 @@ function Card2({ stats }: { stats: WrappedStats }) {
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syncopate", fontSize: 100, fontWeight: 700, color: "#61DE58", lineHeight: 1.1 }}>{formatNumber(totalMinutes)}</span>
-        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 10 }}>{`minutes (that's ${totalDays} days)`}</span>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 10 }}>{`minutes (that's ${totalDays} ${totalDays <= 1 ? 'day' : 'days'})`}</span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -203,8 +203,16 @@ function Card3({ stats }: { stats: WrappedStats }) {
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingLeft: PADDING_X, paddingRight: PADDING_X, gap: 50 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: 15 }}>You're a</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>{mostPlayed}</span>
-        <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>WIZARD</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>{mostPlayed.charAt(0) + mostPlayed.slice(1).toLowerCase()}</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
+          {mostPlayed === "RAPID"
+            ? "Champion"
+            : mostPlayed === "BLITZ"
+            ? "Wizard"
+            : mostPlayed === "BULLET"
+            ? "King"
+            : ""}
+        </span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
