@@ -128,7 +128,7 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
             </p>
           ) : (
             <p className="text-white text-base">
-              @{stats.username}
+              {displayName}
             </p>
           )}
         </motion.div>
