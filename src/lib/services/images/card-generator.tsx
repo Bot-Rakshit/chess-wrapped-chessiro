@@ -1,106 +1,950 @@
+import satori from "satori";
 import sharp from "sharp";
-import type { WrappedStats } from "../../types";
+import fs from "fs";
 import path from "path";
+import type { WrappedStats } from "../../types";
 
-interface CardOptions {
+// Load fonts from @fontsource packages
+const syneFontPath = path.join(process.cwd(), "node_modules", "@fontsource", "syne", "files", "syne-latin-700-normal.woff");
+const syneFontPath800 = path.join(process.cwd(), "node_modules", "@fontsource", "syne", "files", "syne-latin-800-normal.woff");
+const syneFontPath500 = path.join(process.cwd(), "node_modules", "@fontsource", "syne", "files", "syne-latin-500-normal.woff");
+const syncopateFontPath = path.join(process.cwd(), "node_modules", "@fontsource", "syncopate", "files", "syncopate-latin-700-normal.woff");
+
+let syneFont700: ArrayBuffer | null = null;
+let syneFont800: ArrayBuffer | null = null;
+let syneFont500: ArrayBuffer | null = null;
+let syncopateFont: ArrayBuffer | null = null;
+
+function loadFonts() {
+  if (!syneFont700) {
+    const buffer = fs.readFileSync(syneFontPath);
+    syneFont700 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  }
+  if (!syneFont800) {
+    const buffer = fs.readFileSync(syneFontPath800);
+    syneFont800 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  }
+  if (!syneFont500) {
+    const buffer = fs.readFileSync(syneFontPath500);
+    syneFont500 = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  }
+  if (!syncopateFont) {
+    const buffer = fs.readFileSync(syncopateFontPath);
+    syncopateFont = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  }
+  return { syneFont700, syneFont800, syneFont500, syncopateFont };
+}
+
+interface CardData {
   stats: WrappedStats;
-  backgroundPath: string;
-  cardType: string;
 }
 
-function getCardTitle(type: string): string {
-  const titles: Record<string, string> = {
-    stats: "Your 2025 Chess Wrapped",
-    wins: "Total Wins",
-    format: "Most Played Format",
-    rating: "Rating Journey",
-    streaks: "Win Streaks",
-    bestWin: "Best Victory",
-    openings: "Top Openings",
-    nemesis: "Your Rival",
-    playTime: "When You Play",
-    victory: "How You Win",
+// Safe padding from edges
+const PADDING_X = 70;
+const PADDING_Y = 100;
+const CONTENT_WIDTH = 820 - (PADDING_X * 2);
+
+// Balanced gap for vertical spacing between elements
+const SECTION_GAP = 70;
+
+// Helper function to format numbers with commas
+function formatNumber(num: number): string {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Dynamic font size based on number of characters
+function getDynamicFontSize(num: number, baseSize: number, minSize: number = 50): number {
+  const formatted = formatNumber(num);
+  const charCount = formatted.length;
+  
+  if (charCount <= 3) return baseSize;
+  if (charCount <= 4) return Math.max(baseSize * 0.85, minSize);
+  if (charCount <= 5) return Math.max(baseSize * 0.72, minSize);
+  if (charCount <= 6) return Math.max(baseSize * 0.62, minSize);
+  if (charCount <= 7) return Math.max(baseSize * 0.52, minSize);
+  return Math.max(baseSize * 0.45, minSize);
+}
+
+// ============================================
+// Card 1: Game Outcomes (Background 1)
+// ============================================
+function Card1({ stats }: CardData) {
+  const gamesPlayed = stats.summary.totalGames;
+  const wins = stats.summary.totalWins;
+  const checkmates = stats.checkmates.given;
+
+  const gamesFontSize = getDynamicFontSize(gamesPlayed, 130);
+  const winsFontSize = getDynamicFontSize(wins, 130);
+  const checkmatesFontSize = getDynamicFontSize(checkmates, 130);
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Games Played */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 38, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Games Played</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: gamesFontSize, fontWeight: 700, color: "#EB9719", lineHeight: 1.15, marginTop: 8 }}>
+          {formatNumber(gamesPlayed)}
+        </span>
+      </div>
+
+      {/* Wins */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 38, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Wins</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: winsFontSize, fontWeight: 700, color: "#E26521", lineHeight: 1.15, marginTop: 8 }}>
+          {formatNumber(wins)}
+        </span>
+      </div>
+
+      {/* Checkmates */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 38, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Checkmates</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: checkmatesFontSize, fontWeight: 700, color: "#F22E2E", lineHeight: 1.15, marginTop: 8 }}>
+          {formatNumber(checkmates)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 2: Time & Moves (Background 2)
+// ============================================
+function Card2({ stats }: CardData) {
+  const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
+  const totalDays = Math.floor(totalMinutes / 1440);
+  const totalMoves = stats.activity.totalMoves;
+
+  const minutesFontSize = getDynamicFontSize(totalMinutes, 110, 65);
+  const movesFontSize = getDynamicFontSize(totalMoves, 100, 60);
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <span style={{ fontFamily: "Syne", fontSize: 48, fontWeight: 800, color: "#CEFFDD", fontStyle: "italic" }}>
+        You played
+      </span>
+
+      {/* Minutes */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: minutesFontSize, fontWeight: 700, color: "#61DE58", lineHeight: 1.1 }}>
+          {formatNumber(totalMinutes)}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 12 }}>
+          {`minutes (that's ${totalDays} days)`}
+        </span>
+      </div>
+
+      {/* Moves */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: movesFontSize, fontWeight: 700, color: "#61DE58", lineHeight: 1.1 }}>
+          {formatNumber(totalMoves)}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "#CEFFDD", marginTop: 12 }}>
+          moves
+        </span>
+      </div>
+
+      {/* Tagline */}
+      <span style={{ fontFamily: "Syne", fontSize: 38, fontWeight: 700, color: "#CEFFDD", fontStyle: "italic" }}>
+        Now that's Impressive!
+      </span>
+    </div>
+  );
+}
+
+// ============================================
+// Card 3: Blitz Wizard (Background 3) - Single Segmented Bar
+// ============================================
+function Card3({ stats }: CardData) {
+  const timeControls = stats.timeControls || [];
+  const rapid = timeControls.find(tc => tc.timeClass === "rapid")?.games || 0;
+  const blitz = timeControls.find(tc => tc.timeClass === "blitz")?.games || 0;
+  const bullet = timeControls.find(tc => tc.timeClass === "bullet")?.games || 0;
+  
+  const total = rapid + blitz + bullet || 1;
+  const mostPlayed = stats.summary.mostPlayedFormat?.toUpperCase() || "BLITZ";
+  const mostPlayedPercent = Math.round((Math.max(rapid, blitz, bullet) / total) * 100);
+
+  const barWidth = 620;
+  const rapidWidth = Math.max((rapid / total) * barWidth, rapid > 0 ? 30 : 0);
+  const blitzWidth = Math.max((blitz / total) * barWidth, blitz > 0 ? 30 : 0);
+  const bulletWidth = Math.max((bullet / total) * barWidth, bullet > 0 ? 30 : 0);
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: 20 }}>
+          You're a
+        </span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
+          {mostPlayed}
+        </span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
+          WIZARD
+        </span>
+      </div>
+
+      {/* Bar Chart Section */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+        {/* Values above bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: barWidth, marginBottom: 14 }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "#7DD3FC" }}>{rapid}</span>
+          <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "#FBBF24" }}>{blitz}</span>
+          <span style={{ fontFamily: "Syncopate", fontSize: 28, fontWeight: 700, color: "#F87171" }}>{bullet}</span>
+        </div>
+
+        {/* Single Segmented Bar */}
+        <div style={{ display: "flex", width: barWidth, height: 36, borderRadius: 18, overflow: "hidden" }}>
+          <div style={{ width: rapidWidth, height: 36, backgroundColor: "#7DD3FC" }} />
+          <div style={{ width: blitzWidth, height: 36, backgroundColor: "#FBBF24" }} />
+          <div style={{ width: bulletWidth, height: 36, backgroundColor: "#F87171" }} />
+        </div>
+
+        {/* Labels below bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: barWidth, marginTop: 14 }}>
+          <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 700, color: "#7DD3FC" }}>Rapid</span>
+          <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 700, color: "#FBBF24" }}>Blitz</span>
+          <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 700, color: "#F87171" }}>Bullet</span>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 500, color: "rgba(255,255,255,0.95)" }}>
+        {`${mostPlayedPercent}% of your games are ${mostPlayed.charAt(0) + mostPlayed.slice(1).toLowerCase()}`}
+      </span>
+    </div>
+  );
+}
+
+// ============================================
+// Card 4: Your Journey (Background 4) - Line Graph
+// ============================================
+function Card4({ stats }: CardData) {
+  const ratings = stats.ratings.current || {};
+  const history = stats.ratings.history || [];
+  
+  const rapidPeak = history.find(h => h.format === "rapid")?.peak || ratings.rapid || 0;
+  const blitzPeak = history.find(h => h.format === "blitz")?.peak || ratings.blitz || 0;
+  const bulletPeak = history.find(h => h.format === "bullet")?.peak || ratings.bullet || 0;
+
+  const rapidHistory = history.find(h => h.format === "rapid")?.dataPoints || [];
+  const blitzHistory = history.find(h => h.format === "blitz")?.dataPoints || [];
+  const bulletHistory = history.find(h => h.format === "bullet")?.dataPoints || [];
+
+  const chartWidth = 600;
+  const chartHeight = 250;
+  const chartMarginLeft = 60;
+  const chartMarginBottom = 40;
+  const chartMarginTop = 20;
+
+  // Sample evenly across the entire dataset to show the full journey
+  const sampleDataPoints = (dataPoints: { rating: number; date: string }[], sampleSize: number = 20) => {
+    if (dataPoints.length <= sampleSize) return dataPoints;
+    const step = (dataPoints.length - 1) / (sampleSize - 1);
+    const sampled = [];
+    for (let i = 0; i < sampleSize; i++) {
+      const index = Math.round(i * step);
+      sampled.push(dataPoints[index]);
+    }
+    return sampled;
   };
-  return titles[type] || "Chess Wrapped 2025";
+
+  const sampledRapid = sampleDataPoints(rapidHistory);
+  const sampledBlitz = sampleDataPoints(blitzHistory);
+  const sampledBullet = sampleDataPoints(bulletHistory);
+
+  const allRatings = [
+    ...sampledRapid.map(p => p.rating),
+    ...sampledBlitz.map(p => p.rating),
+    ...sampledBullet.map(p => p.rating),
+  ].filter(r => r > 0);
+  
+  const maxRating = allRatings.length > 0 ? Math.max(...allRatings) : 2000;
+  const minRating = allRatings.length > 0 ? Math.min(...allRatings) : 1000;
+  const ratingRange = maxRating - minRating || 500;
+  const paddedMin = Math.floor((minRating - ratingRange * 0.15) / 50) * 50;
+  const paddedMax = Math.ceil((maxRating + ratingRange * 0.15) / 50) * 50;
+
+  const createLinePath = (dataPoints: { rating: number }[]) => {
+    if (dataPoints.length < 2) return "";
+    const range = paddedMax - paddedMin || 1;
+    const drawableHeight = chartHeight - chartMarginBottom - chartMarginTop;
+    
+    const points = dataPoints.map((point, i, arr) => {
+      const x = chartMarginLeft + (i / (arr.length - 1)) * chartWidth;
+      const y = chartMarginTop + drawableHeight - ((point.rating - paddedMin) / range) * drawableHeight;
+      return `${x},${y}`;
+    });
+    
+    return points.join(" ");
+  };
+
+  // Generate Y-axis labels
+  const yLabelCount = 5;
+  const yStep = (paddedMax - paddedMin) / (yLabelCount - 1);
+  const yLabels = Array.from({ length: yLabelCount }, (_, i) => Math.round(paddedMax - i * yStep));
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: 40,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <span style={{ fontFamily: "Syne", fontSize: 48, fontWeight: 800, color: "white" }}>
+        Your Journey
+      </span>
+
+      {/* Chart Container */}
+      <div style={{ display: "flex", position: "relative", width: chartWidth + chartMarginLeft + 10, height: chartHeight + 10 }}>
+        {/* Y-axis labels */}
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: chartHeight - chartMarginBottom, position: "absolute", left: 0, top: chartMarginTop }}>
+          {yLabels.map((label, i) => (
+            <span key={i} style={{ fontFamily: "Syncopate", fontSize: 12, color: "rgba(255,255,255,0.5)", textAlign: "right", width: chartMarginLeft - 8 }}>{label}</span>
+          ))}
+        </div>
+
+        {/* Grid and Lines */}
+        <svg width={chartWidth + chartMarginLeft + 10} height={chartHeight} style={{ position: "absolute", top: 0, left: 0 }}>
+          {/* Horizontal grid lines */}
+          {yLabels.map((_, i) => {
+            const drawableHeight = chartHeight - chartMarginBottom - chartMarginTop;
+            const y = chartMarginTop + (i / (yLabels.length - 1)) * drawableHeight;
+            return (
+              <line key={i} x1={chartMarginLeft} y1={y} x2={chartWidth + chartMarginLeft} y2={y} stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+            );
+          })}
+          
+          {/* Y-axis */}
+          <line x1={chartMarginLeft} y1={chartMarginTop} x2={chartMarginLeft} y2={chartHeight - chartMarginBottom} stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+          {/* X-axis */}
+          <line x1={chartMarginLeft} y1={chartHeight - chartMarginBottom} x2={chartWidth + chartMarginLeft} y2={chartHeight - chartMarginBottom} stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+          
+          {/* Data lines */}
+          {sampledRapid.length >= 2 && (
+            <polyline points={createLinePath(sampledRapid)} fill="none" stroke="#7DD3FC" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          )}
+          {sampledBlitz.length >= 2 && (
+            <polyline points={createLinePath(sampledBlitz)} fill="none" stroke="#FBBF24" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          )}
+          {sampledBullet.length >= 2 && (
+            <polyline points={createLinePath(sampledBullet)} fill="none" stroke="#F87171" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          )}
+        </svg>
+
+        {/* X-axis labels */}
+        <div style={{ display: "flex", justifyContent: "space-between", position: "absolute", bottom: 0, left: chartMarginLeft, width: chartWidth }}>
+          <span style={{ fontFamily: "Syne", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Jan</span>
+          <span style={{ fontFamily: "Syne", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Apr</span>
+          <span style={{ fontFamily: "Syne", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Jul</span>
+          <span style={{ fontFamily: "Syne", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Oct</span>
+          <span style={{ fontFamily: "Syne", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Dec</span>
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: "flex", gap: 35 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 24, height: 4, backgroundColor: "#7DD3FC", borderRadius: 2 }} />
+          <span style={{ fontFamily: "Syne", fontSize: 14, color: "#7DD3FC" }}>Rapid</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 24, height: 4, backgroundColor: "#FBBF24", borderRadius: 2 }} />
+          <span style={{ fontFamily: "Syne", fontSize: 14, color: "#FBBF24" }}>Blitz</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 24, height: 4, backgroundColor: "#F87171", borderRadius: 2 }} />
+          <span style={{ fontFamily: "Syne", fontSize: 14, color: "#F87171" }}>Bullet</span>
+        </div>
+      </div>
+
+      {/* Peak Ratings */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 50 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 36, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>{rapidPeak}</span>
+          <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 700, color: "#7DD3FC", marginTop: 6 }}>Peak Rapid</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 36, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>{blitzPeak}</span>
+          <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 700, color: "#FBBF24", marginTop: 6 }}>Peak Blitz</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 36, fontWeight: 700, color: "#F87171", lineHeight: 1 }}>{bulletPeak}</span>
+          <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 700, color: "#F87171", marginTop: 6 }}>Peak Bullet</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
+// ============================================
+// Card 5: Rating Gains (Background 5)
+// ============================================
+function Card5({ stats }: CardData) {
+  const history = stats.ratings.history || [];
+  const ratings = stats.ratings.current || {};
+  
+  const rapid = { rating: ratings.rapid || 0, change: history.find(h => h.format === "rapid")?.change || 0 };
+  const blitz = { rating: ratings.blitz || 0, change: history.find(h => h.format === "blitz")?.change || 0 };
+  const bullet = { rating: ratings.bullet || 0, change: history.find(h => h.format === "bullet")?.change || 0 };
+
+  const formatDelta = (change: number) => change >= 0 ? `+${change}` : String(change);
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Rapid */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Rapid</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 90, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1, marginTop: 5 }}>{rapid.rating}</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 30, fontWeight: 700, color: rapid.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>
+          {formatDelta(rapid.change)}
+        </span>
+      </div>
+
+      {/* Blitz */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Blitz</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 90, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1, marginTop: 5 }}>{blitz.rating}</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 30, fontWeight: 700, color: blitz.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>
+          {formatDelta(blitz.change)}
+        </span>
+      </div>
+
+      {/* Bullet */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 2 }}>Bullet</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 90, fontWeight: 700, color: "#7DD3FC", lineHeight: 1.1, marginTop: 5 }}>{bullet.rating}</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 30, fontWeight: 700, color: bullet.change >= 0 ? "#61DE58" : "#F87171", marginTop: 5 }}>
+          {formatDelta(bullet.change)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 6: Biggest Win (Background 8)
+// ============================================
+function Card6({ stats }: CardData) {
+  const highestDefeated = stats.opponents?.highestRatedDefeated;
+  const bestWin = stats.notableGames?.bestWin;
+  
+  const opponentName = highestDefeated?.username || bestWin?.opponent || "Unknown";
+  const opponentRating = highestDefeated?.rating || bestWin?.opponentRating || 0;
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <span style={{ fontFamily: "Syne", fontSize: 46, fontWeight: 800, color: "white" }}>
+        Your Biggest Win
+      </span>
+
+      {/* Avatar Circle */}
+      <div style={{ width: 190, height: 190, borderRadius: 95, backgroundColor: "#F87171", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 70, fontWeight: 700, color: "white" }}>
+          {opponentName.charAt(0).toUpperCase()}
+        </span>
+      </div>
+
+      {/* Identity */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 38, fontWeight: 800, color: "white", textAlign: "center", maxWidth: CONTENT_WIDTH }}>{opponentName}</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginTop: 10 }}>
+          ({opponentRating})
+        </span>
+      </div>
+
+      {/* Description */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "rgba(255,255,255,0.95)" }}>You defeated a</span>
+        <span style={{ fontFamily: "Syncopate", fontSize: 56, fontWeight: 700, color: "#61DE58", marginTop: 15 }}>
+          {opponentRating}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 30, fontWeight: 500, color: "rgba(255,255,255,0.95)", marginTop: 15 }}>rated player!</span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 7: Streaks (Background 7)
+// ============================================
+function Card7({ stats }: CardData) {
+  const winStreak = stats.streaks?.longestWinStreak || 0;
+  const daysStreak = stats.activity?.sessions?.total || 30;
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP + 30,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Days Streak */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 130, fontWeight: 700, color: "#61DE58", lineHeight: 1 }}>
+          {daysStreak}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 20 }}>
+          days in a row
+        </span>
+      </div>
+
+      {/* Win Streak */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 130, fontWeight: 700, color: "#61DE58", lineHeight: 1 }}>
+          {winStreak}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 20 }}>
+          win streak
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 8: Nemesis (Background 9)
+// ============================================
+function Card8({ stats }: CardData) {
+  const nemesis = stats.opponents?.nemesis;
+  const name = nemesis?.username || "No Nemesis Yet";
+  const games = nemesis?.games || 0;
+  
+  const wins = nemesis?.wins || 0;
+  const losses = nemesis?.losses || 0;
+  const draws = games - wins - losses;
+
+  const total = wins + draws + losses || 1;
+  const barWidth = 600;
+  const winWidth = Math.max((wins / total) * barWidth, wins > 0 ? 25 : 0);
+  const drawWidth = Math.max((draws / total) * barWidth, draws > 0 ? 25 : 0);
+  const lossWidth = Math.max((losses / total) * barWidth, losses > 0 ? 25 : 0);
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <span style={{ fontFamily: "Syne", fontSize: 46, fontWeight: 800, color: "#F87171" }}>
+        Your Nemesis
+      </span>
+
+      {/* Avatar Circle */}
+      <div style={{ width: 190, height: 190, borderRadius: 95, backgroundColor: "#F87171", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 70, fontWeight: 700, color: "white" }}>
+          {name.charAt(0).toUpperCase()}
+        </span>
+      </div>
+
+      {/* Identity */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 38, fontWeight: 800, color: "white", textAlign: "center", maxWidth: CONTENT_WIDTH }}>{name}</span>
+        <span style={{ fontFamily: "Syne", fontSize: 26, fontWeight: 500, color: "#D4A574", marginTop: 12 }}>
+          {games} games
+        </span>
+      </div>
+
+      {/* Stats Bar */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+        {/* Values */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: barWidth, marginBottom: 14 }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 34, fontWeight: 700, color: "#61DE58" }}>{wins}</span>
+          <span style={{ fontFamily: "Syncopate", fontSize: 34, fontWeight: 700, color: "#9CA3AF" }}>{draws}</span>
+          <span style={{ fontFamily: "Syncopate", fontSize: 34, fontWeight: 700, color: "#F87171" }}>{losses}</span>
+        </div>
+
+        {/* Bar */}
+        <div style={{ display: "flex", width: barWidth, height: 32, borderRadius: 16, overflow: "hidden" }}>
+          <div style={{ width: winWidth, height: 32, backgroundColor: "#61DE58" }} />
+          <div style={{ width: drawWidth, height: 32, backgroundColor: "#9CA3AF" }} />
+          <div style={{ width: lossWidth, height: 32, backgroundColor: "#F87171" }} />
+        </div>
+
+        {/* Labels */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: barWidth, marginTop: 14 }}>
+          <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 700, color: "#61DE58" }}>Won</span>
+          <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 700, color: "#9CA3AF" }}>Draw</span>
+          <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 700, color: "#F87171" }}>Lost</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 9: Personality (Background 10)
+// ============================================
+function Card9({ stats }: CardData) {
+  const personalities = [
+    { name: "Magnus Carlsen", quote: "I like to calculate deeply and find the truth" },
+    { name: "Hikaru Nakamura", quote: "Speed and intuition win the day" },
+    { name: "Garry Kasparov", quote: "Attack is the best defense" },
+    { name: "Bobby Fischer", quote: "I like to crush my opponents ego" },
+  ];
+  
+  const index = (stats.summary.totalGames + stats.summary.totalWins) % personalities.length;
+  const personality = personalities[index];
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>Your Personality</span>
+        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>is like</span>
+      </div>
+
+      {/* Avatar Circle */}
+      <div style={{ width: 200, height: 200, borderRadius: 100, backgroundColor: "#FBC4AB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 72, fontWeight: 700, color: "#1E293B" }}>
+          {personality.name.charAt(0)}
+        </span>
+      </div>
+
+      {/* Identity */}
+      <span style={{ fontFamily: "Syne", fontSize: 42, fontWeight: 700, color: "#7DD3FC", textAlign: "center" }}>{personality.name}</span>
+
+      {/* Quote */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: CONTENT_WIDTH }}>
+        <span style={{ fontFamily: "Syne", fontSize: 26, fontWeight: 500, color: "rgba(255,255,255,0.85)", textAlign: "center", fontStyle: "italic" }}>
+          "{personality.quote}"
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 10: Summary (Background 6) - Celebratory Trophy Card
+// ============================================
+function Card10({ stats }: CardData) {
+  const totalGames = stats.summary.totalGames;
+  const totalWins = stats.summary.totalWins;
+  const totalMinutes = Math.floor(stats.activity.totalTimePlayedSeconds / 60);
+  const totalHours = Math.round(totalMinutes / 60);
+  
+  // Get peak rating (the highest achievement)
+  const history = stats.ratings.history || [];
+  const allPeaks = history.map(h => h.peak).filter(p => p > 0);
+  const peakRating = allPeaks.length > 0 ? Math.max(...allPeaks) : 0;
+  
+  const checkmates = stats.checkmates.given;
+  const winStreak = stats.streaks?.longestWinStreak || 0;
+  const totalMoves = stats.activity.totalMoves;
+  
+  // Get avatar URL
+  const avatarUrl = stats.profile.avatar;
+  const username = stats.username;
+  const title = stats.profile.title;
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: 30,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Profile Section */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        {/* Avatar with gradient ring */}
+        <div style={{ 
+          width: 120, 
+          height: 120, 
+          borderRadius: 60, 
+          background: "linear-gradient(135deg, #7DD3FC, #FBBF24, #F87171)",
+          padding: 4,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          {avatarUrl ? (
+            <img 
+              src={avatarUrl} 
+              width={112} 
+              height={112} 
+              style={{ borderRadius: 56, objectFit: "cover" }}
+            />
+          ) : (
+            <div style={{ 
+              width: 112, 
+              height: 112, 
+              borderRadius: 56, 
+              backgroundColor: "#1E293B",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <span style={{ fontFamily: "Syncopate", fontSize: 48, fontWeight: 700, color: "white" }}>
+                {username.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Username with title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {title && (
+            <span style={{ 
+              fontFamily: "Syne", 
+              fontSize: 14, 
+              fontWeight: 700, 
+              color: "#000", 
+              backgroundColor: "#FBBF24",
+              padding: "4px 8px",
+              borderRadius: 4,
+            }}>
+              {title}
+            </span>
+          )}
+          <span style={{ fontFamily: "Syne", fontSize: 24, fontWeight: 700, color: "white" }}>
+            {username}
+          </span>
+        </div>
+      </div>
+
+      {/* Year Badge */}
+      <div style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        alignItems: "center",
+        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        paddingTop: 20,
+        paddingBottom: 20,
+        width: "100%",
+      }}>
+        <span style={{ fontFamily: "Syne", fontSize: 16, fontWeight: 500, color: "rgba(255,255,255,0.6)", letterSpacing: 4 }}>
+          2025 CHESS WRAPPED
+        </span>
+      </div>
+
+      {/* Highlight Stats - Only Positive */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
+        {/* Row 1: Games & Victories */}
+        <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
+              {formatNumber(totalGames)}
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
+              games played
+            </span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#61DE58", lineHeight: 1 }}>
+              {formatNumber(totalWins)}
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
+              victories
+            </span>
+          </div>
+        </div>
+
+        {/* Row 2: Peak & Checkmates */}
+        <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>
+              {peakRating}
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
+              peak rating
+            </span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#F87171", lineHeight: 1 }}>
+              {formatNumber(checkmates)}
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
+              checkmates
+            </span>
+          </div>
+        </div>
+
+        {/* Row 3: Hours & Win Streak */}
+        <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#A78BFA", lineHeight: 1 }}>
+              {totalHours}h
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
+              dedicated
+            </span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 44, fontWeight: 700, color: "#34D399", lineHeight: 1 }}>
+              {winStreak}
+            </span>
+            <span style={{ fontFamily: "Syne", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 6 }}>
+              best streak
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        alignItems: "center", 
+        marginTop: 10,
+        gap: 8,
+      }}>
+        <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 700, color: "white", fontStyle: "italic" }}>
+          Keep conquering!
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.4)" }}>
+          chessiro.com
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Main Export Function
+// ============================================
 export async function generateCardImage(
   stats: WrappedStats,
   backgroundPath: string,
   cardType: string
 ): Promise<Buffer> {
-  const width = 1080;
-  const height = 1920;
+  const width = 820;
+  const height = 1456;
 
-  const title = getCardTitle(cardType);
-  const subtitle = `${stats.profile.title || ""} ${stats.username}`.trim();
-  const ratingChange = stats.ratings.history[0]?.change || 0;
-  const changePrefix = ratingChange >= 0 ? "+" : "";
-  const primaryColor = "rgba(255, 255, 255, 0.95)";
-  const accentColor = "#FFFFFF";
+  const { syneFont700, syneFont800, syneFont500, syncopateFont } = loadFonts();
 
-  const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="overlay" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:rgba(0,0,0,0.3);stop-opacity:1" />
-          <stop offset="100%" style="stop-color:rgba(0,0,0,0.5);stop-opacity:1" />
-        </linearGradient>
-        <filter id="blur">
-          <feGaussianBlur stdDeviation="3" />
-        </filter>
-      </defs>
-      
-      <style>
-        .title { font: bold 56px Inter, sans-serif; fill: white; letter-spacing: 3px; }
-        .subtitle { font: 36px Inter, sans-serif; fill: rgba(255,255,255,0.85); }
-        .stat-label { font: 32px Inter, sans-serif; fill: rgba(255,255,255,0.9); }
-        .stat-value { font: bold 42px Inter, sans-serif; fill: white; }
-        .footer { font: 28px Inter, sans-serif; fill: rgba(255,255,255,0.7); }
-        .stat-row-bg { fill: rgba(0,0,0,0.35); rx: 20; }
-      </style>
-      
-      <image href="${backgroundPath}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice" />
-      <rect width="${width}" height="${height}" fill="url(#overlay)" />
-      
-      <g transform="translate(60, 80)">
-        <text x="0" y="0" class="title">${title}</text>
-        <text x="0" y="60" class="subtitle">${subtitle}</text>
-      </g>
-      
-      <g transform="translate(60, 350)">
-        <rect x="0" y="0" width="960" height="120" class="stat-row-bg" />
-        <text x="40" y="75" class="stat-label">Games Played</text>
-        <text x="920" y="75" class="stat-value" text-anchor="end">${stats.summary.totalGames.toLocaleString()}</text>
-        
-        <rect x="0" y="140" width="960" height="120" class="stat-row-bg" />
-        <text x="40" y="215" class="stat-label">Wins</text>
-        <text x="920" y="215" class="stat-value" text-anchor="end">${stats.summary.totalWins.toLocaleString()}</text>
-        
-        <rect x="0" y="280" width="960" height="120" class="stat-row-bg" />
-        <text x="40" y="355" class="stat-label">Win Rate</text>
-        <text x="920" y="355" class="stat-value" text-anchor="end">${stats.summary.overallWinRate.toFixed(1)}%</text>
-        
-        <rect x="0" y="420" width="960" height="120" class="stat-row-bg" />
-        <text x="40" y="495" class="stat-label">Most Played</text>
-        <text x="920" y="495" class="stat-value" text-anchor="end">${stats.summary.mostPlayedFormat.toUpperCase()}</text>
-        
-        <rect x="0" y="560" width="960" height="120" class="stat-row-bg" />
-        <text x="40" y="635" class="stat-label">Rating Change</text>
-        <text x="920" y="635" class="stat-value" text-anchor="end">${changePrefix}${ratingChange}</text>
-      </g>
-      
-      <g transform="translate(60, 1720)">
-        <line x1="0" y1="0" x2="960" y2="0" stroke="rgba(255,255,255,0.2)" stroke-width="3" />
-        <text x="0" y="60" class="footer">chessiro.ai</text>
-        <text x="960" y="60" class="footer" text-anchor="end">2025</text>
-      </g>
-    </svg>
-  `;
+  let CardComponent: React.ReactNode;
+  switch (cardType) {
+    case "1": case "games": CardComponent = <Card1 stats={stats} />; break;
+    case "2": case "time": CardComponent = <Card2 stats={stats} />; break;
+    case "3": case "wizard": CardComponent = <Card3 stats={stats} />; break;
+    case "4": case "journey": CardComponent = <Card4 stats={stats} />; break;
+    case "5": case "rating": CardComponent = <Card5 stats={stats} />; break;
+    case "6": case "bestwin": CardComponent = <Card6 stats={stats} />; break;
+    case "7": case "streaks": CardComponent = <Card7 stats={stats} />; break;
+    case "8": case "nemesis": CardComponent = <Card8 stats={stats} />; break;
+    case "9": case "personality": CardComponent = <Card9 stats={stats} />; break;
+    case "10": case "summary": CardComponent = <Card10 stats={stats} />; break;
+    default: CardComponent = <Card1 stats={stats} />;
+  }
 
+  const svg = await satori(
+    <div style={{ width: "100%", height: "100%", display: "flex", position: "relative" }}>
+      {CardComponent}
+    </div>,
+    {
+      width,
+      height,
+      fonts: [
+        { name: "Syne", data: syneFont500!, weight: 500, style: "normal" },
+        { name: "Syne", data: syneFont700!, weight: 700, style: "normal" },
+        { name: "Syne", data: syneFont800!, weight: 800, style: "normal" },
+        { name: "Syncopate", data: syncopateFont!, weight: 700, style: "normal" },
+      ],
+    }
+  );
+
+  const backgroundBuffer = fs.readFileSync(backgroundPath);
   const svgBuffer = Buffer.from(svg);
-  
-  const image = sharp(svgBuffer)
+
+  const image = await sharp(backgroundBuffer)
+    .resize(width, height)
+    .composite([{ input: svgBuffer, top: 0, left: 0 }])
     .png()
     .toBuffer();
 
@@ -109,16 +953,8 @@ export async function generateCardImage(
 
 export function getBackgroundImagePath(index: number): string {
   const backgrounds = [
-    "Background 1.png",
-    "Background 2.png",
-    "Background 3.png",
-    "Background 4.png",
-    "Background 5.png",
-    "Background 6.png",
-    "Background 7.png",
-    "Background 8.png",
-    "Background 9.png",
-    "Background 10.png",
+    "Background 1.png", "Background 2.png", "Background 3.png", "Background 4.png", "Background 5.png",
+    "Background 6.png", "Background 7.png", "Background 8.png", "Background 9.png", "Background 10.png",
   ];
   return path.join(process.cwd(), "public", "base", backgrounds[index % backgrounds.length]);
 }

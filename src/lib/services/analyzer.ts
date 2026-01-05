@@ -188,9 +188,7 @@ export function analyzeGames(
   const sortedGames = [...games].sort((a, b) => a.endTime - b.endTime);
 
   for (const game of sortedGames) {
-    const isWhite =
-      game.white.username.toLowerCase() === lowerUsername ||
-      game.black.username.toLowerCase() === lowerUsername;
+    const isWhite = game.white.username.toLowerCase() === lowerUsername;
     const playerData = isWhite ? game.white : game.black;
     const opponentData = isWhite ? game.black : game.white;
     const result = playerData.result;

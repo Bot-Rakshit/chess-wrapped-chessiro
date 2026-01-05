@@ -19,7 +19,8 @@ export async function GET(
     }
 
     const validTypes = [
-      "stats", "wins", "format", "rating", "streaks", 
+      "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+      "games", "time", "stats", "wins", "format", "rating", "streaks", 
       "bestWin", "openings", "nemesis", "playTime", "victory"
     ];
     
@@ -33,7 +34,25 @@ export async function GET(
       period,
     });
 
-    const backgroundPath = getBackgroundImagePath(backgroundIndex);
+    // Card type to background mapping
+    // Card 1 (games) -> BG 1, Card 2 (time) -> BG 2, Card 3 (wizard) -> BG 3
+    // Card 4 (journey) -> BG 4, Card 5 (rating) -> BG 5, Card 6 (bestwin) -> BG 8
+    // Card 7 (streaks) -> BG 7, Card 8 (nemesis) -> BG 9, Card 9 (personality) -> BG 10
+    const cardToBackground: Record<string, number> = {
+      "1": 0, "games": 0,
+      "2": 1, "time": 1,
+      "3": 2, "wizard": 2,
+      "4": 3, "journey": 3,
+      "5": 4, "rating": 4,
+      "6": 7, "bestwin": 7,  // BG 8 (index 7)
+      "7": 6, "streaks": 6,  // BG 7 (index 6)
+      "8": 8, "nemesis": 8,  // BG 9 (index 8)
+      "9": 9, "personality": 9,  // BG 10 (index 9)
+      "10": 5, "summary": 5,  // BG 6 (index 5)
+    };
+    
+    const bgIndex = cardToBackground[type] ?? backgroundIndex;
+    const backgroundPath = getBackgroundImagePath(bgIndex);
     const imageBuffer = await generateCardImage(stats, backgroundPath, type);
 
     return new Response(imageBuffer as unknown as BodyInit, {
@@ -44,6 +63,8 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error generating image:", error);
-    return new Response("Failed to generate image", { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
+    return new Response(`Failed to generate image: ${errorMessage}\n${errorStack}`, { status: 500 });
   }
 }

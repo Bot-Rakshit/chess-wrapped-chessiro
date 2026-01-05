@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/syncopate": "^5.2.8",
+    "@fontsource/syne": "^5.2.7",
+    "framer-motion": "^12.23.26",
     "next": "16.1.1",
     "p-limit": "^7.2.0",
     "react": "^19.2.3",
