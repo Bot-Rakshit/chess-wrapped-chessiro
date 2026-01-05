@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { WrappedStats } from "@/lib/types";
 import { SLIDES, SLIDE_BACKGROUNDS, getCardNumberFromSlide, GallerySlide, getSlideDuration, NotEnoughGamesView } from "@/components/wrapped/Slides";
-import { ProgressBar, Confetti } from "@/components/wrapped/Effects";
+import { ProgressBar, Confetti, GlowOrb, Particles } from "@/components/wrapped/Effects";
 
 // Dynamically import Three.js components to avoid SSR issues
 const ThreeBackground = dynamic(
@@ -28,8 +28,10 @@ const ThreeGallery = dynamic(
 export default function WrappedPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const platform = params.platform as string;
   const username = params.username as string;
+  const oauth = searchParams.get("oauth");
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
@@ -107,7 +109,13 @@ export default function WrappedPage() {
     const fetchStats = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/wrapped/${username}`);
+        // Build URL with oauth if present (for Lichess)
+        let url = `/api/wrapped/${username}`;
+        if (platform === "lichess" && oauth) {
+          url += `?oauth=${encodeURIComponent(oauth)}`;
+        }
+        
+        const response = await fetch(url);
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.message || "Failed to load stats");
@@ -122,7 +130,7 @@ export default function WrappedPage() {
     };
 
     fetchStats();
-  }, [username]);
+  }, [username, platform, oauth]);
 
   // Auto-advance slides with dynamic timing
   useEffect(() => {
@@ -316,49 +324,75 @@ export default function WrappedPage() {
     })
   };
 
-  // Loading state with 3D loader
+  // Loading state with simple line loader
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-black relative overflow-hidden">
-        <ThreeLoader />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-black to-slate-900 relative overflow-hidden">
+        {/* Animated glow */}
+        <GlowOrb color="rgba(251, 191, 36, 0.15)" size={400} x="50%" y="50%" blur={150} />
         
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="relative z-10 flex flex-col items-center gap-6"
+          className="relative z-10 flex flex-col items-center gap-8"
         >
-          {/* Chessiro Logo */}
+          {/* Capsule 2025 Badge */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ duration: 0.5 }}
           >
             <Image
-              src="/chessiro-logo.svg"
-              alt="Chessiro"
-              width={100}
-              height={35}
-              className="w-[100px] opacity-90"
+              src="/capsule-2025.png"
+              alt="Capsule 2025"
+              width={180}
+              height={50}
+              className="w-[180px] h-auto"
+              priority
             />
           </motion.div>
           
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-white/60 text-base font-[var(--font-syne)]"
-          >
-            Preparing your capsule...
-          </motion.p>
+          {/* Animated loading text */}
+          <div className="flex flex-col items-center gap-4">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-white/60 text-sm font-[var(--font-syne)]"
+            >
+              Analyzing your games...
+            </motion.p>
+            
+            {/* Line loader */}
+            <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-cyan-400 via-amber-400 to-cyan-400"
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
+            
+            {/* Username */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-white/40 text-xs font-[var(--font-syncopate)] tracking-wider"
+            >
+              @{username}
+            </motion.p>
+          </div>
           
-          <motion.p
+          {/* Fun loading messages */}
+          <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-white/40 text-sm"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            className="text-white/30 text-xs font-[var(--font-syne)]"
           >
-            @{username}
-          </motion.p>
+            Counting checkmates...
+          </motion.div>
         </motion.div>
       </div>
     );

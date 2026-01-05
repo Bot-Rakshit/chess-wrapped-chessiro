@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useState } from "react";
 import { WrappedStats } from "@/lib/types";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { TextReveal, SlideUp, ScaleIn, FadeIn, StaggerContainer, StaggerItem, FlyingCard, Float, PulseGlow, DramaticReveal, ZoomBurst, Heartbeat, Shimmer, WipeReveal, SpotlightReveal } from "./TextAnimations";
@@ -19,10 +20,11 @@ function formatNumber(num: number): string {
   return num.toLocaleString();
 }
 
-// ============================================
 // Slide 0: Intro (No matching card - just greeting)
 // ============================================
 export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
+  const [isRevealed, setIsRevealed] = useState(false);
+
   if (!isActive) return null;
 
   // Calculate years playing
@@ -33,11 +35,14 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
   const yearsPlaying = joinedYear ? currentYear - joinedYear : null;
   const isFirstYear = yearsPlaying === 0;
 
-  // Get display name - prefer actual name, fallback to username
+  // Get display name
   const displayName = stats.profile.name || stats.username;
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl md:rounded-3xl">
+    <div 
+      className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer"
+      onClick={() => !isRevealed && setIsRevealed(true)}
+    >
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-black to-slate-900" />
       
@@ -76,12 +81,16 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           />
         </motion.div>
 
-        {/* Player Avatar */}
+        {/* Player Avatar - Click to reveal */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7, type: "spring", damping: 12 }}
+          animate={{ opacity: isRevealed ? 1 : 0, scale: isRevealed ? 1 : 0.5, y: isRevealed ? 0 : 30 }}
+          transition={{ duration: 0.6, delay: isRevealed ? 0.3 : 0.7, type: "spring", damping: 12 }}
           className="mb-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsRevealed(true);
+          }}
         >
           <div className="relative">
             {/* Animated ring */}
@@ -101,10 +110,10 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
                 alt={stats.username}
                 width={100}
                 height={100}
-                className="relative rounded-full border-2 border-amber-500/30 z-10"
+                className="relative rounded-full border-2 border-amber-500/30"
               />
             ) : (
-              <div className="relative w-[100px] h-[100px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center z-10 border-2 border-amber-500/30">
+              <div className="relative w-[100px] h-[100px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-500/30">
                 <span className="font-[var(--font-syncopate)] text-4xl font-bold text-black">
                   {stats.username.charAt(0).toUpperCase()}
                 </span>
@@ -113,11 +122,11 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           </div>
         </motion.div>
 
-        {/* Player Name & Title */}
+        {/* Player Info - Revealed on tap */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1 }}
+          animate={{ opacity: isRevealed ? 1 : 0, y: isRevealed ? 0 : 20 }}
+          transition={{ duration: 0.5, delay: isRevealed ? 0.5 : 0 }}
           className="flex flex-col items-center gap-2 mb-3"
         >
           <div className="flex items-center gap-2">
@@ -130,11 +139,11 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           </div>
         </motion.div>
 
-        {/* Playing Since / First Year */}
+        {/* Playing Since / First Year - Revealed on tap */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1.2 }}
+          animate={{ opacity: isRevealed ? 1 : 0 }}
+          transition={{ duration: 0.5, delay: isRevealed ? 0.7 : 0 }}
           className="mb-8"
         >
           {isFirstYear ? (
@@ -152,15 +161,18 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           )}
         </motion.div>
 
-        {/* Review Button */}
+        {/* Review Button - Revealed on tap */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.5 }}
+          animate={{ opacity: isRevealed ? 1 : 0, y: isRevealed ? 0 : 20 }}
+          transition={{ duration: 0.5, delay: isRevealed ? 0.9 : 0 }}
         >
           <motion.button
-            onClick={nextSlide}
-            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              nextSlide?.();
+            }}
+            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -169,14 +181,16 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
         </motion.div>
 
         {/* Tap hint */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.4 }}
-          transition={{ delay: 2.5, duration: 0.5 }}
-          className="absolute bottom-6 text-white/40 text-xs"
-        >
-          Tap to continue →
-        </motion.p>
+        {!isRevealed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            className="absolute bottom-6 text-white/40 text-xs"
+          >
+            Tap to reveal →
+          </motion.div>
+        )}
       </div>
     </div>
   );
