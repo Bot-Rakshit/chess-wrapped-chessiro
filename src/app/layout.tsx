@@ -19,10 +19,10 @@ export const metadata: Metadata = {
   description: "Discover your chess journey with beautiful shareable cards. View your 2025 chess stats, ratings, achievements, and more.",
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/Chessiro-light.png", sizes: "any", type: "image/png" }
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
     ],
-    apple: "/Chessiro-light.png",
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
   },
   openGraph: {
     title: "Chessiro Capsule",
@@ -58,7 +58,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${syne.variable} ${syncopate.variable} antialiased bg-black text-white`}
+        className={`${syne.variable} ${syncopate.variable} antialiased bg-black text-white font-syne`}
+        style={{
+          ['--font-syne' as any]: syne.style.fontFamily,
+          ['--font-syncopate' as any]: syncopate.style.fontFamily,
+        }}
       >
         {children}
       </body>

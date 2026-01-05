@@ -135,6 +135,7 @@ export default function WrappedPage() {
     setHasStarted(true);
     startAudio();
     resetControlsTimer();
+    setCurrentSlide(1);
   }, [startAudio, resetControlsTimer]);
 
   const nextSlide = useCallback(() => {

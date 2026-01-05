@@ -927,7 +927,7 @@ function Card11({ stats }: CardData) {
           Your Openings
         </span>
         <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>
-          {totalUnique} unique openings explored
+          <span style={{ fontFamily: "Syncopate" }}>{totalUnique}</span> unique openings explored
         </span>
       </div>
 
@@ -947,7 +947,7 @@ function Card11({ stats }: CardData) {
             <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#61DE58" }}>
               {Math.round(bestWhite.winRate)}% wins
             </span>
-            <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
               {bestWhite.games} games
             </span>
           </div>
@@ -969,14 +969,14 @@ function Card11({ stats }: CardData) {
           <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "white", textAlign: "center" }}>
             {formatOpening(bestBlack.name)}
           </span>
-          <div style={{ display: "flex", gap: 30 }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#61DE58" }}>
-              {Math.round(bestBlack.winRate)}% wins
-            </span>
-            <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
-              {bestBlack.games} games
-            </span>
-          </div>
+           <div style={{ display: "flex", gap: 30 }}>
+             <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#61DE58" }}>
+               {Math.round(bestBlack.winRate)}% wins
+             </span>
+             <span style={{ fontFamily: "Syncopate", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+               {bestBlack.games} games
+             </span>
+           </div>
           <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>
             {blackOneLiner}
           </span>

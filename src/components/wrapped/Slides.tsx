@@ -95,7 +95,7 @@ export function IntroSlide({ stats, isActive, nextSlide, onStart }: SlideProps) 
               />
             ) : (
               <div className="relative w-[100px] h-[100px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-500/30">
-                <span className="font-[var(--font-syncopate)] text-4xl font-bold text-black">
+                <span className="font-syncopate text-4xl font-bold text-black">
                   {stats.username.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -204,7 +204,7 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
           <ZoomBurst delay={0.2}>
             <AnimatedNumber
               value={gamesPlayed}
-              className="font-[var(--font-syncopate)] text-7xl md:text-8xl font-bold text-[#EB9719]"
+              className="font-syncopate text-7xl md:text-8xl font-bold text-[#EB9719]"
               delay={0.3}
               duration={2}
             />
@@ -222,7 +222,7 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
           <Heartbeat delay={1.1}>
             <AnimatedNumber
               value={wins}
-              className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#E26521]"
+              className="font-syncopate text-6xl md:text-7xl font-bold text-[#E26521]"
               delay={1.2}
               duration={2}
             />
@@ -240,7 +240,7 @@ export function Card1Slide({ stats, isActive }: SlideProps) {
           <Shimmer delay={2.1}>
             <AnimatedNumber
               value={checkmates}
-              className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#F22E2E]"
+              className="font-syncopate text-6xl md:text-7xl font-bold text-[#F22E2E]"
               delay={2.2}
               duration={2}
             />
@@ -283,7 +283,7 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
           <div className="flex flex-col items-center">
             <AnimatedNumber
               value={totalMinutes}
-              className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#61DE58]"
+              className="font-syncopate text-6xl md:text-7xl font-bold text-[#61DE58]"
               delay={0.3}
               duration={2}
             />
@@ -299,7 +299,7 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
         <div className="flex flex-col items-center">
           <AnimatedNumber
             value={totalMoves}
-            className="font-[var(--font-syncopate)] text-5xl md:text-6xl font-bold text-[#61DE58]"
+            className="font-syncopate text-5xl md:text-6xl font-bold text-[#61DE58]"
             delay={1}
             duration={2}
           />
@@ -355,10 +355,10 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
         
         <SlideUp delay={0.3}>
           <div className="flex flex-col items-center">
-            <span className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+            <span className="font-syne text-6xl md:text-7xl font-bold text-[#7DD3FC]">
               {mostPlayed}
             </span>
-            <span className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+            <span className="font-syne text-6xl md:text-7xl font-bold text-[#7DD3FC]">
               WIZARD
             </span>
           </div>
@@ -369,9 +369,9 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
           <div className="flex flex-col items-center gap-3">
             {/* Values */}
             <div className="flex justify-between w-[280px]">
-              <span className="font-[var(--font-syncopate)] text-xl font-bold text-[#7DD3FC]">{rapid}</span>
-              <span className="font-[var(--font-syncopate)] text-xl font-bold text-[#FBBF24]">{blitz}</span>
-              <span className="font-[var(--font-syncopate)] text-xl font-bold text-[#F87171]">{bullet}</span>
+              <span className="font-syncopate text-xl font-bold text-[#7DD3FC]">{rapid}</span>
+              <span className="font-syncopate text-xl font-bold text-[#FBBF24]">{blitz}</span>
+              <span className="font-syncopate text-xl font-bold text-[#F87171]">{bullet}</span>
             </div>
             
             {/* Segmented Bar */}
@@ -460,6 +460,55 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
   const paddedMin = Math.floor((minRating - ratingRange * 0.15) / 50) * 50;
   const paddedMax = Math.ceil((maxRating + ratingRange * 0.15) / 50) * 50;
 
+  // Find best month based on data points
+  const allDataPoints = [...rapidHistory, ...blitzHistory, ...bulletHistory];
+  let bestMonth = "";
+  let biggestGain = 0;
+  
+  if (allDataPoints.length > 0) {
+    // Try to extract month from date string
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthRatings: Record<string, number[]> = {};
+    
+    allDataPoints.forEach(dp => {
+      if (dp.date) {
+        const date = new Date(dp.date);
+        const monthName = months[date.getMonth()];
+        if (!monthRatings[monthName]) monthRatings[monthName] = [];
+        monthRatings[monthName].push(dp.rating);
+      }
+    });
+    
+    // Find month with highest average rating
+    let highestAvg = 0;
+    Object.entries(monthRatings).forEach(([month, rats]) => {
+      const avg = rats.reduce((a, b) => a + b, 0) / rats.length;
+      if (avg > highestAvg) {
+        highestAvg = avg;
+        bestMonth = month;
+      }
+    });
+  }
+
+  // Generate intelligent insight text
+  const totalChange = history.reduce((sum, h) => sum + h.change, 0);
+  const overallGrowth = totalChange >= 0;
+  const getJourneyInsight = () => {
+    if (!history.length) return "Your chess journey begins!";
+    if (totalChange >= 300) return "Incredible growth trajectory!";
+    if (totalChange >= 150) return "Major breakthroughs achieved!";
+    if (totalChange >= 50) return "Steady improvement all year!";
+    if (totalChange >= 0) return "Solid foundation built!";
+    if (totalChange >= -50) return "Resilience shown this year!";
+    return "Comeback story loading...";
+  };
+
+  const getMonthInsight = () => {
+    if (bestMonth) return `${bestMonth} was your strongest month!`;
+    if (overallGrowth) return "Your ratings trended upward!";
+    return "Every game builds experience!";
+  };
+
   const chartWidth = 300;
   const chartHeight = 150;
   const chartMarginLeft = 40;
@@ -487,8 +536,15 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-8">
         <SlideUp delay={0.1}>
-          <span className="text-3xl font-bold text-white">Your Journey</span>
+          <span className="text-3xl font-bold text-white">Your Journey in 2025</span>
         </SlideUp>
+
+        {/* Intelligent Insight */}
+        <FadeIn delay={0.4}>
+          <span className="text-white/60 text-sm font-syne italic">
+            {getJourneyInsight()}
+          </span>
+        </FadeIn>
 
         {/* Line Chart */}
         <SlideUp delay={0.3}>
@@ -541,10 +597,10 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
             </svg>
             
             {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-white/50 font-[var(--font-syncopate)]" style={{ height: chartHeight - chartMarginBottom }}>
-              <span>{paddedMax}</span>
-              <span>{Math.round((paddedMax + paddedMin) / 2)}</span>
-              <span>{paddedMin}</span>
+            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-white/50" style={{ height: chartHeight - chartMarginBottom }}>
+              <span className="font-syncopate">{paddedMax}</span>
+              <span className="font-syncopate">{Math.round((paddedMax + paddedMin) / 2)}</span>
+              <span className="font-syncopate">{paddedMin}</span>
             </div>
 
             {/* X-axis labels */}
@@ -583,7 +639,7 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
           <StaggerItem className="flex flex-col items-center">
             <AnimatedNumber
               value={rapidPeak}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#7DD3FC]"
+              className="font-syncopate text-3xl font-bold text-[#7DD3FC]"
               delay={2.1}
               duration={1.5}
             />
@@ -593,7 +649,7 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
           <StaggerItem className="flex flex-col items-center">
             <AnimatedNumber
               value={blitzPeak}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#FBBF24]"
+              className="font-syncopate text-3xl font-bold text-[#FBBF24]"
               delay={2.3}
               duration={1.5}
             />
@@ -603,13 +659,20 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
           <StaggerItem className="flex flex-col items-center">
             <AnimatedNumber
               value={bulletPeak}
-              className="font-[var(--font-syncopate)] text-3xl font-bold text-[#F87171]"
+              className="font-syncopate text-3xl font-bold text-[#F87171]"
               delay={2.5}
               duration={1.5}
             />
             <span className="text-sm font-bold text-[#F87171] mt-1">Bullet</span>
           </StaggerItem>
         </StaggerContainer>
+
+        {/* Month Insight */}
+        <FadeIn delay={2.8}>
+          <span className="text-white/50 text-sm font-syne italic">
+            {getMonthInsight()}
+          </span>
+        </FadeIn>
       </div>
     </div>
   );
@@ -665,7 +728,7 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
               <span className="text-white/50 text-xs uppercase tracking-wider mb-2">{format.name}</span>
               <AnimatedNumber
                 value={format.rating}
-                className={`font-[var(--font-syncopate)] text-5xl md:text-6xl font-bold ${format.colorClass}`}
+                className={`font-syncopate text-5xl md:text-6xl font-bold ${format.colorClass}`}
                 delay={0.3 + index * 0.15}
                 duration={1.5}
               />
@@ -685,7 +748,7 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
                   </motion.span>
-                  <span className="font-[var(--font-syncopate)] text-lg font-bold text-green-400">
+                  <span className="font-syncopate text-lg font-bold text-green-400">
                     +{format.change}
                   </span>
                 </motion.div>
@@ -746,7 +809,7 @@ export function Card6Slide({ stats, isActive }: SlideProps) {
           <div className="relative">
             <div className="absolute -inset-2 bg-gradient-to-r from-[#61DE58] to-[#22C55E] rounded-full blur-md opacity-50" />
             <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-[#61DE58] to-[#22C55E] flex items-center justify-center">
-              <span className="font-[var(--font-syncopate)] text-5xl font-bold text-white">
+              <span className="font-syncopate text-5xl font-bold text-white">
                 {opponentName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -763,7 +826,7 @@ export function Card6Slide({ stats, isActive }: SlideProps) {
           <div className="flex flex-col items-center gap-2">
             <span className="text-white/60 text-sm">You defeated a</span>
             <div className="px-6 py-3 bg-[#61DE58]/20 rounded-2xl border border-[#61DE58]/30">
-              <span className="font-[var(--font-syncopate)] text-4xl font-bold text-[#61DE58]">
+              <span className="font-syncopate text-4xl font-bold text-[#61DE58]">
                 {opponentRating}
               </span>
             </div>
@@ -786,9 +849,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const daysPlayed = stats.activity?.sessions?.total || 30;
-  const currentStreak = stats.streaks?.currentStreak?.count || 0;
-  const currentStreakType = stats.streaks?.currentStreak?.type || "win";
+  const playStreak = stats.streaks?.longestPlayStreak || 0;
 
   const getStreakMessage = (streak: number) => {
     if (streak >= 20) return "LEGENDARY!";
@@ -812,7 +873,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
           </FadeIn>
           <AnimatedNumber
             value={winStreak}
-            className="font-[var(--font-syncopate)] text-8xl font-bold text-[#34D399]"
+            className="font-syncopate text-8xl font-bold text-[#34D399]"
             delay={0.3}
             duration={2}
           />
@@ -824,43 +885,20 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
           </FadeIn>
         </div>
 
-        {/* Days Active or Current Streak */}
+        {/* Longest Play Streak */}
         <div className="flex flex-col items-center">
-          {currentStreak > 0 ? (
-            <>
-              <FadeIn delay={1.5}>
-                <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">
-                  Current {currentStreakType === "win" ? "Win" : currentStreakType === "loss" ? "Loss" : ""} Streak
-                </span>
-              </FadeIn>
-              <AnimatedNumber
-                value={currentStreak}
-                className="font-[var(--font-syncopate)] text-6xl font-bold text-[#61DE58]"
-                delay={1.6}
-                duration={1.5}
-              />
-              <SlideUp delay={2}>
-                <span className="text-lg text-white/80 mt-2 tracking-wide">
-                  {currentStreakType === "win" ? "wins right now" : "games ongoing"}
-                </span>
-              </SlideUp>
-            </>
-          ) : (
-            <>
-              <FadeIn delay={1.5}>
-                <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Days Active</span>
-              </FadeIn>
-              <AnimatedNumber
-                value={daysPlayed}
-                className="font-[var(--font-syncopate)] text-6xl font-bold text-[#61DE58]"
-                delay={1.6}
-                duration={1.5}
-              />
-              <SlideUp delay={2}>
-                <span className="text-lg text-white/80 mt-2 tracking-wide">days of chess</span>
-              </SlideUp>
-            </>
-          )}
+          <FadeIn delay={1.5}>
+            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Longest Play Streak</span>
+          </FadeIn>
+          <AnimatedNumber
+            value={playStreak}
+            className="font-syncopate text-6xl font-bold text-[#61DE58]"
+            delay={1.6}
+            duration={1.5}
+          />
+          <SlideUp delay={2}>
+            <span className="text-lg text-white/80 mt-2 tracking-wide">days in a row playing</span>
+          </SlideUp>
           <FadeIn delay={2.4}>
             <span className="text-white/50 text-sm mt-1 italic">
               {winStreak >= 10 ? "You're on fire!" : "Every streak starts somewhere"}
@@ -904,7 +942,7 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
         {/* Avatar */}
         <ScaleIn delay={0.3}>
           <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#F87171] to-[#DC2626] flex items-center justify-center">
-            <span className="font-[var(--font-syncopate)] text-4xl font-bold text-white">
+            <span className="font-syncopate text-4xl font-bold text-white">
               {name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -921,9 +959,9 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
           <div className="flex flex-col items-center gap-3">
             {/* Values */}
             <div className="flex justify-between w-[260px]">
-              <span className="font-[var(--font-syncopate)] text-2xl font-bold text-[#61DE58]">{wins}</span>
-              <span className="font-[var(--font-syncopate)] text-2xl font-bold text-[#9CA3AF]">{draws}</span>
-              <span className="font-[var(--font-syncopate)] text-2xl font-bold text-[#F87171]">{losses}</span>
+              <span className="font-syncopate text-2xl font-bold text-[#61DE58]">{wins}</span>
+              <span className="font-syncopate text-2xl font-bold text-[#9CA3AF]">{draws}</span>
+              <span className="font-syncopate text-2xl font-bold text-[#F87171]">{losses}</span>
             </div>
             
             {/* Bar */}
@@ -1042,7 +1080,7 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
         {/* Header */}
         <div className="flex flex-col items-center gap-2">
           <SlideUp delay={0.1}>
-            <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-white">Your Openings</span>
+            <span className="font-syne text-3xl md:text-4xl font-bold text-white">Your Openings</span>
           </SlideUp>
           <FadeIn delay={0.3}>
             <span className="text-white/50 text-sm">{totalUnique} unique openings explored</span>
@@ -1055,7 +1093,7 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
             <div className="flex flex-col items-center gap-3 bg-white/5 rounded-xl p-5 border border-[#FBBF24]/30">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#FBBF24] flex items-center justify-center">
-                  <span className="font-[var(--font-syncopate)] text-sm font-bold text-black">W</span>
+                  <span className="font-syne text-sm font-bold text-black">W</span>
                 </div>
                 <span className="text-[#FBBF24] font-bold">Best as White</span>
               </div>
@@ -1074,7 +1112,7 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
             <div className="flex flex-col items-center gap-3 bg-white/5 rounded-xl p-5 border border-[#7DD3FC]/30">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#1E293B] border-2 border-white flex items-center justify-center">
-                  <span className="font-[var(--font-syncopate)] text-sm font-bold text-white">B</span>
+                  <span className="font-syne text-sm font-bold text-white">B</span>
                 </div>
                 <span className="text-[#7DD3FC] font-bold">Best as Black</span>
               </div>
@@ -1130,7 +1168,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
         {/* Header */}
         <div className="flex flex-col items-center gap-2">
           <SlideUp delay={0.1}>
-            <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-white">When You Play</span>
+            <span className="font-syne text-3xl md:text-4xl font-bold text-white">When You Play</span>
           </SlideUp>
           <FadeIn delay={0.3}>
             <span className="text-lg font-bold" style={{ color: timeCategory.color }}>{timeCategory.label}</span>
@@ -1143,7 +1181,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
             <span className="text-white/60 text-sm tracking-[0.2em] uppercase">Peak Hour</span>
           </FadeIn>
           <ZoomBurst delay={0.6}>
-            <span className="font-[var(--font-syncopate)] text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+            <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
               {formatHour(mostActiveHour)}
             </span>
           </ZoomBurst>
@@ -1155,7 +1193,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
             <span className="text-white/60 text-sm tracking-[0.2em] uppercase">Favorite Day</span>
           </FadeIn>
           <Heartbeat delay={1.1}>
-            <span className="font-[var(--font-syncopate)] text-4xl md:text-5xl font-bold text-[#FBBF24]">
+            <span className="font-syncopate text-4xl md:text-5xl font-bold text-[#FBBF24]">
               {mostActiveDay.toUpperCase()}
             </span>
           </Heartbeat>
@@ -1399,7 +1437,7 @@ export function NotEnoughGamesView({ stats, onShare, onHome }: NotEnoughGamesVie
               />
             ) : (
               <div className="relative w-[80px] h-[80px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-500/30">
-                <span className="font-[var(--font-syncopate)] text-3xl font-bold text-black">
+                <span className="font-syncopate text-3xl font-bold text-black">
                   {stats.username.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -1441,15 +1479,15 @@ export function NotEnoughGamesView({ stats, onShare, onHome }: NotEnoughGamesVie
           className="flex gap-6 mb-10"
         >
           <div className="text-center">
-            <span className="font-[var(--font-syncopate)] text-2xl font-bold text-cyan-400">{stats.summary.totalGames}</span>
+            <span className="font-syncopate text-2xl font-bold text-cyan-400">{stats.summary.totalGames}</span>
             <p className="text-white/40 text-[10px] uppercase mt-1">Games</p>
           </div>
           <div className="text-center">
-            <span className="font-[var(--font-syncopate)] text-2xl font-bold text-green-400">{stats.summary.totalWins}</span>
+            <span className="font-syncopate text-2xl font-bold text-green-400">{stats.summary.totalWins}</span>
             <p className="text-white/40 text-[10px] uppercase mt-1">Wins</p>
           </div>
           <div className="text-center">
-            <span className="font-[var(--font-syncopate)] text-2xl font-bold text-amber-400">{stats.summary.overallWinRate.toFixed(0)}%</span>
+            <span className="font-syncopate text-2xl font-bold text-amber-400">{stats.summary.overallWinRate.toFixed(0)}%</span>
             <p className="text-white/40 text-[10px] uppercase mt-1">Win Rate</p>
           </div>
         </motion.div>

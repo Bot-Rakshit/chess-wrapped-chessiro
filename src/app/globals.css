@@ -3,15 +3,37 @@
 :root {
   --background: #000000;
   --foreground: #ffffff;
-  --font-syne: 'Syne', sans-serif;
-  --font-syncopate: 'Syncopate', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-syne);
-  --font-display: var(--font-syncopate);
+  --font-sans: 'Syne', sans-serif;
+  --font-display: 'Syncopate', sans-serif;
+}
+
+/* Direct font utility classes with explicit font-family */
+.font-syne {
+  font-family: 'Syne', sans-serif !important;
+  font-feature-settings: "ss01", "ss02" !important;
+}
+
+.font-syncopate {
+  font-family: 'Syncopate', sans-serif !important;
+  font-feature-settings: "salt" !important;
+}
+
+/* Debug: Check if fonts are loading */
+@font-face {
+  font-family: 'Syne';
+  src: local('Syne');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Syncopate';
+  src: local('Syncopate');
+  font-display: swap;
 }
 
 * {

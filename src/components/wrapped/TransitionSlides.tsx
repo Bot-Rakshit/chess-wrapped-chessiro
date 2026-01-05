@@ -119,7 +119,7 @@ export function TransitionToGames({ stats, isActive }: TransitionSlideProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-white/60 text-lg"
+          className="font-[var(--font-syne)] text-white/60 text-lg"
         >
           {greeting}, {stats.username}
         </motion.span>
@@ -131,10 +131,10 @@ export function TransitionToGames({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
           className="flex flex-col gap-2"
         >
-          <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-white">
+          <span className="font-syne text-3xl md:text-4xl font-bold text-white">
             {reaction.text}
           </span>
-          <span className="text-white/50 text-lg">
+          <span className="font-[var(--font-syne)] text-white/50 text-lg">
             {reaction.subtext}
           </span>
         </motion.div>
@@ -178,7 +178,7 @@ export function TransitionToTime({ stats, isActive }: TransitionSlideProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-white/50 text-sm tracking-[0.3em] uppercase"
+          className="font-[var(--font-syne)] text-white/50 text-sm tracking-[0.3em] uppercase"
         >
           Time flies when you're playing chess
         </motion.span>
@@ -189,10 +189,10 @@ export function TransitionToTime({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
           className="flex flex-col gap-3"
         >
-          <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-[#10B981]">
+          <span className="font-syne text-3xl md:text-4xl font-bold text-[#10B981]">
             {reaction.text}
           </span>
-          <span className="text-white/60 text-base">
+          <span className="font-[var(--font-syne)] text-white/60 text-base">
             {reaction.comparison}
           </span>
         </motion.div>
@@ -238,7 +238,7 @@ export function TransitionToStyle({ stats, isActive }: TransitionSlideProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-white/50 text-sm tracking-[0.3em] uppercase"
+          className="font-[var(--font-syne)] text-white/50 text-sm tracking-[0.3em] uppercase"
         >
           Every player has a style
         </motion.span>
@@ -249,8 +249,8 @@ export function TransitionToStyle({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
           className="flex flex-col gap-2"
         >
-          <span className="text-white/70 text-xl">You are a</span>
-          <span className="font-[var(--font-syncopate)] text-4xl md:text-5xl font-bold text-[#8B5CF6]">
+          <span className="font-[var(--font-syne)] text-white/70 text-xl">You are a</span>
+          <span className="font-syne text-4xl md:text-5xl font-bold text-[#8B5CF6]">
             {personality.archetype}
           </span>
         </motion.div>
@@ -259,7 +259,7 @@ export function TransitionToStyle({ stats, isActive }: TransitionSlideProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
-          className="text-white/50 text-base italic"
+          className="font-[var(--font-syne)] text-white/50 text-base italic"
         >
           "{personality.description}"
         </motion.span>
@@ -302,7 +302,7 @@ export function TransitionToJourney({ stats, isActive }: TransitionSlideProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-white/50 text-sm tracking-[0.3em] uppercase"
+          className="font-[var(--font-syne)] text-white/50 text-sm tracking-[0.3em] uppercase"
         >
           Your Rating Journey
         </motion.span>
@@ -337,10 +337,10 @@ export function TransitionToJourney({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.6, delay: 1.5 }}
           className="flex flex-col gap-2"
         >
-          <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-white">
+          <span className="font-syne text-3xl md:text-4xl font-bold text-white">
             {journey.text}
           </span>
-          <span className="text-white/50 text-base">
+          <span className="font-[var(--font-syne)] text-white/50 text-base">
             {journey.feeling}
           </span>
         </motion.div>
@@ -352,7 +352,7 @@ export function TransitionToJourney({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.5, delay: 2 }}
           className={`px-4 py-2 rounded-full ${totalChange >= 0 ? 'bg-[#61DE58]/20 text-[#61DE58]' : 'bg-[#F87171]/20 text-[#F87171]'}`}
         >
-          <span className="font-[var(--font-syncopate)] text-2xl font-bold">
+          <span className="font-syncopate text-2xl font-bold">
             {totalChange >= 0 ? '+' : ''}{totalChange} ELO
           </span>
         </motion.div>
@@ -381,7 +381,7 @@ export function TransitionToVictories({ stats, isActive }: TransitionSlideProps)
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-white/50 text-sm tracking-[0.3em] uppercase"
+          className="font-[var(--font-syne)] text-white/50 text-sm tracking-[0.3em] uppercase"
         >
           The Scoreboard
         </motion.span>
@@ -392,10 +392,10 @@ export function TransitionToVictories({ stats, isActive }: TransitionSlideProps)
           transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
           className="flex flex-col gap-3"
         >
-          <span className="text-[#FBBF24] text-6xl font-[var(--font-syncopate)] font-bold">
+          <span className="font-syncopate text-[#FBBF24] text-6xl font-bold">
             {Math.round(winRate)}%
           </span>
-          <span className="text-white/80 text-xl">
+          <span className="font-[var(--font-syne)] text-white/80 text-xl">
             win rate
           </span>
         </motion.div>
@@ -404,7 +404,7 @@ export function TransitionToVictories({ stats, isActive }: TransitionSlideProps)
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 1.2 }}
-          className="text-2xl font-bold text-white"
+          className="font-[var(--font-syne)] text-2xl font-bold text-white"
         >
           {reaction.text}
         </motion.span>
@@ -443,7 +443,7 @@ export function TransitionToStreaks({ stats, isActive }: TransitionSlideProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-white/50 text-sm tracking-[0.3em] uppercase"
+          className="font-[var(--font-syne)] text-white/50 text-sm tracking-[0.3em] uppercase"
         >
           Momentum Matters
         </motion.span>
@@ -472,7 +472,7 @@ export function TransitionToStreaks({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.6, delay: 1 }}
           className="flex flex-col gap-2"
         >
-          <span className="font-[var(--font-syncopate)] text-3xl md:text-4xl font-bold text-[#F97316]">
+          <span className="font-syne text-3xl md:text-4xl font-bold text-[#F97316]">
             {message.text}
           </span>
           <span className="text-white/50 text-base">
@@ -541,7 +541,7 @@ export function TransitionToNemesis({ stats, isActive }: TransitionSlideProps) {
           transition={{ duration: 0.6, delay: 1.3 }}
           className="flex flex-col gap-2"
         >
-          <span className="font-[var(--font-syncopate)] text-2xl md:text-3xl font-bold text-white">
+          <span className="font-syne text-2xl md:text-3xl font-bold text-white">
             {narrative.text}
           </span>
           <span className="text-[#EF4444] text-base italic">
@@ -587,7 +587,7 @@ export function TransitionToFinale({ stats, isActive }: TransitionSlideProps) {
           className="flex flex-col gap-2"
         >
           <span className="text-white/70 text-lg">Your 2025 was</span>
-          <span className="font-[var(--font-syncopate)] text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#A855F7] via-[#EC4899] to-[#FBBF24] text-transparent bg-clip-text">
+          <span className="font-syne text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#A855F7] via-[#EC4899] to-[#FBBF24] text-transparent bg-clip-text">
             LEGENDARY
           </span>
         </motion.div>
