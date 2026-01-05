@@ -412,21 +412,34 @@ export default function WrappedPage() {
         />
       </div>
 
-      {/* Header Row - Logo left, Mute right - just below progress bar */}
-      <div className="fixed top-8 left-0 right-0 z-50 px-3 flex items-center justify-between pointer-events-none">
-        {/* Chessiro Logo - left, always visible */}
-        <motion.div
+      {/* Header Row - Back Left, Logo Center, Mute Right - aligned with story card */}
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 w-full md:max-w-[480px] lg:max-w-[520px] z-50 px-4 flex items-center justify-between pointer-events-none">
+        
+        {/* Back Button (Left) */}
+        <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => router.push("/")}
-          className="cursor-pointer pointer-events-auto"
+          className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-all"
+          title="Back to Home"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </motion.button>
+
+        {/* Chessiro Logo (Center) */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute left-1/2 -translate-x-1/2 pointer-events-auto"
         >
           <Image
-            src="/chessiro-logo.svg"
+            src="/chessiro.svg"
             alt="Chessiro"
             width={32}
             height={32}
-            className="w-8 h-8 hover:opacity-80 transition-opacity"
+            className="w-8 h-8 opacity-90 brightness-0 invert"
           />
         </motion.div>
 
@@ -434,21 +447,20 @@ export default function WrappedPage() {
         <motion.div
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-2 pointer-events-auto"
+          className="pointer-events-auto"
         >
-          {/* Mute button */}
           <button
             onClick={toggleMute}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white/70 hover:text-white hover:bg-black/50 transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-all"
             title={isMuted ? "Unmute (M)" : "Mute (M)"}
           >
             {isMuted ? (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
               </svg>
             ) : (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
               </svg>
             )}
