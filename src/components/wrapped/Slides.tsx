@@ -769,7 +769,7 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
             <p className="text-white/50 text-sm italic">
               {formats.some(f => f.change > 0) 
                 ? "Every format tells a story!" 
-                : "New challenges await in 2025!"}
+                : "New challenges await in 2026!"}
             </p>
           </FadeIn>
         )}
@@ -849,7 +849,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const playStreak = stats.streaks?.longestPlayStreak || 0;
+  const playStreak = stats.activity?.sessions?.total || 0;
 
   const getStreakMessage = (streak: number) => {
     if (streak >= 20) return "LEGENDARY!";

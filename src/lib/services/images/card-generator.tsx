@@ -695,7 +695,7 @@ function Card6({ stats }: CardData) {
 // ============================================
 function Card7({ stats }: CardData) {
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const daysStreak = stats.activity?.sessions?.total || 30;
+  const playStreak = stats.streaks?.longestPlayStreak || 0;
   const oneLiner = getStreaksOneLiner(stats);
 
   return (
@@ -716,23 +716,23 @@ function Card7({ stats }: CardData) {
         {oneLiner}
       </span>
 
-      {/* Days Streak */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <span style={{ fontFamily: "Syncopate", fontSize: 130, fontWeight: 700, color: "#61DE58", lineHeight: 1 }}>
-          {daysStreak}
-        </span>
-        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 20 }}>
-          days in a row
-        </span>
-      </div>
-
-      {/* Win Streak */}
+      {/* Longest Win Streak */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syncopate", fontSize: 130, fontWeight: 700, color: "#61DE58", lineHeight: 1 }}>
           {winStreak}
         </span>
-        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 20 }}>
-          win streak
+        <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 15 }}>
+          longest win streak
+        </span>
+      </div>
+
+      {/* Longest Play Streak */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 130, fontWeight: 700, color: "#34D399", lineHeight: 1 }}>
+          {playStreak}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 15 }}>
+          longest play streak
         </span>
       </div>
     </div>
