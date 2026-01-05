@@ -343,3 +343,15 @@ function HomeContent() {
     </div>
   );
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#0a0908]">
+        <div className="w-8 h-8 border-2 border-[#c2b59b] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
+  );
+}
