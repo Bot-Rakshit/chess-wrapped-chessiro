@@ -253,9 +253,9 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
       <GlowOrb color="rgba(97, 222, 88, 0.4)" size={350} x="50%" y="50%" />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-12">
+      <div className="relative z-10 flex flex-col items-center text-center gap-18">
         <SlideUp delay={0.1}>
-          <span className="text-2xl text-[#CEFFDD] font-bold italic">You p</span>
+          <span className="text-2xl text-[#CEFFDD] font-extrabold w">You played</span>
         </SlideUp>
 
         {/* Minutes */}
@@ -269,7 +269,7 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
             />
             <SlideUp delay={0.8}>
               <span className="text-xl text-[#CEFFDD] mt-2">
-                minutes (that&apos;s {totalDays} days)
+                minutes (that&apos;s {totalDays} day{totalDays === 1 ? '' : 's'}) 
               </span>
             </SlideUp>
           </div>
@@ -289,7 +289,7 @@ export function Card2Slide({ stats, isActive }: SlideProps) {
         </div>
 
         <SlideUp delay={1.8}>
-          <span className="text-2xl text-[#CEFFDD] font-bold italic">Now that&apos;s Impressive!</span>
+          <span className="text-2xl text-[#CEFFDD] font-bold">Now that&apos;s Impressive!</span>
         </SlideUp>
       </div>
     </div>
@@ -328,18 +328,24 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
       <GlowOrb color="rgba(125, 211, 252, 0.3)" size={300} x="50%" y="40%" />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-10">
+      <div className="relative z-10 flex flex-col items-center text-center gap-18">
         <SlideUp delay={0.1}>
-          <span className="text-xl text-white/80">You&apos;re a</span>
+          <span className="text-xl text-white/80 font-extrabold">You&apos;re a</span>
         </SlideUp>
         
         <SlideUp delay={0.3}>
           <div className="flex flex-col items-center">
-            <span className="font-syne text-6xl md:text-7xl font-bold text-[#7DD3FC]">
-              {mostPlayed}
+            <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+              {mostPlayed.charAt(0) + mostPlayed.slice(1).toLowerCase()}
             </span>
-            <span className="font-syne text-6xl md:text-7xl font-bold text-[#7DD3FC]">
-              WIZARD
+            <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+              {mostPlayed === "RAPID"
+                ? "Champion"
+                : mostPlayed === "BLITZ"
+                ? "Wizard"
+                : mostPlayed === "BULLET"
+                ? "King"
+                : ""}
             </span>
           </div>
         </SlideUp>
@@ -349,15 +355,15 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
           <div className="flex flex-col items-center gap-3">
             {/* Values */}
             <div className="flex justify-between w-[280px]">
-              <span className="font-syncopate text-xl font-bold text-[#7DD3FC]">{rapid}</span>
+              <span className="font-syncopate text-xl font-bold text-[#43B0F0]">{rapid}</span>
               <span className="font-syncopate text-xl font-bold text-[#FBBF24]">{blitz}</span>
-              <span className="font-syncopate text-xl font-bold text-[#F87171]">{bullet}</span>
+              <span className="font-syncopate text-xl font-bold text-[#E76845]">{bullet}</span>
             </div>
             
             {/* Segmented Bar */}
-            <div className="flex w-[280px] h-8 rounded-full overflow-hidden">
+            <div className="flex w-[280px] h-4 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-[#7DD3FC]"
+                className="h-full bg-[#43B0F0]"
                 initial={{ width: 0 }}
                 animate={{ width: rapidWidth }}
                 transition={{ delay: 0.8, duration: 0.5 }}
@@ -369,7 +375,7 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
                 transition={{ delay: 1, duration: 0.5 }}
               />
               <motion.div
-                className="h-full bg-[#F87171]"
+                className="h-full bg-[#E76845]"
                 initial={{ width: 0 }}
                 animate={{ width: bulletWidth }}
                 transition={{ delay: 1.2, duration: 0.5 }}
@@ -378,15 +384,15 @@ export function Card3Slide({ stats, isActive }: SlideProps) {
 
             {/* Labels */}
             <div className="flex justify-between w-[280px]">
-              <span className="text-sm font-bold text-[#7DD3FC]">Rapid</span>
+              <span className="text-sm font-bold text-[#43B0F0]">Rapid</span>
               <span className="text-sm font-bold text-[#FBBF24]">Blitz</span>
-              <span className="text-sm font-bold text-[#F87171]">Bullet</span>
+              <span className="text-sm font-bold text-[#E76845]">Bullet</span>
             </div>
           </div>
         </SlideUp>
 
         <FadeIn delay={1.5}>
-          <span className="text-lg text-white/80">
+          <span className="text-lg text-white/90 font-bold">
             {mostPlayedPercent}% of your games are {mostPlayed.charAt(0) + mostPlayed.slice(1).toLowerCase()}
           </span>
         </FadeIn>
@@ -447,7 +453,7 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
   
   if (allDataPoints.length > 0) {
     // Try to extract month from date string
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const monthRatings: Record<string, number[]> = {};
     
     allDataPoints.forEach(dp => {
@@ -484,13 +490,13 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
   };
 
   const getMonthInsight = () => {
-    if (bestMonth) return `${bestMonth} was your strongest month!`;
+    if (bestMonth) return `${bestMonth.charAt(0).toUpperCase() + bestMonth.slice(1)} was your strongest month!`;
     if (overallGrowth) return "Your ratings trended upward!";
     return "Every game builds experience!";
   };
 
-  const chartWidth = 300;
-  const chartHeight = 150;
+  const chartWidth = 340;
+  const chartHeight = 200;
   const chartMarginLeft = 40;
   const chartMarginBottom = 25;
   const chartMarginTop = 10;
@@ -516,12 +522,12 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-8">
         <SlideUp delay={0.1}>
-          <span className="text-3xl font-bold text-white">Your Journey in 2025</span>
+          <span className="text-2xl font-extrabold text-white">Journey in 2025</span>
         </SlideUp>
 
         {/* Intelligent Insight */}
         <FadeIn delay={0.4}>
-          <span className="text-white/60 text-sm font-syne italic">
+          <span className="text-white/80 text-sm font-bold italic">
             {getJourneyInsight()}
           </span>
         </FadeIn>
@@ -539,7 +545,7 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
                 <motion.path
                   d={createLinePath(sampledRapid)}
                   fill="none"
-                  stroke="#7DD3FC"
+                  stroke="#43B0F0"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -565,7 +571,7 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
                 <motion.path
                   d={createLinePath(sampledBullet)}
                   fill="none"
-                  stroke="#F87171"
+                  stroke="#E76845"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -577,14 +583,14 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
             </svg>
             
             {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-white/50" style={{ height: chartHeight - chartMarginBottom }}>
+            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[12px] text-white" style={{ height: chartHeight - chartMarginBottom }}>
               <span className="font-syncopate">{paddedMax}</span>
               <span className="font-syncopate">{Math.round((paddedMax + paddedMin) / 2)}</span>
               <span className="font-syncopate">{paddedMin}</span>
             </div>
 
             {/* X-axis labels */}
-            <div className="absolute bottom-0 left-10 right-0 flex justify-between text-[10px] text-white/50">
+            <div className="absolute bottom-0 left-10 right-0 flex justify-between text-[12px] text-white">
               <span>Jan</span>
               <span>Jul</span>
               <span>Dec</span>
@@ -592,38 +598,22 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
           </div>
         </SlideUp>
 
-        {/* Legend */}
-        <FadeIn delay={1.5}>
-          <div className="flex gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-[#7DD3FC] rounded" />
-              <span className="text-xs text-[#7DD3FC]">Rapid</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-[#FBBF24] rounded" />
-              <span className="text-xs text-[#FBBF24]">Blitz</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-[#F87171] rounded" />
-              <span className="text-xs text-[#F87171]">Bullet</span>
-            </div>
-          </div>
-        </FadeIn>
 
+              <div className="flex gap-6"></div>
         {/* Peak Ratings */}
         <SlideUp delay={1.8}>
-          <span className="text-xl font-bold text-white mb-2">Your Peaks</span>
+          <span className="font-syne text-2xl font-bold text-[#CDFAFF]">Your Peaks</span>
         </SlideUp>
 
         <StaggerContainer delay={2} staggerDelay={0.2} className="flex gap-8">
           <StaggerItem className="flex flex-col items-center">
             <AnimatedNumber
               value={rapidPeak}
-              className="font-syncopate text-3xl font-bold text-[#7DD3FC]"
+              className="font-syncopate text-3xl font-bold text-[#43B0F0]"
               delay={2.1}
               duration={1.5}
             />
-            <span className="text-sm font-bold text-[#7DD3FC] mt-1">Rapid</span>
+            <span className="text-sm font-bold text-[#43B0F0]">Rapid</span>
           </StaggerItem>
           
           <StaggerItem className="flex flex-col items-center">
@@ -633,23 +623,23 @@ export function Card4Slide({ stats, isActive }: SlideProps) {
               delay={2.3}
               duration={1.5}
             />
-            <span className="text-sm font-bold text-[#FBBF24] mt-1">Blitz</span>
+            <span className="text-sm font-bold text-[#FBBF24]">Blitz</span>
           </StaggerItem>
           
           <StaggerItem className="flex flex-col items-center">
             <AnimatedNumber
               value={bulletPeak}
-              className="font-syncopate text-3xl font-bold text-[#F87171]"
+              className="font-syncopate text-3xl font-bold text-[#E76845]"
               delay={2.5}
               duration={1.5}
             />
-            <span className="text-sm font-bold text-[#F87171] mt-1">Bullet</span>
+            <span className="text-sm font-bold text-[#E76845]">Bullet</span>
           </StaggerItem>
         </StaggerContainer>
 
         {/* Month Insight */}
         <FadeIn delay={2.8}>
-          <span className="text-white/50 text-sm font-syne italic">
+          <span className="text-white/80 text-sm font-bold italic">
             {getMonthInsight()}
           </span>
         </FadeIn>
@@ -680,9 +670,9 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
   };
 
   const formats = [
-    { ...rapid, name: "Rapid", colorClass: "text-blue-400" },
-    { ...blitz, name: "Blitz", colorClass: "text-amber-400" },
-    { ...bullet, name: "Bullet", colorClass: "text-red-400" },
+    { ...rapid, name: "Rapid", color: "#54D8E7" },
+    { ...blitz, name: "Blitz", color: "#66E6B3" },
+    { ...bullet, name: "Bullet", color: "#66E688" },
   ].filter(f => f.rating > 0);
 
   return (
@@ -691,12 +681,9 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-12">
         {/* Header */}
-        <FadeIn delay={0.1}>
-          <span className="text-sm text-white/60 tracking-[0.2em] uppercase">Rating Journey</span>
-        </FadeIn>
         
         {/* Current Ratings */}
-        <div className="flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-12">
           {formats.map((format, index) => (
             <motion.div
               key={format.name}
@@ -705,10 +692,13 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
               transition={{ delay: 0.2 + index * 0.15 }}
               className="flex flex-col items-center"
             >
-              <span className="text-white/50 text-xs uppercase tracking-wider mb-2">{format.name}</span>
+              <span className="font-syne font-bold text-xs uppercase tracking-wider mb-2">
+                {format.name.toLowerCase()}
+              </span>
               <AnimatedNumber
                 value={format.rating}
-                className={`font-syncopate text-5xl md:text-6xl font-bold ${format.colorClass}`}
+                className="font-syncopate text-7xl md:text-6xl font-bold"
+                style={{ color: format.color }}
                 delay={0.3 + index * 0.15}
                 duration={1.5}
               />
@@ -746,7 +736,7 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
         {/* Encouraging footer for formats with no positive change */}
         {formats.some(f => f.change <= 0) && (
           <FadeIn delay={0.8}>
-            <p className="text-white/50 text-sm italic">
+            <p className="text-white/90 text-sm italic">
               {formats.some(f => f.change > 0) 
                 ? "Every format tells a story!" 
                 : "New challenges await in 2026!"}
@@ -759,9 +749,9 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 6 = Card 6: Biggest Win - Giant Slayer
+// Slide 7 = Card 6: Biggest Win - Giant Slayer
 // ============================================
-export function Card6Slide({ stats, isActive }: SlideProps) {
+export function Card6WinSlide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const highestDefeated = stats.opponents?.highestRatedDefeated;
@@ -777,45 +767,38 @@ export function Card6Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-6">
         <FadeIn delay={0.1}>
-          <span className="text-sm text-white/60 tracking-[0.2em] uppercase">Giant Slayer</span>
+          <span className="text-2xl font-extrabold text-white">Your Biggest Win</span>
         </FadeIn>
-        
-        <SlideUp delay={0.2}>
-          <span className="text-2xl font-bold text-white">Your Biggest Win</span>
-        </SlideUp>
 
         {/* Avatar Circle with trophy effect */}
-        <ScaleIn delay={0.4}>
-          <div className="relative">
-            <div className="absolute -inset-2 bg-gradient-to-r from-[#61DE58] to-[#22C55E] rounded-full blur-md opacity-50" />
-            <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-[#61DE58] to-[#22C55E] flex items-center justify-center">
-              <span className="font-syncopate text-5xl font-bold text-white">
-                {opponentName.charAt(0).toUpperCase()}
-              </span>
-            </div>
+        <ScaleIn delay={0.3}>
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#61DE58] to-[#22C55E] flex items-center justify-center">
+            <span className="font-syncopate text-5xl font-bold text-white">
+              {opponentName.charAt(0).toUpperCase()}
+            </span>
           </div>
         </ScaleIn>
 
         {/* Opponent info */}
-        <SlideUp delay={0.7}>
+        <SlideUp delay={0.6}>
           <span className="text-2xl font-bold text-white">{opponentName}</span>
         </SlideUp>
 
         {/* Rating highlight */}
-        <SlideUp delay={0.9}>
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-white/60 text-sm">You defeated a</span>
-            <div className="px-6 py-3 bg-[#61DE58]/20 rounded-2xl border border-[#61DE58]/30">
-              <span className="font-syncopate text-4xl font-bold text-[#61DE58]">
+        <SlideUp delay={0.8}>
+          <div className="flex flex-col items-center gap-3">
+            <span className="text-white/80 text-lg">You defeated a</span>
+            <div className="px-8 py-4 bg-[#61DE58]/20 rounded-2xl border border-[#61DE58]/30">
+              <span className="font-syncopate text-5xl font-bold text-[#61DE58]">
                 {opponentRating}
               </span>
             </div>
-            <span className="text-white/60 text-sm">rated player</span>
+            <span className="text-white/80 text-lg">rated player</span>
           </div>
         </SlideUp>
 
         <FadeIn delay={1.3}>
-          <span className="text-white/50 text-sm italic mt-2">Impressive upset!</span>
+          <span className="text-white/90 text-lg font-bold italic">Impressive upset!</span>
         </FadeIn>
       </div>
     </div>
@@ -823,7 +806,7 @@ export function Card6Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 7 = Card 7: Streaks - Celebratory
+// Slide 8 = Card 7: Streaks - Celebratory
 // ============================================
 export function Card7Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
@@ -849,7 +832,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
         {/* Longest Win Streak */}
         <div className="flex flex-col items-center">
           <FadeIn delay={0.1}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Longest Win Streak</span>
+            <span className="text-xl font-bold text-[#34D399] mb-2">Longest Win Streak</span>
           </FadeIn>
           <AnimatedNumber
             value={winStreak}
@@ -861,14 +844,14 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
             <span className="text-xl text-white/80 mt-3 tracking-wide">wins in a row</span>
           </SlideUp>
           <FadeIn delay={1.2}>
-            <span className="text-amber-400 text-sm mt-1 font-bold">{getStreakMessage(winStreak)}</span>
+            <span className="text-amber-400 text-lg font-bold mt-2">{getStreakMessage(winStreak)}</span>
           </FadeIn>
         </div>
 
         {/* Longest Play Streak */}
         <div className="flex flex-col items-center">
           <FadeIn delay={1.5}>
-            <span className="text-sm text-white/60 tracking-[0.2em] uppercase mb-2">Longest Play Streak</span>
+            <span className="text-xl font-bold text-[#61DE58] mb-2">Longest Play Streak</span>
           </FadeIn>
           <AnimatedNumber
             value={playStreak}
@@ -880,7 +863,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
             <span className="text-lg text-white/80 mt-2 tracking-wide">days in a row playing</span>
           </SlideUp>
           <FadeIn delay={2.4}>
-            <span className="text-white/50 text-sm mt-1 italic">
+            <span className="text-white/90 text-lg mt-2 font-medium italic">
               {winStreak >= 10 ? "You're on fire!" : "Every streak starts somewhere"}
             </span>
           </FadeIn>
@@ -905,7 +888,7 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
   const draws = games - wins - losses;
 
   const total = wins + draws + losses || 1;
-  const barWidth = 260;
+  const barWidth = 280;
   const winWidth = (wins / total) * barWidth;
   const drawWidth = (draws / total) * barWidth;
   const lossWidth = (losses / total) * barWidth;
@@ -916,7 +899,7 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-8">
         <SlideUp delay={0.1}>
-          <span className="text-2xl font-bold text-[#F87171]">Your Nemesis</span>
+          <span className="text-2xl font-extrabold text-[#F87171]">Your Nemesis</span>
         </SlideUp>
 
         {/* Avatar */}
@@ -928,7 +911,7 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
           </div>
         </ScaleIn>
 
-        {/* Name */}
+        {/* Name and games */}
         <SlideUp delay={0.5}>
           <span className="text-2xl font-bold text-white">{name}</span>
           <span className="text-lg text-[#D4A574] block">{games} games</span>
@@ -936,16 +919,9 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
 
         {/* Stats Bar */}
         <SlideUp delay={0.7}>
-          <div className="flex flex-col items-center gap-3">
-            {/* Values */}
-            <div className="flex justify-between w-[260px]">
-              <span className="font-syncopate text-2xl font-bold text-[#61DE58]">{wins}</span>
-              <span className="font-syncopate text-2xl font-bold text-[#9CA3AF]">{draws}</span>
-              <span className="font-syncopate text-2xl font-bold text-[#F87171]">{losses}</span>
-            </div>
-            
-            {/* Bar */}
-            <div className="flex w-[260px] h-6 rounded-full overflow-hidden">
+          <div className="flex flex-col items-center gap-4">
+            {/* Segmented Bar */}
+            <div className="flex w-[280px] h-5 rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-[#61DE58]"
                 initial={{ width: 0 }}
@@ -966,8 +942,15 @@ export function Card8Slide({ stats, isActive }: SlideProps) {
               />
             </div>
 
+            {/* Values */}
+            <div className="flex justify-between w-[280px]">
+              <span className="font-syncopate text-2xl font-bold text-[#61DE58]">{wins}</span>
+              <span className="font-syncopate text-2xl font-bold text-[#9CA3AF]">{draws}</span>
+              <span className="font-syncopate text-2xl font-bold text-[#F87171]">{losses}</span>
+            </div>
+            
             {/* Labels */}
-            <div className="flex justify-between w-[260px]">
+            <div className="flex justify-between w-[280px]">
               <span className="text-sm font-bold text-[#61DE58]">Won</span>
               <span className="text-sm font-bold text-[#9CA3AF]">Draw</span>
               <span className="text-sm font-bold text-[#F87171]">Lost</span>
@@ -1001,10 +984,7 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
       
       <div className="relative z-10 flex flex-col items-center text-center gap-8">
         <SlideUp delay={0.1}>
-          <div className="flex flex-col items-center">
-            <span className="text-2xl text-white/90">Your Personality</span>
-            <span className="text-2xl text-white/90">is like</span>
-          </div>
+          <span className="text-xl font-extrabold text-white">Your Personality</span>
         </SlideUp>
 
         {/* Avatar */}
@@ -1027,8 +1007,8 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
 
         {/* Quote */}
         <FadeIn delay={0.9}>
-          <p className="text-lg text-white/80 italic max-w-xs">
-            &quot;{personality.quote}&quot;
+          <p className="text-lg text-white/90 italic max-w-xs font-medium">
+            "{personality.quote}"
           </p>
         </FadeIn>
       </div>
@@ -1037,7 +1017,65 @@ export function Card9Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 11 = Card 11: Top Openings
+// Slide 6 = New Card: Total Openings Explored
+// ============================================
+export function Card6Slide({ stats, isActive }: SlideProps) {
+  if (!isActive) return null;
+
+  const totalUnique = stats.openings?.totalUnique || 0;
+  
+  const getOpeningsInsight = (count: number) => {
+    if (count >= 100) return "A true opening explorer!";
+    if (count >= 50) return "Diverse repertoire!";
+    if (count >= 20) return "Building depth!";
+    if (count >= 10) return "Finding your style!";
+    return "Just getting started!";
+  };
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
+      <GlowOrb color="rgba(251, 191, 36, 0.2)" size={350} x="50%" y="50%" blur={100} />
+      <Particles color="#FBBF24" count={12} />
+      
+      <div className="relative z-10 flex flex-col items-center text-center gap-10">
+        <SlideUp delay={0.1}>
+          <span className="font-syne text-3xl md:text-4xl font-bold text-white">Opening Explorer</span>
+        </SlideUp>
+
+        {/* Total Openings Count */}
+        <div className="flex flex-col items-center">
+          <FadeIn delay={0.3}>
+            <span className="text-white/80 text-lg font-medium mb-4">You explored</span>
+          </FadeIn>
+          <ZoomBurst delay={0.5}>
+            <span className="font-syncopate text-8xl md:text-9xl font-bold text-[#FBBF24]">
+              {totalUnique}
+            </span>
+          </ZoomBurst>
+          <SlideUp delay={0.8}>
+            <span className="text-xl text-white/80 mt-2 tracking-wide">unique openings</span>
+          </SlideUp>
+        </div>
+
+        {/* Insight */}
+        <FadeIn delay={1.3}>
+          <span className="text-white/90 text-xl font-medium italic">
+            {getOpeningsInsight(totalUnique)}
+          </span>
+        </FadeIn>
+
+        <FadeIn delay={1.6}>
+          <span className="text-white/60 text-lg">
+            Let's see your favorites →
+          </span>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Slide 10 = Card 11: Top Openings (moved before Biggest Win)
 // ============================================
 export function Card11Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
@@ -1056,30 +1094,29 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
       <GlowOrb color="rgba(251, 191, 36, 0.2)" size={350} x="30%" y="40%" blur={100} />
       <GlowOrb color="rgba(125, 211, 252, 0.15)" size={300} x="70%" y="60%" blur={100} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-8">
+      <div className="relative z-10 flex flex-col items-center text-center gap-10">
         {/* Header */}
-        <div className="flex flex-col items-center gap-2">
-          <SlideUp delay={0.1}>
-            <span className="font-syne text-3xl md:text-4xl font-bold text-white">Your Openings</span>
-          </SlideUp>
-          <FadeIn delay={0.3}>
-            <span className="text-white/50 text-sm">{totalUnique} unique openings explored</span>
-          </FadeIn>
-        </div>
+        <SlideUp delay={0.1}>
+          <span className="font-syne text-3xl md:text-4xl font-bold text-white">Your Openings</span>
+        </SlideUp>
+
+        <FadeIn delay={0.3}>
+          <span className="text-white/80 text-sm font-medium">{totalUnique} unique openings explored</span>
+        </FadeIn>
 
         {/* Best as White */}
         {bestWhite && (
           <SlideUp delay={0.5}>
-            <div className="flex flex-col items-center gap-3 bg-white/5 rounded-xl p-5 border border-[#FBBF24]/30">
+            <div className="flex flex-col items-center gap-4 bg-white/5 rounded-2xl p-6 border border-[#FBBF24]/30 w-full max-w-xs">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#FBBF24] flex items-center justify-center">
-                  <span className="font-syne text-sm font-bold text-black">W</span>
+                <div className="w-10 h-10 rounded-full bg-[#FBBF24] flex items-center justify-center">
+                  <span className="font-syne text-lg font-bold text-black">W</span>
                 </div>
-                <span className="text-[#FBBF24] font-bold">Best as White</span>
+                <span className="text-[#FBBF24] font-bold text-lg">Best as White</span>
               </div>
-              <span className="text-white text-lg font-semibold text-center">{formatOpening(bestWhite.name)}</span>
-              <div className="flex gap-4 text-sm">
-                <span className="text-[#61DE58] font-bold">{Math.round(bestWhite.winRate)}% wins</span>
+              <span className="text-white text-xl font-semibold text-center">{formatOpening(bestWhite.name)}</span>
+              <div className="flex gap-6 text-base">
+                <span className="font-syncopate font-bold text-[#61DE58]">{Math.round(bestWhite.winRate)}%</span>
                 <span className="text-white/60">{bestWhite.games} games</span>
               </div>
             </div>
@@ -1088,25 +1125,25 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
 
         {/* Best as Black */}
         {bestBlack && (
-          <SlideUp delay={0.8}>
-            <div className="flex flex-col items-center gap-3 bg-white/5 rounded-xl p-5 border border-[#7DD3FC]/30">
+          <SlideUp delay={0.9}>
+            <div className="flex flex-col items-center gap-4 bg-white/5 rounded-2xl p-6 border border-[#7DD3FC]/30 w-full max-w-xs">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#1E293B] border-2 border-white flex items-center justify-center">
-                  <span className="font-syne text-sm font-bold text-white">B</span>
+                <div className="w-10 h-10 rounded-full bg-[#1E293B] border-2 border-white flex items-center justify-center">
+                  <span className="font-syne text-lg font-bold text-white">B</span>
                 </div>
-                <span className="text-[#7DD3FC] font-bold">Best as Black</span>
+                <span className="text-[#7DD3FC] font-bold text-lg">Best as Black</span>
               </div>
-              <span className="text-white text-lg font-semibold text-center">{formatOpening(bestBlack.name)}</span>
-              <div className="flex gap-4 text-sm">
-                <span className="text-[#61DE58] font-bold">{Math.round(bestBlack.winRate)}% wins</span>
+              <span className="text-white text-xl font-semibold text-center">{formatOpening(bestBlack.name)}</span>
+              <div className="flex gap-6 text-base">
+                <span className="font-syncopate font-bold text-[#61DE58]">{Math.round(bestBlack.winRate)}%</span>
                 <span className="text-white/60">{bestBlack.games} games</span>
               </div>
             </div>
           </SlideUp>
         )}
 
-        <FadeIn delay={1.2}>
-          <span className="text-white/40 text-sm italic">Your secret weapons!</span>
+        <FadeIn delay={1.3}>
+          <span className="text-white/90 text-lg font-medium italic">Your secret weapons!</span>
         </FadeIn>
       </div>
     </div>
@@ -1114,7 +1151,7 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
 }
 
 // ============================================
-// Slide 12 = Card 12: Activity Patterns
+// Slide 9 = Card 12: Activity Patterns
 // ============================================
 export function Card12Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
@@ -1144,21 +1181,20 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
       <GlowOrb color="rgba(139, 92, 246, 0.25)" size={400} x="50%" y="50%" blur={120} />
       <Particles color="#A78BFA" count={10} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-10">
+      <div className="relative z-10 flex flex-col items-center text-center gap-12">
         {/* Header */}
-        <div className="flex flex-col items-center gap-2">
-          <SlideUp delay={0.1}>
-            <span className="font-syne text-3xl md:text-4xl font-bold text-white">When You Play</span>
-          </SlideUp>
-          <FadeIn delay={0.3}>
-            <span className="text-lg font-bold" style={{ color: timeCategory.color }}>{timeCategory.label}</span>
-          </FadeIn>
-        </div>
+        <SlideUp delay={0.1}>
+          <span className="font-syne text-3xl md:text-4xl font-bold text-white">When You Play</span>
+        </SlideUp>
+
+        <FadeIn delay={0.3}>
+          <span className="text-xl font-bold" style={{ color: timeCategory.color }}>{timeCategory.label}</span>
+        </FadeIn>
 
         {/* Peak Hour */}
         <div className="flex flex-col items-center gap-3">
           <FadeIn delay={0.5}>
-            <span className="text-white/60 text-sm tracking-[0.2em] uppercase">Peak Hour</span>
+            <span className="text-white/80 text-lg uppercase tracking-wider">Peak Hour</span>
           </FadeIn>
           <ZoomBurst delay={0.6}>
             <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
@@ -1170,7 +1206,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
         {/* Favorite Day */}
         <div className="flex flex-col items-center gap-3">
           <FadeIn delay={1}>
-            <span className="text-white/60 text-sm tracking-[0.2em] uppercase">Favorite Day</span>
+            <span className="text-white/80 text-lg uppercase tracking-wider">Favorite Day</span>
           </FadeIn>
           <Heartbeat delay={1.1}>
             <span className="font-syncopate text-4xl md:text-5xl font-bold text-[#FBBF24]">
@@ -1180,7 +1216,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
         </div>
 
         <FadeIn delay={1.6}>
-          <span className="text-white/40 text-sm italic">
+          <span className="text-white/90 text-lg font-medium italic">
             {mostActiveHour >= 21 || mostActiveHour < 5 
               ? "Burning the midnight oil!" 
               : mostActiveHour < 12 
@@ -1210,12 +1246,13 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
     "Play Style",
     "Your Journey",
     "Ratings",
-    "Biggest Win",
+    "Total Openings",
+    "Openings",
     "Streaks",
+    "Biggest Win",
+    "Activity",
     "Nemesis",
     "Personality",
-    "Openings",
-    "Activity",
     "Summary",
   ];
 
@@ -1227,23 +1264,12 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
       <GlowOrb color="rgba(6, 182, 212, 0.1)" size={250} x="80%" y="70%" blur={80} />
       
       <div className="relative z-10 flex flex-col items-center w-full h-full px-3 py-4">
-        {/* Header - flies down */}
-        <motion.div
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="flex flex-col items-center gap-1 mb-4"
-        >
-          <span className="text-lg font-bold text-white">Your 2025 Capsule</span>
-          <p className="text-white/40 text-xs">Tap to view & download</p>
-        </motion.div>
-
         {/* Cards Grid - Flying in from random positions */}
         <div className="flex-1 w-full overflow-y-auto">
           <div className="grid grid-cols-2 gap-2 w-full">
             {cardTitles.map((title, i) => {
-              // Map display index to actual card number for API
-              const cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 10];
+              // Map display index to actual card number for API (new order with Total Openings)
+              const cardNumbers = [1, 2, 3, 4, 5, 6, 11, 7, 6, 12, 8, 9, 10];
               const cardNum = cardNumbers[i];
               
               return (
@@ -1298,21 +1324,22 @@ export function GallerySlide({ stats, isActive, onSelectCard, username }: Galler
 }
 
 // Export all slides - Clean structure with integrated story intros
-// Each slide has its own intelligent contextual intro built-in
+// Order: Intro → Games → Time → Style → Journey → Ratings → Total Openings → Openings Details → Streaks → Biggest Win → Activity → Nemesis → Personality → Gallery
 export const SLIDES = [
-  IntroSlide,    // 0 - Intro (greeting)
-  Card1Slide,    // 1 = Card 1: Games, Wins, Checkmates
-  Card2Slide,    // 2 = Card 2: Time & Moves
-  Card3Slide,    // 3 = Card 3: Play Style (Wizard)
-  Card4Slide,    // 4 = Card 4: Journey/Peaks
-  Card5Slide,    // 5 = Card 5: Rating Gains
-  Card6Slide,    // 6 = Card 6: Biggest Win
-  Card7Slide,    // 7 = Card 7: Streaks
-  Card8Slide,    // 8 = Card 8: Nemesis
-  Card9Slide,    // 9 = Card 9: Personality
-  Card11Slide,   // 10 = Card 11: Openings
-  Card12Slide,   // 11 = Card 12: Activity
-  GallerySlide,  // 12 = Gallery (browse all)
+  IntroSlide,      // 0 - Intro (greeting)
+  Card1Slide,      // 1 = Card 1: Games, Wins, Checkmates
+  Card2Slide,      // 2 = Card 2: Time & Moves
+  Card3Slide,      // 3 = Card 3: Play Style (Wizard)
+  Card4Slide,      // 4 = Card 4: Journey/Peaks
+  Card5Slide,      // 5 = Card 5: Rating Gains
+  Card6Slide,      // 6 = Card 6: Total Openings Explored (NEW)
+  Card11Slide,     // 7 = Card 11: Openings Details
+  Card7Slide,      // 8 = Card 7: Streaks
+  Card6WinSlide,   // 9 = Card 6: Biggest Win
+  Card12Slide,     // 10 = Card 12: Activity Patterns
+  Card8Slide,      // 11 = Card 8: Nemesis
+  Card9Slide,      // 12 = Card 9: Personality
+  GallerySlide,    // 13 = Gallery (browse all)
 ];
 
 export const SLIDE_BACKGROUNDS = [
@@ -1322,13 +1349,14 @@ export const SLIDE_BACKGROUNDS = [
   "from-cyan-950 to-black",       // 3 - Card 3
   "from-slate-900 to-black",      // 4 - Card 4
   "from-blue-950 to-black",       // 5 - Card 5
-  "from-emerald-950 to-black",    // 6 - Card 6
-  "from-green-950 to-black",      // 7 - Card 7
-  "from-rose-950 to-black",       // 8 - Card 8
-  "from-orange-950 to-black",     // 9 - Card 9
-  "from-amber-950 to-black",      // 10 - Openings
-  "from-purple-950 to-black",     // 11 - Activity
-  "from-slate-900 to-black",      // 12 - Gallery
+  "from-amber-950 to-black",      // 6 - Total Openings (new)
+  "from-amber-950 to-black",      // 7 - Openings Details
+  "from-green-950 to-black",      // 8 - Streaks
+  "from-emerald-950 to-black",    // 9 - Biggest Win
+  "from-purple-950 to-black",     // 10 - Activity
+  "from-rose-950 to-black",       // 11 - Nemesis
+  "from-orange-950 to-black",     // 12 - Personality
+  "from-slate-900 to-black",      // 13 - Gallery
 ];
 
 // Map slide index to card number for download
@@ -1339,12 +1367,13 @@ export function getCardNumberFromSlide(slideIndex: number): number | null {
     3: 3,   // Style
     4: 4,   // Journey
     5: 5,   // Ratings
-    6: 6,   // Big Win
-    7: 7,   // Streaks
-    8: 8,   // Nemesis
-    9: 9,   // Personality
-    10: 11, // Openings
-    11: 12, // Activity
+    6: 6,   // Total Openings (new card 6)
+    7: 11,  // Openings Details
+    8: 7,   // Streaks
+    9: 6,   // Biggest Win
+    10: 12, // Activity
+    11: 8,  // Nemesis
+    12: 9,  // Personality
   };
   return cardMap[slideIndex] ?? null;
 }

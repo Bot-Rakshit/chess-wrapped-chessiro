@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 
@@ -11,6 +12,7 @@ interface AnimatedNumberProps {
   prefix?: string;
   className?: string;
   formatNumber?: boolean;
+  style?: CSSProperties;
 }
 
 export function AnimatedNumber({
@@ -21,6 +23,7 @@ export function AnimatedNumber({
   prefix = "",
   className = "",
   formatNumber = true,
+  style,
 }: AnimatedNumberProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -72,6 +75,7 @@ export function AnimatedNumber({
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
       transition={{ duration: 0.5, delay }}
       className={className}
+      style={style}
     >
       {prefix}{formattedValue}{suffix}
     </motion.span>

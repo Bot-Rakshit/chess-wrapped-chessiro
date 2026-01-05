@@ -19,9 +19,10 @@ export async function GET(
     }
 
     const validTypes = [
-      "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
+      "1", "2", "3", "4", "5", "6", "6b", "7", "8", "9", "10", "11", "12",
       "games", "time", "stats", "wins", "format", "rating", "streaks", 
-      "bestWin", "openings", "nemesis", "playTime", "victory", "activity"
+      "bestWin", "openings", "nemesis", "playTime", "victory", "activity",
+      "totalOpenings", "openingsDetail"
     ];
     
     if (!validTypes.includes(type)) {
@@ -36,26 +37,28 @@ export async function GET(
 
     // Card type to background mapping (reusing existing backgrounds 1-10)
     // Card 1 (games) -> BG 1, Card 2 (time) -> BG 2, Card 3 (wizard) -> BG 3
-    // Card 4 (journey) -> BG 4, Card 5 (rating) -> BG 5, Card 6 (bestwin) -> BG 8
+    // Card 4 (journey) -> BG 4, Card 5 (rating) -> BG 5
+    // Card 6 (totalOpenings) -> BG 4, Card 6b (bestwin) -> BG 8
     // Card 7 (streaks) -> BG 7, Card 8 (nemesis) -> BG 9, Card 9 (personality) -> BG 10
-    // Card 10 (summary) -> BG 6, Card 11 (openings) -> BG 3, Card 12 (activity) -> BG 4
+    // Card 10 (summary) -> BG 6, Card 11 (openingsDetail) -> BG 4, Card 12 (activity) -> BG 6
     const cardToBackground: Record<string, number> = {
       "1": 0, "games": 0,
       "2": 1, "time": 1,
       "3": 2, "wizard": 2,
       "4": 3, "journey": 3,
       "5": 4, "rating": 4,
-      "6": 7, "bestwin": 7,  // BG 8 (index 7)
-      "7": 6, "streaks": 6,  // BG 7 (index 6)
-      "8": 8, "nemesis": 8,  // BG 9 (index 8)
-      "9": 9, "personality": 9,  // BG 10 (index 9)
-      "10": 5, "summary": 5,  // BG 6 (index 5)
-      "11": 2, "openings": 2,  // Reuse BG 3 (index 2) - cyan/blue theme
-      "12": 3, "activity": 3,  // Reuse BG 4 (index 3) - purple theme
+      "6": 3, "totalOpenings": 3,  // BG 4 (index 3) - amber/gold theme
+      "6b": 7, "bestwin": 7,        // BG 8 (index 7)
+      "7": 6, "streaks": 6,         // BG 7 (index 6)
+      "8": 8, "nemesis": 8,         // BG 9 (index 8)
+      "9": 9, "personality": 9,     // BG 10 (index 9)
+      "10": 5, "summary": 5,        // BG 6 (index 5)
+      "11": 3, "openingsDetail": 3, // BG 4 (index 3) - reuse journey bg
+      "12": 5, "activity": 5,       // BG 6 (index 5)
     };
     
     const bgIndex = cardToBackground[type] ?? backgroundIndex;
-    const backgroundPath = getBackgroundImagePath(bgIndex);
+    const backgroundPath = getBackgroundImagePath(type);
     const imageBuffer = await generateCardImage(stats, backgroundPath, type);
 
     return new Response(imageBuffer as unknown as BodyInit, {

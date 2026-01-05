@@ -350,8 +350,8 @@ function Card3({ stats }: CardData) {
     }}>
       {/* Header */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: 20 }}>
-          You're a
+        <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 1200, color: "rgba(255,255,255,0.95)", marginBottom: 20 , fontStyle: "extrabold"}}>
+          You
         </span>
         <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
           {mostPlayed}
@@ -630,9 +630,69 @@ function Card5({ stats }: CardData) {
 }
 
 // ============================================
-// Card 6: Biggest Win (Background 8)
+// Card 6: Total Openings Explored (NEW - Background 4)
 // ============================================
 function Card6({ stats }: CardData) {
+  const totalUnique = stats.openings?.totalUnique || 0;
+  
+  const getOpeningsInsight = (count: number) => {
+    if (count >= 100) return "A true opening explorer!";
+    if (count >= 50) return "Diverse repertoire!";
+    if (count >= 20) return "Building depth!";
+    if (count >= 10) return "Finding your style!";
+    return "Just getting started!";
+  };
+
+  return (
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+      gap: SECTION_GAP - 20,
+      padding: PADDING_Y,
+      paddingLeft: PADDING_X,
+      paddingRight: PADDING_X,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }}>
+        <span style={{ fontFamily: "Syne", fontSize: 46, fontWeight: 800, color: "white" }}>
+          Opening Explorer
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 26, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+          You explored
+        </span>
+      </div>
+
+      {/* Total Openings Count */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontFamily: "Syncopate", fontSize: 140, fontWeight: 700, color: "#FBBF24", lineHeight: 1 }}>
+          {totalUnique}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.9)", letterSpacing: 2, marginTop: 10 }}>
+          UNIQUE OPENINGS
+        </span>
+      </div>
+
+      {/* Insight */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+        <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 500, color: "rgba(255,255,255,0.9)", fontStyle: "italic" }}>
+          {getOpeningsInsight(totalUnique)}
+        </span>
+        <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.5)" }}>
+          Let's see your favorites →
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Card 6b: Biggest Win (Background 8) - renamed from Card6
+// ============================================
+function Card6Win({ stats }: CardData) {
   const highestDefeated = stats.opponents?.highestRatedDefeated;
   const bestWin = stats.notableGames?.bestWin;
   const oneLiner = getBigWinOneLiner(stats);
@@ -1083,11 +1143,12 @@ export async function generateCardImage(
     case "3": case "wizard": CardComponent = <Card3 stats={stats} />; break;
     case "4": case "journey": CardComponent = <Card4 stats={stats} />; break;
     case "5": case "rating": CardComponent = <Card5 stats={stats} />; break;
-    case "6": case "bestwin": CardComponent = <Card6 stats={stats} />; break;
+    case "6": case "openings": CardComponent = <Card6 stats={stats} />; break; // Total Openings (new)
+    case "6b": case "bestwin": CardComponent = <Card6Win stats={stats} />; break;
     case "7": case "streaks": CardComponent = <Card7 stats={stats} />; break;
     case "8": case "nemesis": CardComponent = <Card8 stats={stats} />; break;
     case "9": case "personality": CardComponent = <Card9 stats={stats} />; break;
-    case "11": case "openings": CardComponent = <Card11 stats={stats} />; break;
+    case "11": case "openings-detail": CardComponent = <Card11 stats={stats} />; break;
     case "12": case "activity": CardComponent = <Card12 stats={stats} />; break;
     default: CardComponent = <Card1 stats={stats} />;
   }
@@ -1121,10 +1182,20 @@ export async function generateCardImage(
   return image;
 }
 
-export function getBackgroundImagePath(index: number): string {
-  const backgrounds = [
-    "Background 1.png", "Background 2.png", "Background 3.png", "Background 4.png", "Background 5.png",
-    "Background 6.png", "Background 7.png", "Background 8.png", "Background 9.png", "Background 10.png",
-  ];
-  return path.join(process.cwd(), "public", "base", backgrounds[index % backgrounds.length]);
+export function getBackgroundImagePath(cardType: string): string {
+  const backgrounds: Record<string, string> = {
+    "1": "Background 1.png",
+    "2": "Background 2.png", 
+    "3": "Background 3.png",
+    "4": "Background 4.png",
+    "5": "Background 5.png",
+    "6": "Background 4.png", // Total Openings uses same background as journey
+    "6b": "Background 8.png",
+    "7": "Background 7.png",
+    "8": "Background 9.png",
+    "9": "Background 10.png",
+    "11": "Background 4.png",
+    "12": "Background 6.png",
+  };
+  return path.join(process.cwd(), "public", "base", backgrounds[cardType] || "Background 1.png");
 }
