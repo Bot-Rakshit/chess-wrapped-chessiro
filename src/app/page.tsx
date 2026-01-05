@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -13,9 +13,8 @@ const loadingMessages = [
   "Calculating ratings...",
 ];
 
-export default function Home() {
+function HomeContent() {
   const [username, setUsername] = useState("");
-  const [platform, setPlatform] = useState<"chesscom" | "lichess">("chesscom");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
@@ -34,16 +33,9 @@ export default function Home() {
 
   useEffect(() => {
     const urlUsername = searchParams.get("username");
-    const oauth = searchParams.get("oauth");
-
     if (urlUsername) {
       setUsername(urlUsername);
-      if (oauth) {
-        setPlatform("lichess");
-        router.push(`/wrapped/lichess/${urlUsername}?oauth=${encodeURIComponent(oauth)}`);
-      } else {
-        router.push(`/wrapped/chesscom/${urlUsername}`);
-      }
+      router.push(`/wrapped/chesscom/${urlUsername}`);
     }
   }, [searchParams, router]);
 
@@ -56,12 +48,7 @@ export default function Home() {
 
     setIsLoading(true);
     setError("");
-    
-    if (platform === "lichess") {
-      router.push(`/wrapped/lichess/${username.trim()}`);
-    } else {
-      router.push(`/wrapped/chesscom/${username.trim()}`);
-    }
+    router.push(`/wrapped/chesscom/${username.trim()}`);
   };
 
   return (

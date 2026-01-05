@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
 import { WrappedStats } from "@/lib/types";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { TextReveal, SlideUp, ScaleIn, FadeIn, StaggerContainer, StaggerItem, FlyingCard, Float, PulseGlow, DramaticReveal, ZoomBurst, Heartbeat, Shimmer, WipeReveal, SpotlightReveal } from "./TextAnimations";
@@ -23,8 +22,6 @@ function formatNumber(num: number): string {
 // Slide 0: Intro (No matching card - just greeting)
 // ============================================
 export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
-  const [isRevealed, setIsRevealed] = useState(false);
-
   if (!isActive) return null;
 
   // Calculate years playing
@@ -39,10 +36,7 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
   const displayName = stats.profile.name || stats.username;
 
   return (
-    <div 
-      className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer"
-      onClick={() => !isRevealed && setIsRevealed(true)}
-    >
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl md:rounded-3xl">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-black to-slate-900" />
       
@@ -54,21 +48,11 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
       <Particles color="#FBBF24" count={12} />
       
       <div className="relative z-10 flex flex-col items-center text-center px-6 w-full max-w-sm">
-        {/* Chessiro Presents */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-6"
-        >
-          <p className="text-white/50 text-xs tracking-[0.3em] uppercase mb-2">Chessiro Presents</p>
-        </motion.div>
-
         {/* Capsule 2025 Badge */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4, type: "spring", damping: 15 }}
+          transition={{ duration: 0.5, delay: 0.2, type: "spring", damping: 15 }}
           className="mb-8"
         >
           <Image
@@ -81,16 +65,12 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           />
         </motion.div>
 
-        {/* Player Avatar - Click to reveal */}
+        {/* Player Avatar */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5, y: 30 }}
-          animate={{ opacity: isRevealed ? 1 : 0, scale: isRevealed ? 1 : 0.5, y: isRevealed ? 0 : 30 }}
-          transition={{ duration: 0.6, delay: isRevealed ? 0.3 : 0.7, type: "spring", damping: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, type: "spring", damping: 12 }}
           className="mb-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsRevealed(true);
-          }}
         >
           <div className="relative">
             {/* Animated ring */}
@@ -122,12 +102,12 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           </div>
         </motion.div>
 
-        {/* Player Info - Revealed on tap */}
+        {/* Player Name & Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isRevealed ? 1 : 0, y: isRevealed ? 0 : 20 }}
-          transition={{ duration: 0.5, delay: isRevealed ? 0.5 : 0 }}
-          className="flex flex-col items-center gap-2 mb-3"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex flex-col items-center gap-2 mb-2"
         >
           <div className="flex items-center gap-2">
             {stats.profile.title && (
@@ -139,11 +119,11 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           </div>
         </motion.div>
 
-        {/* Playing Since / First Year - Revealed on tap */}
+        {/* Playing Since */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: isRevealed ? 1 : 0 }}
-          transition={{ duration: 0.5, delay: isRevealed ? 0.7 : 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
           className="mb-8"
         >
           {isFirstYear ? (
@@ -161,17 +141,14 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
           )}
         </motion.div>
 
-        {/* Review Button - Revealed on tap */}
+        {/* Review Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isRevealed ? 1 : 0, y: isRevealed ? 0 : 20 }}
-          transition={{ duration: 0.5, delay: isRevealed ? 0.9 : 0 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1 }}
         >
           <motion.button
-            onClick={(e) => {
-              e.stopPropagation();
-              nextSlide?.();
-            }}
+            onClick={nextSlide}
             className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -181,16 +158,14 @@ export function IntroSlide({ stats, isActive, nextSlide }: SlideProps) {
         </motion.div>
 
         {/* Tap hint */}
-        {!isRevealed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-            className="absolute bottom-6 text-white/40 text-xs"
-          >
-            Tap to reveal →
-          </motion.div>
-        )}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ delay: 1.5, duration: 0.5 }}
+          className="absolute bottom-6 text-white/40 text-xs"
+        >
+          Tap to continue →
+        </motion.p>
       </div>
     </div>
   );
@@ -699,11 +674,16 @@ export function Card5Slide({ stats, isActive }: SlideProps) {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.15 }}
-                  className="flex items-center gap-1 mt-2"
+                  className="flex items-center gap-2 mt-3 px-3 py-1 bg-green-500/10 rounded-full border border-green-500/20"
                 >
-                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                  </svg>
+                  <motion.span
+                    animate={{ y: [-2, 2, -2] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                  </motion.span>
                   <span className="font-[var(--font-syncopate)] text-lg font-bold text-green-400">
                     +{format.change}
                   </span>
