@@ -178,6 +178,7 @@ export interface WrappedStats {
     totalTimePlayedFormatted: string;
     averageGameLengthMoves: number;
     sessions: { total: number };
+    longestPlayStreak: number;
   };
   notableGames: {
     bestWin: { opponent: string; opponentRating: number; moves: number } | null;

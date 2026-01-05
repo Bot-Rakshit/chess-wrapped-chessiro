@@ -55,13 +55,15 @@ interface CardData {
   stats: WrappedStats;
 }
 
-// Safe padding from edges
+// Safe padding from edges - reduced for more vertical spread
 const PADDING_X = 70;
 const PADDING_Y = 100;
+const PADDING_TOP = 120;
+const PADDING_BOTTOM = 100;
 const CONTENT_WIDTH = 820 - (PADDING_X * 2);
 
-// Balanced gap for vertical spacing between elements
-const SECTION_GAP = 70;
+// Increased gap for better vertical spacing between elements
+const SECTION_GAP = 60;
 
 // Helper function to format numbers with commas
 function formatNumber(num: number): string {
@@ -166,14 +168,15 @@ function getBigWinOneLiner(stats: WrappedStats): string {
 
 function getStreaksOneLiner(stats: WrappedStats): string {
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const days = stats.activity?.sessions?.total || 0;
+  const playStreak = stats.activity?.longestPlayStreak || 0;
   
   if (winStreak >= 15) return "Absolutely unstoppable!";
   if (winStreak >= 10) return "You were on fire!";
   if (winStreak >= 7) return "Pure dominance!";
   if (winStreak >= 5) return "Five in a row!";
-  if (days >= 200) return "That's dedication!";
-  if (days >= 100) return "Consistency is key!";
+  if (playStreak >= 30) return "Month-long dedication!";
+  if (playStreak >= 14) return "Two weeks strong!";
+  if (playStreak >= 7) return "Week-long warrior!";
   return "Building momentum!";
 }
 
@@ -213,21 +216,21 @@ function Card1({ stats }: CardData) {
   const winsFontSize = getDynamicFontSize(wins, 130);
   const checkmatesFontSize = getDynamicFontSize(checkmates, 130);
 
-  return (
+    return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP - 10,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
       {/* Intelligent One-liner */}
-      <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.6)", fontStyle: "italic", marginBottom: 10 }}>
+      <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>
         {oneLiner}
       </span>
 
@@ -254,6 +257,9 @@ function Card1({ stats }: CardData) {
           {formatNumber(checkmates)}
         </span>
       </div>
+
+      {/* Empty spacer for bottom balance */}
+      <div style={{ display: "flex" }} />
     </div>
   );
 }
@@ -277,9 +283,9 @@ function Card2({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -342,16 +348,16 @@ function Card3({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
       {/* Header */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <span style={{ fontFamily: "Syne", fontSize: 36, fontWeight: 1200, color: "rgba(255,255,255,0.95)", marginBottom: 20 , fontStyle: "extrabold"}}>
-          You
+          You're a
         </span>
         <span style={{ fontFamily: "Syncopate", fontSize: 85, fontWeight: 700, color: "#7DD3FC", lineHeight: 1 }}>
           {mostPlayed}
@@ -469,9 +475,9 @@ function Card4({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: 40,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -581,21 +587,21 @@ function Card5({ stats }: CardData) {
 
   const formatDelta = (change: number) => change >= 0 ? `+${change}` : String(change);
 
-  return (
+    return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP - 10,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
       {/* Intelligent One-liner */}
-      <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.7)", fontStyle: "italic", marginBottom: 15 }}>
+      <span style={{ fontFamily: "Syne", fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.7)", fontStyle: "italic" }}>
         {oneLiner}
       </span>
 
@@ -625,6 +631,9 @@ function Card5({ stats }: CardData) {
           {formatDelta(bullet.change)}
         </span>
       </div>
+
+      {/* Empty spacer for bottom balance */}
+      <div style={{ display: "flex" }} />
     </div>
   );
 }
@@ -650,9 +659,9 @@ function Card6({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP - 20,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -700,16 +709,16 @@ function Card6Win({ stats }: CardData) {
   const opponentName = highestDefeated?.username || bestWin?.opponent || "Unknown";
   const opponentRating = highestDefeated?.rating || bestWin?.opponentRating || 0;
 
-  return (
+    return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP - 10,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -755,7 +764,7 @@ function Card6Win({ stats }: CardData) {
 // ============================================
 function Card7({ stats }: CardData) {
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const playStreak = stats.activity?.sessions?.total || 30;
+  const playStreak = stats.activity?.longestPlayStreak || 1;
   const oneLiner = getStreaksOneLiner(stats);
 
   return (
@@ -765,9 +774,9 @@ function Card7({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP + 20,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -792,9 +801,12 @@ function Card7({ stats }: CardData) {
           {playStreak}
         </span>
         <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: 4, marginTop: 15 }}>
-          longest play streak
+          days in a row
         </span>
       </div>
+
+      {/* Empty spacer for bottom balance */}
+      <div style={{ display: "flex" }} />
     </div>
   );
 }
@@ -818,16 +830,16 @@ function Card8({ stats }: CardData) {
   const drawWidth = Math.max((draws / total) * barWidth, draws > 0 ? 25 : 0);
   const lossWidth = Math.max((losses / total) * barWidth, losses > 0 ? 25 : 0);
 
-  return (
+    return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP - 10,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -898,16 +910,16 @@ function Card9({ stats }: CardData) {
   const personality = personalities[index];
   const oneLiner = getPersonalityOneLiner(stats);
 
-  return (
+    return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: SECTION_GAP - 10,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -948,25 +960,16 @@ function Card9({ stats }: CardData) {
 function Card11({ stats }: CardData) {
   const bestWhite = stats.openings?.bestAsWhite;
   const bestBlack = stats.openings?.bestAsBlack;
-  const totalUnique = stats.openings?.totalUnique || 0;
   
-  // Get opening name without ECO code for cleaner display
+  // Get first two words of opening name for cleaner display
   const formatOpening = (name: string) => {
-    if (name.length > 25) return name.substring(0, 22) + "...";
-    return name;
+    const words = name.split(' ');
+    if (words.length <= 2) return name;
+    return words.slice(0, 2).join(' ');
   };
 
-  const whiteOneLiner = bestWhite && bestWhite.winRate >= 60 
-    ? "Your secret weapon!" 
-    : bestWhite && bestWhite.games >= 50 
-      ? "A trusted friend!" 
-      : "Your go-to choice!";
-
-  const blackOneLiner = bestBlack && bestBlack.winRate >= 60 
-    ? "Defense turned offense!" 
-    : bestBlack && bestBlack.games >= 50 
-      ? "Solid and reliable!" 
-      : "Counter-attack ready!";
+  const BOX_WIDTH = 600;
+  const BOX_HEIGHT = 280;
 
   return (
     <div style={{ 
@@ -975,71 +978,84 @@ function Card11({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: 50,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP + 40,
+      paddingBottom: PADDING_BOTTOM + 40,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
       {/* Header */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-        <span style={{ fontFamily: "Syne", fontSize: 46, fontWeight: 800, color: "white" }}>
-          Your Openings
-        </span>
-        <span style={{ fontFamily: "Syne", fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>
-          <span style={{ fontFamily: "Syncopate" }}>{totalUnique}</span> unique openings explored
-        </span>
-      </div>
+      <span style={{ fontFamily: "Syne", fontSize: 46, fontWeight: 800, color: "white" }}>
+        Your Openings
+      </span>
 
       {/* Best as White */}
       {bestWhite && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#FBBF24", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontFamily: "Syncopate", fontSize: 20, fontWeight: 700, color: "#1E293B" }}>W</span>
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center", 
+          justifyContent: "center",
+          gap: 20, 
+          width: BOX_WIDTH, 
+          height: BOX_HEIGHT,
+          backgroundColor: "rgba(255,255,255,0.06)",
+          borderRadius: 28,
+          border: "1px solid rgba(255,255,255,0.12)",
+          padding: 28,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontFamily: "Syncopate", fontSize: 24, fontWeight: 700, color: "#1E293B" }}>W</span>
             </div>
-            <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 700, color: "#FBBF24" }}>Best as White</span>
+            <span style={{ fontFamily: "Syne", fontSize: 24, fontWeight: 700, color: "white" }}>Best as White</span>
           </div>
-          <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "white", textAlign: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 32, fontWeight: 700, color: "#EB9719", textAlign: "center", whiteSpace: "nowrap" }}>
             {formatOpening(bestWhite.name)}
           </span>
-          <div style={{ display: "flex", gap: 30 }}>
-            <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#61DE58" }}>
-              {Math.round(bestWhite.winRate)}% wins
+          <div style={{ display: "flex", gap: 50, alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 36, fontWeight: 700, color: "#61DE58" }}>
+              {Math.round(bestWhite.winRate)}%
             </span>
-            <span style={{ fontFamily: "Syncopate", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.5)" }}>
               {bestWhite.games} games
             </span>
           </div>
-          <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>
-            {whiteOneLiner}
-          </span>
         </div>
       )}
 
       {/* Best as Black */}
       {bestBlack && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#1E293B", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontFamily: "Syncopate", fontSize: 20, fontWeight: 700, color: "white" }}>B</span>
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center", 
+          justifyContent: "center",
+          gap: 20, 
+          width: BOX_WIDTH, 
+          height: BOX_HEIGHT,
+          backgroundColor: "rgba(255,255,255,0.06)",
+          borderRadius: 28,
+          border: "1px solid rgba(255,255,255,0.12)",
+          padding: 28,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: "#0F172A", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontFamily: "Syncopate", fontSize: 24, fontWeight: 700, color: "white" }}>B</span>
             </div>
-            <span style={{ fontFamily: "Syne", fontSize: 20, fontWeight: 700, color: "#7DD3FC" }}>Best as Black</span>
+            <span style={{ fontFamily: "Syne", fontSize: 24, fontWeight: 700, color: "white" }}>Best as Black</span>
           </div>
-          <span style={{ fontFamily: "Syne", fontSize: 28, fontWeight: 700, color: "white", textAlign: "center" }}>
+          <span style={{ fontFamily: "Syncopate", fontSize: 32, fontWeight: 700, color: "#E26521", textAlign: "center", whiteSpace: "nowrap" }}>
             {formatOpening(bestBlack.name)}
           </span>
-           <div style={{ display: "flex", gap: 30 }}>
-             <span style={{ fontFamily: "Syncopate", fontSize: 26, fontWeight: 700, color: "#61DE58" }}>
-               {Math.round(bestBlack.winRate)}% wins
-             </span>
-             <span style={{ fontFamily: "Syncopate", fontSize: 20, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
-               {bestBlack.games} games
-             </span>
-           </div>
-          <span style={{ fontFamily: "Syne", fontSize: 18, fontWeight: 500, color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>
-            {blackOneLiner}
-          </span>
+          <div style={{ display: "flex", gap: 50, alignItems: "center" }}>
+            <span style={{ fontFamily: "Syncopate", fontSize: 36, fontWeight: 700, color: "#61DE58" }}>
+              {Math.round(bestBlack.winRate)}%
+            </span>
+            <span style={{ fontFamily: "Syncopate", fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.5)" }}>
+              {bestBlack.games} games
+            </span>
+          </div>
         </div>
       )}
     </div>
@@ -1079,9 +1095,9 @@ function Card12({ stats }: CardData) {
       display: "flex", 
       flexDirection: "column", 
       alignItems: "center", 
-      justifyContent: "center",
-      gap: 60,
-      padding: PADDING_Y,
+      justifyContent: "space-between",
+      paddingTop: PADDING_TOP,
+      paddingBottom: PADDING_BOTTOM,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>

@@ -429,8 +429,28 @@ export function analyzeGames(
   const winRate = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
 
   // Calculate unique playing days (sessions)
-  const uniquePlayDates = new Set(games.map(g => new Date(g.endTime).toISOString().split('T')[0]));
+  const uniquePlayDates = new Set(games.map(g => new Date(g.endTime * 1000).toISOString().split('T')[0]));
   const sessionsTotal = uniquePlayDates.size;
+
+  // Calculate longest consecutive play streak (days in a row playing)
+  const sortedDates = [...uniquePlayDates].sort();
+  let longestPlayStreak = sortedDates.length > 0 ? 1 : 0;
+  let currentPlayStreak = 1;
+  
+  for (let i = 1; i < sortedDates.length; i++) {
+    const prevDate = new Date(sortedDates[i - 1]);
+    const currDate = new Date(sortedDates[i]);
+    const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      currentPlayStreak++;
+      if (currentPlayStreak > longestPlayStreak) {
+        longestPlayStreak = currentPlayStreak;
+      }
+    } else {
+      currentPlayStreak = 1;
+    }
+  }
 
   return {
     platform,
@@ -490,6 +510,7 @@ export function analyzeGames(
       totalTimePlayedFormatted: formatDuration(totalTimePlayedSeconds),
       averageGameLengthMoves: totalGames > 0 ? Math.round(totalMoves / totalGames) : 0,
       sessions: { total: sessionsTotal },
+      longestPlayStreak,
     },
     notableGames: { bestWin: bestWinGame, quickestWin },
     insights: { timeTag: getTimeTag(mostActiveHour), playStyle: "grinder" },

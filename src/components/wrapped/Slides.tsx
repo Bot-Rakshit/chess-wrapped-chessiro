@@ -812,7 +812,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
   const winStreak = stats.streaks?.longestWinStreak || 0;
-  const playStreak = stats.activity?.sessions?.total || 30;
+  const playStreak = stats.activity?.longestPlayStreak || 1;
 
   const getStreakMessage = (streak: number) => {
     if (streak >= 20) return "LEGENDARY!";
@@ -855,7 +855,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
           </FadeIn>
           <AnimatedNumber
             value={playStreak}
-            className="font-syncopate text-6xl font-bold text-[#61DE58]"
+            className="font-syncopate text-8xl font-bold text-[#61DE58]"
             delay={1.6}
             duration={1.5}
           />
@@ -863,7 +863,7 @@ export function Card7Slide({ stats, isActive }: SlideProps) {
             <span className="text-lg text-white/80 mt-2 tracking-wide">days in a row playing</span>
           </SlideUp>
           <FadeIn delay={2.4}>
-            <span className="text-white/90 text-lg mt-2 font-medium italic">
+            <span className="text-yellow-400 text-lg mt-2 font-medium">
               {winStreak >= 10 ? "You're on fire!" : "Every streak starts somewhere"}
             </span>
           </FadeIn>
@@ -1037,16 +1037,13 @@ export function Card6Slide({ stats, isActive }: SlideProps) {
       <GlowOrb color="rgba(251, 191, 36, 0.2)" size={350} x="50%" y="50%" blur={100} />
       <Particles color="#FBBF24" count={12} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-10">
+      <div className="relative z-10 flex flex-col items-center text-center gap-20">
         <SlideUp delay={0.1}>
-          <span className="font-syne text-3xl md:text-4xl font-bold text-white">Opening Explorer</span>
+          <span className="font-syne text-3xl md:text-4xl font-extrabold text-white">You explored</span>
         </SlideUp>
 
         {/* Total Openings Count */}
         <div className="flex flex-col items-center">
-          <FadeIn delay={0.3}>
-            <span className="text-white/80 text-lg font-medium mb-4">You explored</span>
-          </FadeIn>
           <ZoomBurst delay={0.5}>
             <span className="font-syncopate text-8xl md:text-9xl font-bold text-[#FBBF24]">
               {totalUnique}
@@ -1082,70 +1079,64 @@ export function Card11Slide({ stats, isActive }: SlideProps) {
 
   const bestWhite = stats.openings?.bestAsWhite;
   const bestBlack = stats.openings?.bestAsBlack;
-  const totalUnique = stats.openings?.totalUnique || 0;
 
+  // Get first two words of opening name
   const formatOpening = (name: string) => {
-    if (name.length > 30) return name.substring(0, 27) + "...";
-    return name;
+    const words = name.split(' ');
+    if (words.length <= 2) return name;
+    return words.slice(0, 2).join(' ');
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden px-8">
-      <GlowOrb color="rgba(251, 191, 36, 0.2)" size={350} x="30%" y="40%" blur={100} />
-      <GlowOrb color="rgba(125, 211, 252, 0.15)" size={300} x="70%" y="60%" blur={100} />
+    <div className="relative w-full h-full flex flex-col items-center justify-between overflow-hidden px-6 py-20">
+      <GlowOrb color="rgba(235, 151, 25, 0.2)" size={350} x="30%" y="40%" blur={100} />
+      <GlowOrb color="rgba(226, 101, 33, 0.15)" size={300} x="70%" y="60%" blur={100} />
       
-      <div className="relative z-10 flex flex-col items-center text-center gap-10">
-        {/* Header */}
-        <SlideUp delay={0.1}>
-          <span className="font-syne text-3xl md:text-4xl font-bold text-white">Your Openings</span>
+      {/* Header */}
+      <SlideUp delay={0.1}>
+        <span className="relative z-10 font-syne text-3xl md:text-4xl font-extrabold text-white">Your Openings</span>
+      </SlideUp>
+
+      {/* Best as White */}
+      {bestWhite && (
+        <SlideUp delay={0.4}>
+          <div className="relative z-10 flex flex-col items-center gap-5 bg-white/[0.06] rounded-3xl p-7 border border-white/[0.12] w-[300px]">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                <span className="font-syncopate text-xl font-bold text-slate-900">W</span>
+              </div>
+              <span className="text-white font-bold text-lg">Best as White</span>
+            </div>
+            <span className="font-syncopate text-2xl font-bold text-[#EB9719] text-center whitespace-nowrap">{formatOpening(bestWhite.name)}</span>
+            <div className="flex gap-8 items-center">
+              <span className="font-syncopate text-3xl font-bold text-[#61DE58]">{Math.round(bestWhite.winRate)}%</span>
+              <span className="font-syncopate text-sm text-white/50">{bestWhite.games} games</span>
+            </div>
+          </div>
         </SlideUp>
+      )}
 
-        <FadeIn delay={0.3}>
-          <span className="text-white/80 text-sm font-medium">{totalUnique} unique openings explored</span>
-        </FadeIn>
-
-        {/* Best as White */}
-        {bestWhite && (
-          <SlideUp delay={0.5}>
-            <div className="flex flex-col items-center gap-4 bg-white/5 rounded-2xl p-6 border border-[#FBBF24]/30 w-full max-w-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FBBF24] flex items-center justify-center">
-                  <span className="font-syne text-lg font-bold text-black">W</span>
-                </div>
-                <span className="text-[#FBBF24] font-bold text-lg">Best as White</span>
+      {/* Best as Black */}
+      {bestBlack && (
+        <SlideUp delay={0.8}>
+          <div className="relative z-10 flex flex-col items-center gap-5 bg-white/[0.06] rounded-3xl p-7 border border-white/[0.12] w-[300px]">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center">
+                <span className="font-syncopate text-xl font-bold text-white">B</span>
               </div>
-              <span className="text-white text-xl font-semibold text-center">{formatOpening(bestWhite.name)}</span>
-              <div className="flex gap-6 text-base">
-                <span className="font-syncopate font-bold text-[#61DE58]">{Math.round(bestWhite.winRate)}%</span>
-                <span className="text-white/60">{bestWhite.games} games</span>
-              </div>
+              <span className="text-white font-bold text-lg">Best as Black</span>
             </div>
-          </SlideUp>
-        )}
-
-        {/* Best as Black */}
-        {bestBlack && (
-          <SlideUp delay={0.9}>
-            <div className="flex flex-col items-center gap-4 bg-white/5 rounded-2xl p-6 border border-[#7DD3FC]/30 w-full max-w-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#1E293B] border-2 border-white flex items-center justify-center">
-                  <span className="font-syne text-lg font-bold text-white">B</span>
-                </div>
-                <span className="text-[#7DD3FC] font-bold text-lg">Best as Black</span>
-              </div>
-              <span className="text-white text-xl font-semibold text-center">{formatOpening(bestBlack.name)}</span>
-              <div className="flex gap-6 text-base">
-                <span className="font-syncopate font-bold text-[#61DE58]">{Math.round(bestBlack.winRate)}%</span>
-                <span className="text-white/60">{bestBlack.games} games</span>
-              </div>
+            <span className="font-syncopate text-2xl font-bold text-[#E26521] text-center whitespace-nowrap">{formatOpening(bestBlack.name)}</span>
+            <div className="flex gap-8 items-center">
+              <span className="font-syncopate text-3xl font-bold text-[#61DE58]">{Math.round(bestBlack.winRate)}%</span>
+              <span className="font-syncopate text-sm text-white/50">{bestBlack.games} games</span>
             </div>
-          </SlideUp>
-        )}
+          </div>
+        </SlideUp>
+      )}
 
-        <FadeIn delay={1.3}>
-          <span className="text-white/90 text-lg font-medium italic">Your secret weapons!</span>
-        </FadeIn>
-      </div>
+      {/* Empty spacer for balance */}
+      <div />
     </div>
   );
 }
@@ -1170,7 +1161,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
   const getTimeCategory = (hour: number) => {
     if (hour >= 5 && hour < 12) return { label: "Morning Player", color: "#FBBF24" };
     if (hour >= 12 && hour < 17) return { label: "Afternoon Warrior", color: "#F97316" };
-    if (hour >= 17 && hour < 21) return { label: "Evening Grinder", color: "#8B5CF6" };
+    if (hour >= 17 && hour < 21) return { label: "Evening Gladiator", color: "#8B5CF6" };
     return { label: "Night Owl", color: "#7DD3FC" };
   };
 
@@ -1182,13 +1173,9 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
       <Particles color="#A78BFA" count={10} />
       
       <div className="relative z-10 flex flex-col items-center text-center gap-12">
-        {/* Header */}
-        <SlideUp delay={0.1}>
-          <span className="font-syne text-3xl md:text-4xl font-bold text-white">When You Play</span>
-        </SlideUp>
-
+  
         <FadeIn delay={0.3}>
-          <span className="text-xl font-bold" style={{ color: timeCategory.color }}>{timeCategory.label}</span>
+          <span className="font-syncopate text-3xl font-bold" style={{ color: timeCategory.color }}>{timeCategory.label}</span>
         </FadeIn>
 
         {/* Peak Hour */}
@@ -1197,7 +1184,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
             <span className="text-white/80 text-lg uppercase tracking-wider">Peak Hour</span>
           </FadeIn>
           <ZoomBurst delay={0.6}>
-            <span className="font-syncopate text-6xl md:text-7xl font-bold text-[#7DD3FC]">
+            <span className="font-syncopate text-4xl md:text-7xl font-bold text-[#F8B88D]">
               {formatHour(mostActiveHour)}
             </span>
           </ZoomBurst>
@@ -1209,7 +1196,7 @@ export function Card12Slide({ stats, isActive }: SlideProps) {
             <span className="text-white/80 text-lg uppercase tracking-wider">Favorite Day</span>
           </FadeIn>
           <Heartbeat delay={1.1}>
-            <span className="font-syncopate text-4xl md:text-5xl font-bold text-[#FBBF24]">
+            <span className="font-syncopate text-4xl md:text-5xl font-bold text-[#F8B88D]">
               {mostActiveDay.toUpperCase()}
             </span>
           </Heartbeat>
