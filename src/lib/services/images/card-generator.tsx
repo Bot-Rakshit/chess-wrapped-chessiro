@@ -57,13 +57,13 @@ interface CardData {
 
 // Safe padding from edges - reduced for more vertical spread
 const PADDING_X = 70;
-const PADDING_Y = 100;
-const PADDING_TOP = 90;
-const PADDING_BOTTOM = 70;
+const PADDING_Y = 60;
+const PADDING_TOP = 60;
+const PADDING_BOTTOM = 50;
 const CONTENT_WIDTH = 820 - (PADDING_X * 2);
 
 // Increased gap for better vertical spacing between elements
-const SECTION_GAP = 60;
+const SECTION_GAP = 40;
 
 // Helper function to format numbers with commas
 function formatNumber(num: number): string {
@@ -216,7 +216,7 @@ function Card1({ stats }: CardData) {
   const winsFontSize = getDynamicFontSize(wins, 130);
   const checkmatesFontSize = getDynamicFontSize(checkmates, 130);
 
-    return (
+  return (
     <div style={{ 
       width: "100%", 
       height: "100%", 
@@ -224,8 +224,8 @@ function Card1({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 50,
-      paddingBottom: PADDING_BOTTOM + 50,
+      paddingTop: PADDING_TOP + 40,
+      paddingBottom: PADDING_BOTTOM + 40,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>
@@ -987,8 +987,8 @@ function Card11({ stats }: CardData) {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "space-between",
-      paddingTop: PADDING_TOP + 80,
-      paddingBottom: PADDING_BOTTOM + 80,
+      paddingTop: PADDING_TOP + 50,
+      paddingBottom: PADDING_BOTTOM + 50,
       paddingLeft: PADDING_X,
       paddingRight: PADDING_X,
     }}>

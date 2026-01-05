@@ -1077,6 +1077,12 @@ export function Card6Slide({ stats, isActive }: SlideProps) {
 export function Card11Slide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
+  const topOpeningsWhite = stats.openings?.asWhite?.slice(0, 3) || [];
+  const topOpeningsBlack = stats.openings?.asBlack?.slice(0, 3) || [];
+  const allOpeningsUnknown = [...topOpeningsWhite, ...topOpeningsBlack].every(o => o.name === "Unknown");
+  
+  if (allOpeningsUnknown) return null;
+
   const bestWhite = stats.openings?.bestAsWhite;
   const bestBlack = stats.openings?.bestAsBlack;
 
