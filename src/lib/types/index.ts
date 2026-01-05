@@ -120,6 +120,8 @@ export interface WrappedStats {
     avatar?: string;
     title?: string;
     country?: string;
+    joined?: number;
+    name?: string;
   };
   period: {
     start: string;

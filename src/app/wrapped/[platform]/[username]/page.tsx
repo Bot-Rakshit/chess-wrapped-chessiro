@@ -465,12 +465,12 @@ export default function WrappedPage() {
         </motion.div>
       </div>
 
-      {/* Main content container - properly centered */}
-      <div className="flex-1 flex items-center justify-center w-full px-4 pt-14 pb-20">
+      {/* Main content container - full viewport on mobile, constrained on desktop */}
+      <div className="flex-1 flex items-center justify-center w-full px-0 md:px-4 pt-12 pb-16 md:pb-4">
         <div 
           ref={containerRef}
           onClick={handleTap}
-          className="w-full max-w-[420px] md:max-w-[480px] lg:max-w-[520px] h-[calc(100vh-140px)] max-h-[800px] relative cursor-pointer will-change-transform z-10"
+          className="w-full h-[calc(100vh-112px)] md:max-w-[480px] lg:max-w-[520px] md:h-[calc(100vh-100px)] md:max-h-[850px] relative cursor-pointer will-change-transform z-10"
         >
           <AnimatePresence mode="popLayout" custom={direction} initial={false}>
             <motion.div
@@ -528,7 +528,7 @@ export default function WrappedPage() {
         </div>
       </div>
 
-      {/* Bottom Bar - More visible download/share buttons + mute */}
+      {/* Bottom Bar - Share + Gallery only */}
       <AnimatePresence>
         {showControls && (
           <motion.div
@@ -538,46 +538,17 @@ export default function WrappedPage() {
             transition={{ duration: 0.2 }}
             className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-3 z-50 px-4"
           >
-            {/* Mute button - left side */}
-            <button
-              onClick={toggleMute}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:bg-black/60 hover:text-white transition-all"
-              title={isMuted ? "Unmute" : "Mute"}
-            >
-              {isMuted ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
-              )}
-            </button>
-
-            {/* Download & Share buttons - center, more prominent */}
+            {/* Share button - primary action */}
             {canDownload && (
-              <>
-                <button
-                  onClick={() => handleDownload()}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full text-white font-medium transition-all border border-white/20"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  <span className="text-sm">Download</span>
-                </button>
-                <button
-                  onClick={() => handleShare()}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-all"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                  <span className="text-sm">Share</span>
-                </button>
-              </>
+              <button
+                onClick={() => handleShare()}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                <span className="text-sm">Share</span>
+              </button>
             )}
 
             {/* Gallery button if not on gallery slide */}

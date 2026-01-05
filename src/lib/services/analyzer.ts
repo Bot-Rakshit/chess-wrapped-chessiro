@@ -435,6 +435,8 @@ export function analyzeGames(
       avatar: profile.avatar,
       title: profile.title,
       country: profile.country,
+      joined: profile.joined,
+      name: profile.username,
     },
     period: {
       start: periodStart.toISOString().split("T")[0],

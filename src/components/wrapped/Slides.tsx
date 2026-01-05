@@ -24,116 +24,157 @@ function formatNumber(num: number): string {
 export function IntroSlide({ stats, isActive }: SlideProps) {
   if (!isActive) return null;
 
+  // Calculate years playing
+  const joinedYear = stats.profile.joined 
+    ? new Date(stats.profile.joined * 1000).getFullYear() 
+    : null;
+  const currentYear = 2025;
+  const yearsPlaying = joinedYear ? currentYear - joinedYear : null;
+  const isFirstYear = yearsPlaying === 0;
+
+  // Get display name - prefer actual name, fallback to username
+  const displayName = stats.profile.name || stats.username;
+
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cyan-950/30 via-black to-amber-950/20" />
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl md:rounded-3xl">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-black to-slate-900" />
       
-      {/* Pulsing orbs */}
-      <GlowOrb color="rgba(6, 182, 212, 0.2)" size={400} x="30%" y="25%" blur={120} />
-      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={350} x="70%" y="75%" blur={100} />
+      {/* Subtle animated glow */}
+      <GlowOrb color="rgba(251, 191, 36, 0.15)" size={400} x="50%" y="30%" blur={150} />
+      <GlowOrb color="rgba(6, 182, 212, 0.1)" size={300} x="30%" y="70%" blur={120} />
       
       {/* Particles */}
-      <Particles color="#7DD3FC" count={15} />
+      <Particles color="#FBBF24" count={12} />
       
-      <div className="relative z-10 flex flex-col items-center text-center px-6">
-        {/* Year label - flies down */}
+      <div className="relative z-10 flex flex-col items-center text-center px-6 w-full max-w-sm">
+        {/* Chessiro Presents */}
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, type: "spring", damping: 15 }}
-          className="flex items-center gap-3 mb-4"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-6"
         >
-          <span className="text-cyan-400 text-lg font-bold tracking-[0.2em]">2025</span>
-          <div className="w-8 h-[1px] bg-gradient-to-r from-cyan-400 to-transparent" />
-          <span className="text-white/60 text-sm tracking-[0.2em]">CHESS</span>
+          <p className="text-white/50 text-xs tracking-[0.3em] uppercase mb-2">Chessiro Presents</p>
         </motion.div>
-        
-        {/* Capsule Logo - scales in with glow */}
+
+        {/* Capsule 2025 Badge */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.5, type: "spring", damping: 12 }}
+          transition={{ duration: 0.5, delay: 0.4, type: "spring", damping: 15 }}
+          className="mb-8"
         >
-          <PulseGlow>
-            <Image
-              src="/capsule-logo.svg"
-              alt="Capsule"
-              width={260}
-              height={75}
-              className="brightness-0 invert"
-            />
-          </PulseGlow>
+          <Image
+            src="/capsule-2025.png"
+            alt="Capsule 2025"
+            width={280}
+            height={80}
+            className="w-[280px] h-auto"
+            priority
+          />
         </motion.div>
 
-        {/* Decorative line */}
+        {/* Player Avatar */}
         <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="w-32 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent mt-6 mb-8"
-        />
-
-        {/* Profile Card - flies up */}
-        <motion.div
-          initial={{ opacity: 0, y: 80, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, delay: 1, type: "spring", damping: 15 }}
-          className="flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.5, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.7, type: "spring", damping: 12 }}
+          className="mb-4"
         >
-          {/* Avatar with animated ring */}
-          <div className="relative mb-4">
+          <div className="relative">
+            {/* Animated ring */}
             <motion.div 
-              className="absolute -inset-2 rounded-full"
+              className="absolute -inset-2 rounded-full opacity-60"
               style={{
-                background: "conic-gradient(from 0deg, #7DD3FC, #FBBF24, #F87171, #7DD3FC)"
+                background: "conic-gradient(from 0deg, #FBBF24, #F59E0B, #D97706, #FBBF24)"
               }}
               animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             />
-            <div className="absolute -inset-2 rounded-full bg-black/50 backdrop-blur-sm" />
+            <div className="absolute -inset-2 rounded-full bg-black/60 backdrop-blur-sm" />
+            
             {stats.profile.avatar ? (
               <Image
                 src={stats.profile.avatar}
                 alt={stats.username}
-                width={90}
-                height={90}
-                className="relative rounded-full border-2 border-black z-10"
+                width={100}
+                height={100}
+                className="relative rounded-full border-2 border-amber-500/30 z-10"
               />
             ) : (
-              <div className="relative w-[90px] h-[90px] rounded-full bg-gradient-to-br from-cyan-500 to-amber-500 flex items-center justify-center z-10">
-                <span className="font-[var(--font-syncopate)] text-3xl font-bold text-black">
+              <div className="relative w-[100px] h-[100px] rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center z-10 border-2 border-amber-500/30">
+                <span className="font-[var(--font-syncopate)] text-4xl font-bold text-black">
                   {stats.username.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
           </div>
-          
-          {/* Username */}
+        </motion.div>
+
+        {/* Player Name & Title */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="flex flex-col items-center gap-2 mb-3"
+        >
           <div className="flex items-center gap-2">
             {stats.profile.title && (
               <span className="px-2 py-0.5 bg-amber-500 text-black text-xs font-bold rounded">
                 {stats.profile.title}
               </span>
             )}
-            <span className="text-xl font-semibold text-white">{stats.username}</span>
+            <span className="text-2xl font-bold text-white">{displayName}</span>
           </div>
         </motion.div>
 
-        {/* Tap prompt */}
+        {/* Playing Since / First Year */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.8 }}
-          className="mt-12 flex flex-col items-center gap-2"
+          transition={{ duration: 0.5, delay: 1.2 }}
+          className="mb-8"
         >
-          <Float distance={6} duration={2}>
-            <svg className="w-5 h-5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Float>
-          <span className="text-white/30 text-xs tracking-wide">tap to begin</span>
+          {isFirstYear ? (
+            <p className="text-amber-400/80 text-sm">
+              Your first year on chess.com!
+            </p>
+          ) : yearsPlaying && joinedYear ? (
+            <p className="text-white/50 text-sm">
+              Playing since {joinedYear} · {yearsPlaying} {yearsPlaying === 1 ? 'year' : 'years'} of chess
+            </p>
+          ) : (
+            <p className="text-white/50 text-sm">
+              @{stats.username}
+            </p>
+          )}
         </motion.div>
+
+        {/* Review Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.5 }}
+        >
+          <motion.button
+            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-full text-sm tracking-wide shadow-lg shadow-amber-500/20"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Review My Capsule
+          </motion.button>
+        </motion.div>
+
+        {/* Tap hint */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ delay: 2.5, duration: 0.5 }}
+          className="absolute bottom-6 text-white/40 text-xs"
+        >
+          Tap to continue →
+        </motion.p>
       </div>
     </div>
   );
