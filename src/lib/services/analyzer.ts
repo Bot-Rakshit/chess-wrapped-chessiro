@@ -11,6 +11,21 @@ import type {
   GameResultStats,
   TimeClass,
 } from "../types";
+import openingsData from "../../../opening.json";
+
+interface OpeningEntry {
+  name: string;
+  fen: string;
+}
+
+const OPENINGS_BY_FEN = new Map<string, string>(
+  (openingsData as OpeningEntry[]).map((entry) => [entry.fen, entry.name])
+);
+
+function getOpeningNameByFen(fen: string | undefined): string {
+  if (!fen) return "Unknown";
+  return OPENINGS_BY_FEN.get(fen) || "Unknown";
+}
 
 const WIN_RESULTS: GameResult[] = ["win"];
 const LOSS_RESULTS: GameResult[] = [
@@ -51,20 +66,26 @@ function isDraw(result: GameResult): boolean {
   return DRAW_RESULTS.includes(result);
 }
 
-function extractOpeningName(ecoUrl: string | undefined): string {
-  if (!ecoUrl) return "Unknown";
+function extractOpeningName(fen: string | undefined, ecoUrl: string | undefined): string {
+  if (fen && fen !== "https://www.chess.com/openings/Undefined") {
+    const openingName = getOpeningNameByFen(fen);
+    if (openingName !== "Unknown") return openingName;
+  }
+  
+  if (!ecoUrl || ecoUrl === "https://www.chess.com/openings/Undefined") return "Unknown";
   const match = ecoUrl.match(/\/openings\/(.+)$/);
-  return match
-    ? match[1].replace(/-/g, " ").replace(/\.\.\./g, "")
-    : "Unknown";
+  if (!match) return "Unknown";
+  return match[1].replace(/-/g, " ").replace(/\.\.\./g, "");
 }
 
-function extractEcoCode(pgn: string): string {
+function extractEcoCode(pgn: string | undefined): string {
+  if (!pgn) return "Unknown";
   const match = pgn.match(/\[ECO "([A-E]\d{2})"\]/);
   return match ? match[1] : "Unknown";
 }
 
-function countMoves(pgn: string): number {
+function countMoves(pgn: string | undefined): number {
+  if (!pgn) return 0;
   const moveSection = pgn
     .replace(/\[.*?\]/g, "")
     .replace(/\{.*?\}/g, "")
@@ -207,7 +228,7 @@ export function analyzeGames(
       });
 
     const moves = countMoves(game.pgn);
-    const openingName = extractOpeningName(game.eco);
+    const openingName = extractOpeningName(game.fen, game.eco);
 
     if (isWin(result)) {
       totalWins++;

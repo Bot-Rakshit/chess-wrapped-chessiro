@@ -32,6 +32,7 @@ export interface Game {
   id: string;
   url?: string;
   pgn: string;
+  fen?: string;
   timeControl: string;
   timeClass: TimeClass;
   rated: boolean;

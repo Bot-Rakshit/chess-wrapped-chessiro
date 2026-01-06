@@ -92,6 +92,7 @@ function chessComToGame(game: any): Game {
     id: game.uuid,
     url: game.url,
     pgn: game.pgn,
+    fen: game.fen,
     timeControl: game.time_control,
     timeClass: game.time_class as any,
     rated: game.rated,
